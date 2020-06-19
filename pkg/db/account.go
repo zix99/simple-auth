@@ -6,20 +6,22 @@ import (
 )
 
 type AccountStore interface {
-	NewAccount(email string) (*Account, error)
+	CreateAccount(email string) (*Account, error)
 }
 
 // Account represents a user
 type Account struct {
 	gorm.Model
-	UUID  string `gorm:"type:varchar(64);unique_index;not null"`
-	Email string `gorm:"type:varchar(256);unique_index;not null"`
+	UUID   string `gorm:"type:varchar(64);unique_index;not null"`
+	Email  string `gorm:"type:varchar(256);unique_index;not null"`
+	Active bool   `gorm:"not null"`
 }
 
-func (s *DB) NewAccount(email string) (*Account, error) {
+func (s *sadb) CreateAccount(email string) (*Account, error) {
 	account := &Account{
-		UUID:  uuid.New().URN(),
-		Email: email,
+		UUID:   uuid.New().URN(),
+		Email:  email,
+		Active: true,
 	}
 	if result := s.db.Create(&account); result.Error != nil {
 		return nil, result.Error

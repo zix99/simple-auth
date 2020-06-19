@@ -5,11 +5,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type DB struct {
+type sadb struct {
 	db *gorm.DB
 }
 
-func New(driver string, args string) *DB {
+type SADB interface {
+	AccountAuthSimple
+	AccountStore
+	IsAlive() bool
+}
+
+func New(driver string, args string) SADB {
 	logrus.Infof("Connecting to %s at %s...", driver, args)
 
 	db, err := gorm.Open(driver, args)
@@ -18,11 +24,11 @@ func New(driver string, args string) *DB {
 	}
 
 	db.AutoMigrate(&Account{})
-	db.AutoMigrate(&AccountAuthSimple{})
+	db.AutoMigrate(&accountAuthSimple{})
 
-	return &DB{db}
+	return &sadb{db}
 }
 
-func (s *DB) IsAlive() bool {
+func (s *sadb) IsAlive() bool {
 	return s.db.DB().Ping() == nil
 }

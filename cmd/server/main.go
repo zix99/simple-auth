@@ -1,6 +1,7 @@
 package main
 
 import (
+	"simple-auth/pkg/api/auth"
 	"simple-auth/pkg/db"
 
 	"github.com/gin-gonic/gin"
@@ -28,7 +29,18 @@ func simpleAuthServer(config *config) error {
 	}
 
 	r := gin.Default()
+	r.Static("/static", "./static")
+
+	// Static app router
+	r.Static("img", "./ui/dist/img")
+	r.Static("js", "./ui/dist/js")
+	r.StaticFile("favicon.ico", "./ui/dist/favicon.ico")
+	r.StaticFile("index.html", "./ui/dist/index.html")
+	r.StaticFile("/", "./ui/dist/index.html")
+
 	r.GET("/health", env.routeHealth)
+
+	auth.NewRouter(r.Group("/api/v1/auth"), env.db)
 
 	logrus.Infof("Starting server on http://%v", config.Web.Host)
 	r.Run(config.Web.Host)

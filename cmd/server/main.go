@@ -33,6 +33,7 @@ func simpleAuthServer(config *config) error {
 	r := gin.Default()
 
 	// Static app router
+	r.LoadHTMLGlob("templates/*")
 	r.Static("img", "./ui/dist/img")
 	r.Static("js", "./ui/dist/js")
 	r.StaticFile("favicon.ico", "./ui/dist/favicon.ico")
@@ -42,6 +43,12 @@ func simpleAuthServer(config *config) error {
 
 	// Health
 	r.GET("/health", env.routeHealth)
+
+	r.GET("/test", func(c *gin.Context) {
+		c.HTML(200, "index.tmpl", gin.H {
+			"title": "bla",
+		})
+	})
 
 	// Attach middleware
 	auth.NewRouter(r.Group("/api/v1/auth"), env.db)

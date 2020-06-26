@@ -34,18 +34,14 @@ func simpleAuthServer(config *config) error {
 
 	// Static app router
 	r.LoadHTMLGlob("templates/*")
-	r.Static("img", "./ui/dist/img")
-	r.Static("js", "./ui/dist/js")
-	r.StaticFile("favicon.ico", "./ui/dist/favicon.ico")
-	r.StaticFile("index.html", "./ui/dist/index.html")
-	r.StaticFile("/", "./ui/dist/index.html")
 	r.Static("/static", "./static")
+	r.Static("/dist", "./dist")
 
 	// Health
 	r.GET("/health", env.routeHealth)
 
-	r.GET("/test", func(c *gin.Context) {
-		c.HTML(200, "index.tmpl", gin.H {
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(200, "index.tmpl", gin.H{
 			"title": "bla",
 		})
 	})

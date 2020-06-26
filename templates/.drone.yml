@@ -1,0 +1,16 @@
+kind: pipeline
+name: default
+
+steps:
+  - name: Install
+    image: node:12-slim
+    commands:
+      - npm ci
+  - name: Lint
+    image: node:12-slim
+    commands:
+      - npm run lint
+  - name: Build
+    image: node:12-slim
+    commands:
+      - npm run build

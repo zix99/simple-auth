@@ -1,11 +1,15 @@
 <template>
   <Card title="Create Account">
-    <form action="/signin" method="POST">
+    <div>
 
       <div class="field">
         <label class="label">Email</label>
         <div class="control has-icons-left has-icons-right">
-          <input class="input" :class="{ 'is-danger': !validEmail }" type="email" placeholder="Email input" v-model="email" />
+          <input class="input"
+            :class="{ 'is-danger': !validEmail }"
+            type="email"
+            placeholder="Email input"
+            v-model="email" />
           <span class="icon is-small is-left">
             <i class="fas fa-envelope" />
           </span>
@@ -27,7 +31,9 @@
             <i class="fas fa-exclamation-triangle" />
           </span>
         </div>
-        <p class="help is-danger" v-if="!validUsername">Expected username to be between {{usernameMinLength}} and {{usernameMaxLength}} long</p>
+        <p class="help is-danger" v-if="!validUsername">
+          Expected username to be between {{usernameMinLength}} and {{usernameMaxLength}} long
+        </p>
       </div>
 
       <div class="field">
@@ -39,7 +45,8 @@
           </span>
         </div>
         <p class="help is-danger" v-if="!validPassword">
-          Expected password to be between {{passwordMinLength}} and {{passwordMaxLength}} long, and a score greater than 2 (Currently {{strength.score}})
+          Expected password to be between {{passwordMinLength}} and {{passwordMaxLength}} long,
+          and a score greater than 2 (Currently {{strength.score}})
         </p>
         <p class="help" v-if="strength.feedback">
           {{strength.feedback.warning}}
@@ -63,7 +70,7 @@
           <button class="button is-link">Submit</button>
         </div>
       </div>
-    </form>
+    </div>
   </Card>
 </template>
 
@@ -99,7 +106,8 @@ export default {
       return validator.isEmail(this.email);
     },
     validUsername() {
-      return this.username.length >= this.usernameMinLength && this.username.length <= this.usernameMaxLength;
+      return this.username.length >= this.usernameMinLength
+        && this.username.length <= this.usernameMaxLength;
     },
     passwordMatch() {
       return this.password1 === this.password2;

@@ -15,5 +15,6 @@ module.exports = {
     'vue',
   ],
   rules: {
+    'max-len': ['warn', { code: 120 }],
   },
 };

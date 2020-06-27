@@ -6,10 +6,12 @@ web:
         passwordminlength: 3
         passwordmaxlength: 30
         usernameminlength: 5
-        usernamemaxlength: 12
+        usernamemaxlength: 20
 authenticators:
-    exchange:
-        enabled: True
+    token:
+        enabled: true
+    simple:
+        enabled: true
 db:
     driver: "sqlite3"
     url: "test.db"

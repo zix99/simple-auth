@@ -5,13 +5,12 @@ type ConfigDatabase struct {
 	URL    string
 }
 
-type ConfigAuthenticator struct {
-	Enabled bool
-}
-
 type ConfigAuthencatorSet struct {
-	Exchange struct {
-		ConfigAuthenticator
+	Token struct {
+		Enabled bool
+	}
+	Simple struct {
+		Enabled bool
 	}
 }
 

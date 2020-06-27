@@ -56,9 +56,7 @@ func simpleAuthServer(config *config.Config) error {
 	})
 
 	// Attach routes
-	if config.Authenticators.Exchange.Enabled {
-		auth.NewRouter(r.Group("/api/v1/auth"), env.db)
-	}
+	auth.NewRouter(r.Group("/api/v1/auth"), env.db, &config.Authenticators)
 	ui.NewRouter(r.Group("/api/ui"), env.db)
 
 	// Start

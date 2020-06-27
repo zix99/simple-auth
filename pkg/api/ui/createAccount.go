@@ -16,13 +16,20 @@ type createAccountRequest struct {
 
 func (env *environment) routeCreateAccount(c *gin.Context) {
 	req := createAccountRequest{}
-	c.Bind(&req)
+	if err := c.Bind(&req); err != nil {
+		c.AbortWithStatusJSON(400, hError(errors.New("Unable to deserialize request")))
+		return
+	}
 
 	if err := validateUsername(req.Username); err != nil {
 		c.AbortWithStatusJSON(400, hError(err))
 		return
 	}
 	if err := validatePassword(req.Password); err != nil {
+		c.AbortWithStatusJSON(400, hError(err))
+		return
+	}
+	if err := validateEmail(req.Email); err != nil {
 		c.AbortWithStatusJSON(400, hError(err))
 		return
 	}
@@ -62,6 +69,14 @@ func validatePassword(password string) error {
 	}
 	if plen > config.Global.Web.Requirements.PasswordMaxLength {
 		return errors.New("Password too long")
+	}
+	return nil
+}
+
+func validateEmail(email string) error {
+	elen := utf8.RuneCountInString(email)
+	if elen < 5 { // Must be at least: a@b.c
+		return errors.New("Email too short")
 	}
 	return nil
 }

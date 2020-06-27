@@ -13,14 +13,14 @@ type AccountAuthSimple interface {
 
 type accountAuthSimple struct {
 	gorm.Model
-	AccountID      uint
-	Username       string
-	PasswordBcrypt string
+	AccountID      uint   `gorm:"index;not null"`
+	Username       string `gorm:"type:varchar(256);unique_index;not null"`
+	PasswordBcrypt string `gorm:"not null"`
 }
 
 // verifyPassword checks a password against the bcrypt entry
 func (s *accountAuthSimple) verifyPassword(against string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(s.PasswordBcrypt), []byte(against)) != nil
+	return bcrypt.CompareHashAndPassword([]byte(s.PasswordBcrypt), []byte(against)) == nil
 }
 
 // CreateAccountAuthSimple creates a new account simple auth with a crypted password

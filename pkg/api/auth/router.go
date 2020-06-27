@@ -1,37 +1,28 @@
 package auth
 
 import (
+	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type environment struct {
 	db db.SADB
 }
 
-func NewRouter(group *gin.RouterGroup, db db.SADB) {
+func NewRouter(group *gin.RouterGroup, db db.SADB, config *config.ConfigAuthencatorSet) {
 	env := &environment{
 		db: db,
 	}
 
-	group.POST("/simple", env.routeSimpleAuthenticate)
+	logrus.Info("Setting up auth APIs...")
 
-	setupSessionAuthenticator(env, group.Group("/session"))
-}
-
-func (env *environment) routeSimpleAuthenticate(c *gin.Context) {
-	username := c.PostForm("username")
-	password := c.PostForm("password")
-
-	account, err := env.db.FindAndVerifySimpleAuth(username, password)
-	if err != nil {
-		c.AbortWithStatusJSON(401, gin.H{
-			"message": err.Error(),
-		})
-	} else {
-		c.JSON(200, gin.H{
-			"id": account.ID,
-		})
+	if config.Token.Enabled {
+		setupSessionAuthenticator(env, group.Group("/token"))
+	}
+	if config.Simple.Enabled {
+		setupSimpleAuthenticator(env, group.Group("/simple"))
 	}
 }

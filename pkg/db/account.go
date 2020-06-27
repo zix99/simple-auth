@@ -19,7 +19,7 @@ type Account struct {
 
 func (s *sadb) CreateAccount(email string) (*Account, error) {
 	account := &Account{
-		UUID:   uuid.New().URN(),
+		UUID:   uuid.New().String(),
 		Email:  email,
 		Active: true,
 	}

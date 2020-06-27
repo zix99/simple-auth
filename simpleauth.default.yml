@@ -1,0 +1,16 @@
+web:
+    host: "0.0.0.0:9002"
+    metadata:
+        company: "My Company"
+    requirements:
+        passwordminlength: 3
+        passwordmaxlength: 30
+        usernameminlength: 5
+        usernamemaxlength: 12
+authenticators:
+    exchange:
+        enabled: True
+db:
+    driver: "sqlite3"
+    url: "test.db"
+production: false

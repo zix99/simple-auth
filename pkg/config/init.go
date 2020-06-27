@@ -1,33 +1,45 @@
 package config
 
 import (
-	"log"
-	"strings"
+	"os"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 )
 
-func readConfig() (config *Config) {
-	v := viper.New()
-	v.SetConfigName("simpleauth")
-	v.AddConfigPath(".")
-	v.AddConfigPath("$HOME/")
+const envPrefix = "sa"
 
-	v.SetEnvPrefix("sa")
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.AutomaticEnv()
+func loadYaml(filename string, config *Config) error {
+	f, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
-	if err := v.ReadInConfig(); err != nil {
-		switch err.(type) {
-		default:
-			log.Fatal(err)
-		case viper.ConfigFileNotFoundError:
-			logrus.Warnf("Unable to find config file")
-		}
+	decoder := yaml.NewDecoder(f)
+	if err := decoder.Decode(config); err != nil {
+		return err
 	}
 
-	v.Unmarshal(&config)
+	return nil
+}
+
+func readConfig() (config *Config) {
+	config = &Config{}
+	logrus.Info("Loading config...")
+
+	if err := loadYaml("simpleauth.default.yml", config); err != nil {
+		logrus.Fatalf("Error loading default config file simpleauth.default.yml: %v", err)
+	}
+	if err := loadYaml("simpleauth.yml", config); err != nil {
+		logrus.Warnf("Unable to load simpleauth.yml: %v", err)
+	}
+
+	err := envconfig.Process(envPrefix, config)
+	if err != nil {
+		logrus.Warnf("Unable to load environment variables: %v", err)
+	}
 	return
 }
 

@@ -1,6 +1,9 @@
 <template>
   <Card title="Create Account">
-    <div>
+    <div v-if="!loading">
+      <article class="message is-danger" v-if="error">
+        <div class="message-body">{{error}}</div>
+      </article>
 
       <div class="field">
         <label class="label">Email</label>
@@ -67,16 +70,22 @@
 
       <div class="field is-grouped">
         <div class="control">
-          <button class="button is-link">Submit</button>
+          <button class="button is-link" @click="submitClick" :disabled="!validEmail || !validPassword || !validUsername">Submit</button>
         </div>
       </div>
     </div>
+
+    <div v-if="loading" class="has-text-centered">
+      <i class="fas fa-circle-notch fa-spin" /> Creating account...
+    </div>
+
   </Card>
 </template>
 
 <script>
 import validator from 'validator';
 import zxcvbn from 'zxcvbn';
+import axios from 'axios';
 import Card from './components/card.vue';
 
 export default {
@@ -96,6 +105,8 @@ export default {
 
       // responsive
       strength: {},
+      loading: false,
+      error: null,
     };
   },
   components: {
@@ -121,6 +132,29 @@ export default {
   watch: {
     password1() {
       this.strength = zxcvbn(this.password1);
+    },
+  },
+  methods: {
+    submitClick() {
+      this.loading = true;
+      this.error = null;
+
+      axios.post('/api/ui/account', {
+        username: this.username,
+        password: this.password1,
+        email: this.email,
+      }).then(resp => {
+        if (resp.status !== 201) throw new Error('Error creating account');
+        // TODO: Show form
+        this.error = 'Success';
+      }).catch((err) => {
+        this.error = `${err.message}`;
+        if (err.response && err.response.data) {
+          this.error += `: ${err.response.data.message}`;
+        }
+      }).then(() => {
+        this.loading = false;
+      });
     },
   },
 };

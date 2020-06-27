@@ -8,27 +8,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type createAccountRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+}
+
 func (env *environment) routeCreateAccount(c *gin.Context) {
-	email := c.PostForm("email")
-	username := c.PostForm("username")
-	password := c.PostForm("password")
+	req := createAccountRequest{}
+	c.Bind(&req)
 
-	if err := validateUsername(username); err != nil {
+	if err := validateUsername(req.Username); err != nil {
 		c.AbortWithStatusJSON(400, hError(err))
 		return
 	}
-	if err := validatePassword(password); err != nil {
+	if err := validatePassword(req.Password); err != nil {
 		c.AbortWithStatusJSON(400, hError(err))
 		return
 	}
 
-	account, err := env.db.CreateAccount(email)
+	account, err := env.db.CreateAccount(req.Email)
 	if err != nil {
 		c.AbortWithStatusJSON(400, hError(err))
 		return
 	}
 
-	err2 := env.db.CreateAccountAuthSimple(account, username, password)
+	err2 := env.db.CreateAccountAuthSimple(account, req.Username, req.Password)
 	if err2 != nil {
 		c.AbortWithStatusJSON(500, hError(err2))
 		return

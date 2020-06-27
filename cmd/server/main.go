@@ -55,11 +55,11 @@ func simpleAuthServer(config *config.Config) error {
 		c.HTML(200, "createAccount.tmpl", context)
 	})
 
-	// Attach middleware
+	// Attach routes
 	if config.Authenticators.Exchange.Enabled {
 		auth.NewRouter(r.Group("/api/v1/auth"), env.db)
 	}
-	ui.NewRouter(r.Group("/ui"), env.db)
+	ui.NewRouter(r.Group("/api/ui"), env.db)
 
 	// Start
 	logrus.Infof("Starting server on http://%v", config.Web.Host)

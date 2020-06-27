@@ -1,12 +1,14 @@
 import Vue from 'vue';
-import Banner from './components/banner.vue';
+import banner from './components/banner.vue';
+import createaccount from './createAccount.vue';
 
 window.bindVue = function bindVue(el, data = {}) {
   return new Vue({
     el,
     data,
     components: {
-      Banner,
+      banner,
+      createaccount,
     },
   });
 };

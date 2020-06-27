@@ -16,7 +16,8 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/zix99/simple-auth#readme",
   "dependencies": {
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "css-loader": "^3.6.0",

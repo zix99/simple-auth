@@ -1,6 +1,0 @@
-Web:
-    Host: "0.0.0.0:9002"
-Db:
-    Driver: "sqlite3"
-    URL: "test.db"
-Production: false

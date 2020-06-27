@@ -41,13 +41,13 @@ func simpleAuthServer(config *config) error {
 	r.GET("/health", env.routeHealth)
 
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(200, "index.tmpl", gin.H{
-			"title": "bla",
-		})
+		c.HTML(200, "createAccount.tmpl", gin.H(config.Web.Metadata))
 	})
 
 	// Attach middleware
-	auth.NewRouter(r.Group("/api/v1/auth"), env.db)
+	if config.Authenticators.Exchange.Enabled {
+		auth.NewRouter(r.Group("/api/v1/auth"), env.db)
+	}
 	ui.NewRouter(r.Group("/ui"), env.db)
 
 	// Start

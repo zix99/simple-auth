@@ -1,0 +1,11 @@
+Web:
+    Host: "0.0.0.0:9002"
+    Metadata:
+        Company: "My Company"
+Authenticators:
+    Exchange:
+        Enabled: True
+Db:
+    Driver: "sqlite3"
+    URL: "test.db"
+Production: false

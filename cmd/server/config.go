@@ -13,19 +13,31 @@ type configDatabase struct {
 	URL    string
 }
 
+type configAuthenticator struct {
+	Enabled bool
+}
+
+type configAuthencatorSet struct {
+	Exchange struct {
+		configAuthenticator
+	}
+}
+
 type configWeb struct {
-	Host string
+	Host     string
+	Metadata map[string]interface{}
 }
 
 type config struct {
-	Db         configDatabase
-	Web        configWeb
-	Production bool
+	Db             configDatabase
+	Web            configWeb
+	Authenticators configAuthencatorSet
+	Production     bool
 }
 
 func readConfig() (config *config) {
 	v := viper.New()
-	v.SetConfigName("config")
+	v.SetConfigName("simpleauth")
 	v.AddConfigPath(".")
 	v.AddConfigPath("$HOME/")
 

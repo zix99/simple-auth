@@ -1,6 +1,6 @@
 # simple-auth
 
-A simple authentication UI and account management
+A whitelabeled authentication solution
 
 ## Building
 

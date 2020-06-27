@@ -3,7 +3,12 @@
 {{define "vue"}}
 <div class="columns is-centered">
   <div class="column is-half">
-    <CreateAccount />
+    <CreateAccount
+      :password-min-length="{{.Requirements.PasswordMinLength}}"
+      :password-max-length="{{.Requirements.PasswordMaxLength}}"
+      :username-min-length="{{.Requirements.UsernameMinLength}}"
+      :username-max-length="{{.Requirements.UsernameMaxLength}}"
+      />
   </div>
 </div>
 {{end}}

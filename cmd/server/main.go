@@ -3,6 +3,7 @@ package main
 import (
 	"simple-auth/pkg/api/auth"
 	"simple-auth/pkg/api/ui"
+	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,16 @@ func (env *environment) routeHealth(c *gin.Context) {
 	})
 }
 
-func simpleAuthServer(config *config) error {
+func buildTemplateContext() gin.H {
+	context := make(map[string]interface{})
+	for k, v := range config.Global.Web.Metadata {
+		context[k] = v
+	}
+	context["Requirements"] = config.Global.Web.Requirements
+	return context
+}
+
+func simpleAuthServer(config *config.Config) error {
 	if config.Production {
 		gin.SetMode("release")
 	}
@@ -40,8 +50,9 @@ func simpleAuthServer(config *config) error {
 	// Health
 	r.GET("/health", env.routeHealth)
 
+	context := buildTemplateContext()
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(200, "createAccount.tmpl", gin.H(config.Web.Metadata))
+		c.HTML(200, "createAccount.tmpl", context)
 	})
 
 	// Attach middleware
@@ -57,6 +68,5 @@ func simpleAuthServer(config *config) error {
 }
 
 func main() {
-	config := readConfig()
-	simpleAuthServer(config)
+	simpleAuthServer(config.Global)
 }

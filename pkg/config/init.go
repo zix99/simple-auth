@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"log"
@@ -8,34 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type configDatabase struct {
-	Driver string
-	URL    string
-}
-
-type configAuthenticator struct {
-	Enabled bool
-}
-
-type configAuthencatorSet struct {
-	Exchange struct {
-		configAuthenticator
-	}
-}
-
-type configWeb struct {
-	Host     string
-	Metadata map[string]interface{}
-}
-
-type config struct {
-	Db             configDatabase
-	Web            configWeb
-	Authenticators configAuthencatorSet
-	Production     bool
-}
-
-func readConfig() (config *config) {
+func readConfig() (config *Config) {
 	v := viper.New()
 	v.SetConfigName("simpleauth")
 	v.AddConfigPath(".")
@@ -56,4 +29,11 @@ func readConfig() (config *config) {
 
 	v.Unmarshal(&config)
 	return
+}
+
+// Global configuration
+var Global *Config
+
+func init() {
+	Global = readConfig()
 }

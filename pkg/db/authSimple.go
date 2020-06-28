@@ -36,7 +36,7 @@ func (db *sadb) CreateAccountAuthSimple(belongsTo *Account, username, password s
 		PasswordBcrypt: string(hashed),
 	}
 
-	db.db.Create(&auth)
+	db.db.Create(auth)
 	return nil
 }
 
@@ -53,8 +53,8 @@ func (db *sadb) VerifySimpleAuth(account *Account, username, password string) er
 
 func (db *sadb) FindAndVerifySimpleAuth(username, password string) (*Account, error) {
 	var auth accountAuthSimple
-	if result := db.db.Where(&accountAuthSimple{Username: username}).First(&auth); result.Error != nil {
-		return nil, result.Error
+	if err := db.db.Where(&accountAuthSimple{Username: username}).First(&auth).Error; err != nil {
+		return nil, err
 	}
 
 	if !auth.verifyPassword(password) {

@@ -2,10 +2,11 @@ package ui
 
 import (
 	"errors"
+	"simple-auth/pkg/api/common"
 	"simple-auth/pkg/config"
 	"unicode/utf8"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 )
 
 type createAccountRequest struct {
@@ -14,39 +15,33 @@ type createAccountRequest struct {
 	Email    string `json:"email" binding:"required"`
 }
 
-func (env *environment) routeCreateAccount(c *gin.Context) {
+func (env *environment) routeCreateAccount(c echo.Context) error {
 	req := createAccountRequest{}
 	if err := c.Bind(&req); err != nil {
-		c.AbortWithStatusJSON(400, hError(errors.New("Unable to deserialize request")))
-		return
+		return c.JSON(400, common.JsonError(errors.New("Unable to deserialize request")))
 	}
 
 	if err := validateUsername(req.Username); err != nil {
-		c.AbortWithStatusJSON(400, hError(err))
-		return
+		return c.JSON(400, common.JsonError(err))
 	}
 	if err := validatePassword(req.Password); err != nil {
-		c.AbortWithStatusJSON(400, hError(err))
-		return
+		return c.JSON(400, common.JsonError(err))
 	}
 	if err := validateEmail(req.Email); err != nil {
-		c.AbortWithStatusJSON(400, hError(err))
-		return
+		return c.JSON(400, common.JsonError(err))
 	}
 
 	account, err := env.db.CreateAccount(req.Email)
 	if err != nil {
-		c.AbortWithStatusJSON(400, hError(err))
-		return
+		return c.JSON(400, common.JsonError(err))
 	}
 
 	err2 := env.db.CreateAccountAuthSimple(account, req.Username, req.Password)
 	if err2 != nil {
-		c.AbortWithStatusJSON(500, hError(err2))
-		return
+		return c.JSON(500, common.JsonError(err2))
 	}
 
-	c.JSON(201, gin.H{
+	return c.JSON(201, map[string]string{
 		"id": account.UUID,
 	})
 }

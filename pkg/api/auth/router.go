@@ -4,7 +4,7 @@ import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
 )
 
@@ -12,7 +12,7 @@ type environment struct {
 	db db.SADB
 }
 
-func NewRouter(group *gin.RouterGroup, db db.SADB, config *config.ConfigAuthencatorSet) {
+func NewRouter(group *echo.Group, db db.SADB, config *config.ConfigAuthencatorSet) {
 	env := &environment{
 		db: db,
 	}

@@ -1,7 +1,9 @@
 package auth
 
 import (
-	"github.com/gin-gonic/gin"
+	"simple-auth/pkg/api/common"
+
+	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,32 +21,31 @@ In this case, the following will happen:
 	3. The server, having the userId and verification token can validate that the two belong to each other, and are current and valid
 */
 
-func setupSessionAuthenticator(env *environment, g *gin.RouterGroup) {
+func setupSessionAuthenticator(env *environment, g *echo.Group) {
 	logrus.Info("Enabling session auth...")
-	g.POST("/", env.routeIssueAccountToken)
+	g.POST("", env.routeIssueAccountToken)
 	g.POST("/session", env.routeIssueSessionToken)
 	g.POST("/session/verify", env.routeSessionVerify)
 }
 
 // routeUser validates a user and issues a account-token
 // only one session can be active at a given time
-func (env *environment) routeIssueAccountToken(c *gin.Context) {
+func (env *environment) routeIssueAccountToken(c echo.Context) error {
 	req := struct {
 		username string
 		password string
 	}{}
 	if err := c.Bind(&req); err != nil {
-		c.AbortWithStatusJSON(400, hError(err))
-		return
+		return c.JSON(400, common.JsonError(err))
 	}
-
+	return c.String(400, "TODO")
 }
 
-func (env *environment) routeIssueSessionToken(c *gin.Context) {
+func (env *environment) routeIssueSessionToken(c echo.Context) error {
 	// accountToken := c.PostForm("account-token")
-
+	return c.String(400, "TODO")
 }
 
-func (env *environment) routeSessionVerify(c *gin.Context) {
-
+func (env *environment) routeSessionVerify(c echo.Context) error {
+	return c.String(400, "TODO")
 }

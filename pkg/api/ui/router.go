@@ -3,14 +3,14 @@ package ui
 import (
 	"simple-auth/pkg/db"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 )
 
 type environment struct {
 	db db.SADB
 }
 
-func NewRouter(group *gin.RouterGroup, db db.SADB) {
+func NewRouter(group *echo.Group, db db.SADB) {
 	env := &environment{
 		db: db,
 	}

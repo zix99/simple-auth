@@ -1,7 +1,9 @@
 package auth
 
 import (
-	"github.com/gin-gonic/gin"
+	"simple-auth/pkg/api/common"
+
+	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
 )
 
@@ -11,22 +13,20 @@ Simple authenticator will simply provide an endpoint that will either return a 2
 depending on whether the username/password has been validated
 */
 
-func setupSimpleAuthenticator(env *environment, group *gin.RouterGroup) {
+func setupSimpleAuthenticator(env *environment, group *echo.Group) {
 	logrus.Info("Enabling simple auth...")
-	group.POST("/", env.routeSimpleAuthenticate)
+	group.POST("", env.routeSimpleAuthenticate)
 }
 
-func (env *environment) routeSimpleAuthenticate(c *gin.Context) {
-	username := c.PostForm("username")
-	password := c.PostForm("password")
+func (env *environment) routeSimpleAuthenticate(c echo.Context) error {
+	username := c.FormValue("username")
+	password := c.FormValue("password")
 
 	account, err := env.db.FindAndVerifySimpleAuth(username, password)
 	if err != nil {
-		c.AbortWithStatusJSON(401, gin.H{
-			"message": err.Error(),
-		})
+		return c.JSON(401, common.JsonError(err))
 	} else {
-		c.JSON(200, gin.H{
+		return c.JSON(200, map[string]string{
 			"id": account.UUID,
 		})
 	}

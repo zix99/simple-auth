@@ -62,6 +62,9 @@ func simpleAuthServer(config *config.Config) error {
 
 	context := buildTemplateContext()
 	e.GET("/", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "home", context)
+	})
+	e.GET("/create", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "createAccount", context)
 	})
 

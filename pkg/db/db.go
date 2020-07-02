@@ -10,6 +10,7 @@ type sadb struct {
 }
 
 type SADB interface {
+	AccountAuthToken
 	AccountAuthSimple
 	AccountStore
 	IsAlive() bool

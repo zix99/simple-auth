@@ -7,6 +7,7 @@ import (
 
 type AccountStore interface {
 	CreateAccount(email string) (*Account, error)
+	FindAccount(uuid string) (*Account, error)
 }
 
 // Account represents a user
@@ -27,4 +28,9 @@ func (s *sadb) CreateAccount(email string) (*Account, error) {
 		return nil, result.Error
 	}
 	return account, nil
+}
+
+func (s *sadb) FindAccount(uuid string) (account *Account, err error) {
+	err = s.db.Find(account, Account{UUID: uuid}).Error
+	return
 }

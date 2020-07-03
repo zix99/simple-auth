@@ -143,7 +143,7 @@ export default {
         username: this.username,
         password: this.password1,
         email: this.email,
-      }).then(resp => {
+      }).then((resp) => {
         if (resp.status !== 201) throw new Error('Error creating account');
         // TODO: Show form
         this.error = 'Success';

@@ -2,6 +2,8 @@ package auth
 
 import (
 	"simple-auth/pkg/api/common"
+	"simple-auth/pkg/config"
+	"time"
 
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
@@ -23,29 +25,73 @@ In this case, the following will happen:
 
 func setupSessionAuthenticator(env *environment, g *echo.Group) {
 	logrus.Info("Enabling session auth...")
-	g.POST("", env.routeIssueAccountToken)
-	g.POST("/session", env.routeIssueSessionToken)
-	g.POST("/session/verify", env.routeSessionVerify)
+	g.POST("", env.routeIssueSessionToken)
+	g.POST("/session", env.routeIssueVerificationToken)
+	g.POST("/session/verify", env.routeVerifyToken)
+}
+
+type responseToken struct {
+	Token string `json:"token"`
 }
 
 // routeUser validates a user and issues a account-token
 // only one session can be active at a given time
-func (env *environment) routeIssueAccountToken(c echo.Context) error {
+func (env *environment) routeIssueSessionToken(c echo.Context) error {
 	req := struct {
-		username string
-		password string
+		Username string `json:"username" form:"username"`
+		Password string `json:"password" form:"password"`
 	}{}
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(400, common.JsonError(err))
 	}
-	return c.String(400, "TODO")
+
+	expireDuration := time.Duration(config.Global.Authenticators.Token.SessionExpiresMinutes) * time.Minute
+	token, err := env.db.AssertCreateSessionToken(req.Username, req.Password, expireDuration)
+	if err != nil {
+		return c.JSON(401, common.JsonErrorf("Unable to create session token"))
+	}
+
+	return c.JSON(200, responseToken{
+		Token: token,
+	})
 }
 
-func (env *environment) routeIssueSessionToken(c echo.Context) error {
-	// accountToken := c.PostForm("account-token")
-	return c.String(400, "TODO")
+func (env *environment) routeIssueVerificationToken(c echo.Context) error {
+	req := struct {
+		Username string `json:"username" form:"username"`
+		Token    string `json:"token" form:"token"`
+	}{}
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(400, common.JsonError(err))
+	}
+
+	vToken, err := env.db.CreateVerificationToken(req.Username, req.Token)
+	if err != nil {
+		logrus.Error(err)
+		return c.JSON(401, common.JsonErrorf("Unable to create verification token"))
+	}
+
+	logrus.Infof("Issuing verification token for %s", req.Username)
+	return c.JSON(200, responseToken{
+		Token: vToken,
+	})
 }
 
-func (env *environment) routeSessionVerify(c echo.Context) error {
-	return c.String(400, "TODO")
+func (env *environment) routeVerifyToken(c echo.Context) error {
+	req := struct {
+		Username string `json:"username" form:"username"`
+		Token    string `json:"token" form:"token"`
+	}{}
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(400, common.JsonError(err))
+	}
+
+	account, err := env.db.AssertVerificationToken(req.Username, req.Token)
+	if err != nil {
+		return c.JSON(401, common.JsonErrorf("Verification token not found"))
+	}
+	return c.JSON(200, common.Json{
+		"username":   req.Username,
+		"account_id": account.UUID,
+	})
 }

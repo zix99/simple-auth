@@ -26,6 +26,8 @@ func New(driver string, args string) SADB {
 
 	db.AutoMigrate(&Account{})
 	db.AutoMigrate(&accountAuthSimple{})
+	db.AutoMigrate(&accountAuthSessionToken{})
+	db.AutoMigrate(&accountAuthVerificationToken{})
 
 	return &sadb{db}
 }

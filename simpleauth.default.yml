@@ -10,6 +10,8 @@ web:
 authenticators:
     token:
         enabled: true
+        sessionexpiresminutes: 720 # 12 hours
+        verificationexpiresseconds: 15
     simple:
         enabled: true
 db:

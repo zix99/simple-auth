@@ -7,7 +7,9 @@ type ConfigDatabase struct {
 
 type ConfigAuthencatorSet struct {
 	Token struct {
-		Enabled bool
+		Enabled                    bool
+		SessionExpiresMinutes      int
+		VerificationExpiresSeconds int
 	}
 	Simple struct {
 		Enabled bool

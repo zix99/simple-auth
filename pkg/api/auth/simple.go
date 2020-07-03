@@ -19,15 +19,20 @@ func setupSimpleAuthenticator(env *environment, group *echo.Group) {
 }
 
 func (env *environment) routeSimpleAuthenticate(c echo.Context) error {
-	username := c.FormValue("username")
-	password := c.FormValue("password")
+	req := struct {
+		Username string `json:"username" form:"username"`
+		Password string `json:"password" form:"password"`
+	}{}
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(400, common.JsonError(err))
+	}
 
-	account, err := env.db.FindAndVerifySimpleAuth(username, password)
+	account, err := env.db.FindAndVerifySimpleAuth(req.Username, req.Password)
 	if err != nil {
 		return c.JSON(401, common.JsonError(err))
-	} else {
-		return c.JSON(200, map[string]string{
-			"id": account.UUID,
-		})
 	}
+
+	return c.JSON(200, map[string]string{
+		"id": account.UUID,
+	})
 }

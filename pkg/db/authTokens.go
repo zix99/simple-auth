@@ -35,21 +35,32 @@ func (s *sadb) AssertCreateSessionToken(username, password string, expires time.
 	}
 
 	// Invalidate all existing tokens
-	s.db.Where(accountAuthSessionToken{AccountID: account.ID, Invalidated: false}).Updates(accountAuthSessionToken{Invalidated: true})
+	s.db.Where(accountAuthSessionToken{
+		AccountID: account.ID,
+		Invalidated: false,
+	}).Updates(accountAuthSessionToken{Invalidated: true})
 
 	// Create new session tokens
 	sessionToken := &accountAuthSessionToken{
 		AccountID:    account.ID,
 		SessionToken: uuid.New().String(),
 		Expires:      time.Now().UTC().Add(expires),
+		Invalidated:  false,
 	}
 	s.db.Create(sessionToken)
 
 	return sessionToken.SessionToken, nil
 }
 
-// CreateVerificationToken takes a session token and converts it into a verification token
-func (s *sadb) CreateVerificationToken(sessionToken string) (string, error) {
+func (s *sadb) InvalidateSession(sessionToken string) error {
+	return s.db.Where(accountAuthSessionToken{
+		SessionToken: sessionToken,
+		Invalidated: false,
+	}).Updates(accountAuthSessionToken{Invalidated: true}).Error
+}
+
+// CreateVerificationToken takes a session token and converts it into a short-lived verification token
+func (s *sadb) CreateVerificationToken(username, sessionToken string) (string, error) {
 	var session accountAuthSessionToken
 	if err := s.db.Where("SessionToken = ? AND not Invalidated", sessionToken).Order("created_at desc").First(&session).Error; err != nil {
 		return "", err

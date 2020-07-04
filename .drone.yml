@@ -10,12 +10,25 @@ steps:
     image: node:12-slim
     commands:
       - npm run lint
-  - name: Build
+  - name: Audit
     image: node:12-slim
     commands:
-      - npm run build
+      - npm audit --audit-level=moderate
   - name: Server
     image: golang:1.14
     commands:
       - go vet $(go list ./... | grep -v "vendor")
-      - go build -race simple-auth/cmd/server
+  - name: Docker Build
+    image: docker:19
+    volumes:
+    - name: docker-socket
+      path: /var/run/docker.sock
+    commands:
+      - docker build -t ${DRONE_REPO_NAME} .
+    when:
+      branch: ['master']
+
+volumes:
+  - name: docker-socket
+    host:
+      path: /var/run/docker.sock

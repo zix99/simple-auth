@@ -11,7 +11,7 @@ FROM golang:1.14-alpine AS gobuild
 RUN apk add build-base
 WORKDIR /opt/simple-auth
 COPY . .
-RUN go build -o simple-auth-server simple-auth/cmd/server
+RUN go build -race -o simple-auth-server simple-auth/cmd/server
 
 # Final image
 FROM alpine:latest

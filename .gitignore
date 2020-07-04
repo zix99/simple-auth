@@ -2,6 +2,7 @@
 simpleauth.yml
 test.db
 dist/
+simple-auth-server
 
 # Logs
 logs

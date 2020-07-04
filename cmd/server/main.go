@@ -28,12 +28,17 @@ func (env *environment) routeHealth(c echo.Context) error {
 	})
 }
 
-func buildTemplateContext() map[string]interface{} {
+func buildTemplateContext(web *config.ConfigWeb) map[string]interface{} {
 	context := make(map[string]interface{})
-	for k, v := range config.Global.Web.Metadata {
+	for k, v := range web.Metadata {
 		context[k] = v
 	}
-	context["Requirements"] = config.Global.Web.Requirements
+	context["Requirements"] = web.Requirements
+	context["RecaptchaV2"] = struct {
+		Enabled bool
+		SiteKey string
+		Theme   string
+	}{web.RecaptchaV2.Enabled, web.RecaptchaV2.SiteKey, web.RecaptchaV2.Theme}
 	return context
 }
 
@@ -61,7 +66,7 @@ func simpleAuthServer(config *config.Config) error {
 	// Health
 	e.GET("/health", env.routeHealth)
 
-	context := buildTemplateContext()
+	context := buildTemplateContext(&config.Web)
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "home", context)
 	})
@@ -71,7 +76,7 @@ func simpleAuthServer(config *config.Config) error {
 
 	// Attach routes
 	auth.NewRouter(e.Group("/api/v1/auth"), env.db, &config.Authenticators)
-	ui.NewRouter(e.Group("/api/ui"), env.db)
+	ui.NewRouter(e.Group("/api/ui"), env.db, &config.Web)
 
 	// Start
 	logrus.Infof("Starting server on http://%v", config.Web.Host)

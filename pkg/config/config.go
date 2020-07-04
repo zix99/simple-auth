@@ -23,9 +23,17 @@ type ConfigWebRequirements struct {
 	UsernameMaxLength int
 }
 
+type ConfigRecaptchaV2 struct {
+	Enabled bool
+	SiteKey string
+	Secret  string
+	Theme   string
+}
+
 type ConfigWeb struct {
 	Host         string
 	Requirements ConfigWebRequirements
+	RecaptchaV2  ConfigRecaptchaV2
 	Metadata     map[string]interface{}
 }
 

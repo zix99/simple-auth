@@ -1,12 +1,23 @@
 web:
+    # The host and port the server (API & Web) listens on
     host: "0.0.0.0:9002"
+
+    # Metadata is fed into the `tmpl` files to be rendered
     metadata:
         company: "My Company"
+
+    # Requirements inform server and client of any form requirements
     requirements:
         passwordminlength: 3
         passwordmaxlength: 30
         usernameminlength: 5
         usernamemaxlength: 20
+
+    # Enable or disable recaptchav2
+    recaptchav2:
+        enabled: false
+        sitekey: null
+        theme: 'light'
 authenticators:
     token:
         enabled: true

@@ -3,8 +3,8 @@ package common
 import "fmt"
 
 type ErrorResponse struct {
-	Fatal   bool
-	Message string
+	Fatal   bool   `json:"fatal"`
+	Message string `json:"message"`
 }
 
 func JsonError(err error) ErrorResponse {

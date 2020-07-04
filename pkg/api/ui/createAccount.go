@@ -3,16 +3,17 @@ package ui
 import (
 	"errors"
 	"simple-auth/pkg/api/common"
-	"simple-auth/pkg/config"
+	"simple-auth/pkg/api/ui/recaptcha"
 	"unicode/utf8"
 
 	"github.com/labstack/echo"
 )
 
 type createAccountRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Email    string `json:"email" binding:"required"`
+	Username    string `json:"username" binding:"required"`
+	Password    string `json:"password" binding:"required"`
+	Email       string `json:"email" binding:"required"`
+	RecaptchaV2 string `json:"recaptchav2" binding:"required"`
 }
 
 func (env *environment) routeCreateAccount(c echo.Context) error {
@@ -21,13 +22,18 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 		return c.JSON(400, common.JsonError(errors.New("Unable to deserialize request")))
 	}
 
-	if err := validateUsername(req.Username); err != nil {
+	if err := env.validateUsername(req.Username); err != nil {
 		return c.JSON(400, common.JsonError(err))
 	}
-	if err := validatePassword(req.Password); err != nil {
+	if err := env.validatePassword(req.Password); err != nil {
 		return c.JSON(400, common.JsonError(err))
 	}
-	if err := validateEmail(req.Email); err != nil {
+	if err := env.validateEmail(req.Email); err != nil {
+		return c.JSON(400, common.JsonError(err))
+	}
+
+	// Validate recaptcha if needed
+	if err := env.validateRecaptchaV2(req.RecaptchaV2); err != nil {
 		return c.JSON(400, common.JsonError(err))
 	}
 
@@ -46,32 +52,41 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 	})
 }
 
-func validateUsername(username string) error {
+func (env *environment) validateUsername(username string) error {
 	ulen := utf8.RuneCountInString(username)
-	if ulen < config.Global.Web.Requirements.UsernameMinLength {
+	if ulen < env.config.Requirements.UsernameMinLength {
 		return errors.New("Username too short")
 	}
-	if ulen > config.Global.Web.Requirements.UsernameMaxLength {
+	if ulen > env.config.Requirements.UsernameMaxLength {
 		return errors.New("Username too long")
 	}
 	return nil
 }
 
-func validatePassword(password string) error {
+func (env *environment) validatePassword(password string) error {
 	plen := utf8.RuneCountInString(password)
-	if plen < config.Global.Web.Requirements.PasswordMinLength {
+	if plen < env.config.Requirements.PasswordMinLength {
 		return errors.New("Password too short")
 	}
-	if plen > config.Global.Web.Requirements.PasswordMaxLength {
+	if plen > env.config.Requirements.PasswordMaxLength {
 		return errors.New("Password too long")
 	}
 	return nil
 }
 
-func validateEmail(email string) error {
+func (env *environment) validateEmail(email string) error {
 	elen := utf8.RuneCountInString(email)
 	if elen < 5 { // Must be at least: a@b.c
 		return errors.New("Email too short")
 	}
 	return nil
+}
+
+func (env *environment) validateRecaptchaV2(code string) error {
+	if !env.config.RecaptchaV2.Enabled {
+		return nil
+	}
+
+	validator := recaptcha.NewValidatorV2(env.config.RecaptchaV2.Secret)
+	return validator.Validate(code)
 }

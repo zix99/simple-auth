@@ -35,7 +35,7 @@
           </span>
         </div>
         <p class="help is-danger" v-if="!validUsername">
-          Expected username to be between {{usernameMinLength}} and {{usernameMaxLength}} long
+          Expected username to be between {{requirements.UsernameMinLength}} and {{requirements.UsernameMaxLength}} long
         </p>
       </div>
 
@@ -48,7 +48,7 @@
           </span>
         </div>
         <p class="help is-danger" v-if="!validPassword">
-          Expected password to be between {{passwordMinLength}} and {{passwordMaxLength}} long,
+          Expected password to be between {{requirements.PasswordMinLength}} and {{requirements.PasswordMaxLength}} long,
           and a score greater than 2 (Currently {{strength.score}})
         </p>
         <p class="help" v-if="strength.feedback">
@@ -67,6 +67,8 @@
         </div>
         <p class="help is-danger" v-if="!passwordMatch">Password does not match</p>
       </div>
+
+      <RecaptchaV2 v-if="recaptchav2.Enabled" :sitekey="recaptchav2.SiteKey" :theme="recaptchav2.Theme" ref="recaptchav2" />
 
       <div class="field is-grouped">
         <div class="control">
@@ -87,13 +89,27 @@ import validator from 'validator';
 import zxcvbn from 'zxcvbn';
 import axios from 'axios';
 import Card from './components/card.vue';
+import RecaptchaV2 from './components/recaptchav2.vue';
 
 export default {
   props: {
-    usernameMinLength: { type: Number, default: 1 },
-    usernameMaxLength: { type: Number, default: 999 },
-    passwordMinLength: { type: Number, default: 1 },
-    passwordMaxLength: { type: Number, default: 999 },
+    requirements: {
+      type: Object,
+      default: () => ({
+        UsernameMinLength: 1,
+        UsernameMaxLength: 999,
+        PasswordMinLength: 1,
+        PasswordMaxLength: 999,
+      }),
+    },
+    recaptchav2: {
+      type: Object,
+      default: () => ({
+        Enabled: false,
+        SiteKey: '',
+        Theme: 'light',
+      }),
+    },
   },
   data() {
     return {
@@ -111,21 +127,22 @@ export default {
   },
   components: {
     Card,
+    RecaptchaV2,
   },
   computed: {
     validEmail() {
       return validator.isEmail(this.email);
     },
     validUsername() {
-      return this.username.length >= this.usernameMinLength
-        && this.username.length <= this.usernameMaxLength;
+      return this.username.length >= this.requirements.UsernameMinLength
+        && this.username.length <= this.requirements.UsernameMaxLength;
     },
     passwordMatch() {
       return this.password1 === this.password2;
     },
     validPassword() {
-      return this.password1.length >= this.passwordMinLength
-        && this.password1.length <= this.passwordMaxLength
+      return this.password1.length >= this.requirements.PasswordMinLength
+        && this.password1.length <= this.requirements.PasswordMaxLength
         && this.strength.score >= 2;
     },
   },
@@ -139,22 +156,29 @@ export default {
       this.loading = true;
       this.error = null;
 
-      axios.post('/api/ui/account', {
+      const postData = {
         username: this.username,
         password: this.password1,
         email: this.email,
-      }).then((resp) => {
-        if (resp.status !== 201) throw new Error('Error creating account');
-        // TODO: Show form
-        this.error = 'Success';
-      }).catch((err) => {
-        this.error = `${err.message}`;
-        if (err.response && err.response.data) {
-          this.error += `: ${err.response.data.message}`;
-        }
-      }).then(() => {
-        this.loading = false;
-      });
+      };
+
+      if (this.recaptchav2.Enabled) {
+        postData.recaptchav2 = this.$refs.recaptchav2.getResponse();
+      }
+
+      axios.post('/api/ui/account', postData)
+        .then((resp) => {
+          if (resp.status !== 201) throw new Error('Error creating account');
+          // TODO: Show form
+          this.error = 'Success';
+        }).catch((err) => {
+          this.error = `${err.message}`;
+          if (err.response && err.response.data) {
+            this.error += `: ${err.response.data.message}`;
+          }
+        }).then(() => {
+          this.loading = false;
+        });
     },
   },
 };

@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"simple-auth/pkg/config/argparser"
 
 	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
@@ -25,6 +26,10 @@ func loadYaml(filename string, config *Config) error {
 	return nil
 }
 
+func loadEnvironment(config *Config) error {
+	return envconfig.Process(envPrefix, config)
+}
+
 func readConfig() (config *Config) {
 	config = &Config{}
 	logrus.Info("Loading config...")
@@ -36,10 +41,14 @@ func readConfig() (config *Config) {
 		logrus.Warnf("Unable to load simpleauth.yml: %v", err)
 	}
 
-	err := envconfig.Process(envPrefix, config)
-	if err != nil {
+	if err := loadEnvironment(config); err != nil {
 		logrus.Warnf("Unable to load environment variables: %v", err)
 	}
+
+	if err := argparser.LoadArgs(config, os.Args[1:]...); err != nil {
+		logrus.Fatalf("Unable to load arguments: %v", err)
+	}
+
 	return
 }
 

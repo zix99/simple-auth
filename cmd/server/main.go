@@ -44,7 +44,7 @@ func buildTemplateContext(web *config.ConfigWeb) map[string]interface{} {
 
 func simpleAuthServer(config *config.Config) error {
 	if config.Production {
-		// TODO
+		logrus.Info("Running in production mode")
 	}
 
 	// Dependencies
@@ -53,6 +53,7 @@ func simpleAuthServer(config *config.Config) error {
 	}
 
 	e := echo.New()
+	e.Debug = !config.Production
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

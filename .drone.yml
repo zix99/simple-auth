@@ -14,17 +14,23 @@ steps:
     image: node:12-slim
     commands:
       - npm audit --audit-level=moderate
+  - name: JS Dist
+    image: node:12-slim
+    commands:
+      - npm run build
   - name: Server
     image: golang:1.14
     commands:
+      - go test -race ./...
       - go vet $(go list ./... | grep -v "vendor")
+      - go build -o simple-auth-server simple-auth/cmd/server
   - name: Docker Build
     image: docker:19
     volumes:
     - name: docker-socket
       path: /var/run/docker.sock
     commands:
-      - docker build -t ${DRONE_REPO_NAME} .
+      - docker build -t ${DRONE_REPO_NAME} -f Dockerfile.drone .
     when:
       branch: ['master']
 

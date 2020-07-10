@@ -21,8 +21,8 @@ var helpers = template.FuncMap{
 }
 
 var templateDefinitions = map[string][]string{
-	"createAccount": {"templates/createAccount.tmpl", "templates/layout.tmpl", "templates/layoutVue.tmpl"},
-	"home":          {"templates/home.tmpl", "templates/layout.tmpl"},
+	"createAccount": {"templates/web/createAccount.tmpl", "templates/web/layout.tmpl", "templates/web/layoutVue.tmpl"},
+	"home":          {"templates/web/home.tmpl", "templates/web/layout.tmpl"},
 }
 
 type templateSet struct {

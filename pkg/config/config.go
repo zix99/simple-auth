@@ -38,8 +38,12 @@ type ConfigWeb struct {
 }
 
 type ConfigEmail struct {
-	Enabled bool
-	Host    string
+	Enabled  bool
+	Host     string
+	Identity string
+	Username string
+	Password string
+	From     string
 }
 
 type Config struct {

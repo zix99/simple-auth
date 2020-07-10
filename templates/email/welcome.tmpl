@@ -1,3 +1,7 @@
-Thank you {{ .name }} for signing up for an account at {{ .company }}.
+From: {{ .From }}
+To: {{ .To }}
+Subject: New Account at {{ .Model.Company }}
 
-You can manage your here: {{ .host }}/manageAccount/{{ .accountId }}
+Thank you {{ .Model.Name }} for signing up for an account at {{ .Model.Company }}.
+
+You can manage your account here: {{ .Model.WebHost }}/manage/{{ .Model.AccountID }}

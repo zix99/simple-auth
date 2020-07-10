@@ -4,6 +4,8 @@ import (
 	"errors"
 	"simple-auth/pkg/api/common"
 	"simple-auth/pkg/api/ui/recaptcha"
+	"simple-auth/pkg/config"
+	"simple-auth/pkg/email"
 	"unicode/utf8"
 
 	"github.com/labstack/echo"
@@ -46,6 +48,14 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 	if err2 != nil {
 		return c.JSON(500, common.JsonError(err2))
 	}
+
+	// trigger email
+	go email.SendWelcomeEmail(&config.Global.Email, req.Email, &email.WelcomeEmailData{
+		Company:   env.config.Metadata["company"].(string),
+		AccountID: account.UUID,
+		Name:      req.Username,
+		WebHost:   "http://" + env.config.Host,
+	})
 
 	return c.JSON(201, map[string]string{
 		"id": account.UUID,

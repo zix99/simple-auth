@@ -14,6 +14,10 @@ import (
 Template loader and auto-reloader when in development mode
 */
 
+type TemplateRenderer interface {
+	Render(w io.Writer, name string, data interface{}) error
+}
+
 type TemplateSet struct {
 	autoreload  bool
 	definitions map[string][]string

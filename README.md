@@ -4,7 +4,13 @@ Simple-auth is a lightweight, whitelabeled, authentication solution.  It allows 
 with a UI, offering various security measures.  Then, via various authenticators, allows
 3rd party appliances to authenticate with it.
 
-## Development
+# Running Simple Auth
+
+TODO
+
+# Development
+
+## Dev-Mode
 
 Two commands need to be run to dev:
 ```sh
@@ -24,4 +30,34 @@ OR with docker
 ```
 docker build .
 ```
+
+## Feature Wishlist
+- Company name first class citizen
+- Real success page
+- Account management
+- Forgot password
+- OIDC Login Flow
+- Google Auth
+
+# License
+
+Copyright (c) 2020 Christopher LaPointe
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 

@@ -1,9 +1,13 @@
 # Simple dockerfile based on drone build
 FROM alpine:latest
 WORKDIR /opt/simple-auth
+
 COPY static static
 COPY templates templates
 COPY simpleauth.default.yml .
 COPY dist dist
 COPY simple-auth-server .
+
+ENV SA_PRODUCTION=true
+
 CMD ["./simple-auth-server"]

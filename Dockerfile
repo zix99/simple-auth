@@ -21,4 +21,7 @@ COPY templates templates
 COPY simpleauth.default.yml .
 COPY --from=nodebuild /opt/simple-auth/dist .
 COPY --from=gobuild /opt/simple-auth/simple-auth-server .
+
+ENV SA_PRODUCTION=true
+
 CMD ["./simple-auth-server"]

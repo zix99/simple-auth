@@ -18,6 +18,9 @@ web:
         enabled: false
         sitekey: null
         theme: 'light'
+email:
+    enabled: false
+    host: ''
 authenticators:
     token:
         enabled: true

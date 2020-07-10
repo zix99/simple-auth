@@ -37,9 +37,15 @@ type ConfigWeb struct {
 	Metadata     map[string]interface{}
 }
 
+type ConfigEmail struct {
+	Enabled bool
+	Host    string
+}
+
 type Config struct {
 	Db             ConfigDatabase
 	Web            ConfigWeb
+	Email          ConfigEmail
 	Authenticators ConfigAuthencatorSet
 	Production     bool
 }

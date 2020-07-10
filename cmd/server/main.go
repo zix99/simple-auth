@@ -60,7 +60,7 @@ func simpleAuthServer(config *config.Config) error {
 	e.Use(middleware.AddTrailingSlash())
 
 	// Static app router
-	e.Renderer = newTemplateSet()
+	e.Renderer = newTemplateRenderer()
 	e.Static("/static", "./static")
 	e.Static("/dist", "./dist")
 

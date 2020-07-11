@@ -31,13 +31,13 @@ type ConfigRecaptchaV2 struct {
 }
 
 type ConfigJWT struct {
+	Secret         string
 	Issuer         string
 	ExpiresMinutes int
 }
 
 type ConfigWeb struct {
 	Host         string
-	Secret       string
 	Requirements ConfigWebRequirements
 	RecaptchaV2  ConfigRecaptchaV2
 	JWT          ConfigJWT

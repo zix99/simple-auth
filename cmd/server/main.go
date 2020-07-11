@@ -46,8 +46,8 @@ func simpleAuthServer(config *config.Config) error {
 	if config.Production {
 		logrus.Info("Running in production mode")
 	}
-	if config.Web.Secret == "" {
-		logrus.Fatal("SA_WEB_SECRET needs to be set for server-side key")
+	if config.Web.JWT.Secret == "" {
+		logrus.Warn("No web.jwt.secret is set, user will not be able to login")
 	}
 
 	// Dependencies

@@ -1,8 +1,11 @@
 package ui
 
 import (
+	"errors"
 	"net/http"
 	"simple-auth/pkg/api/common"
+	"simple-auth/pkg/config"
+	"simple-auth/pkg/db"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -13,6 +16,21 @@ import (
 type loginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
+}
+
+func issueSessionJwt(config *config.ConfigJWT, account *db.Account) (string, error) {
+	if len(config.Secret) < 8 {
+		logrus.Warn("No JWT secret set, or secrete too short.  User not able to login")
+		return "", errors.New("Server needs secret")
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+		Issuer:    config.Issuer,
+		Subject:   account.UUID,
+		Audience:  "simple-auth",
+		ExpiresAt: time.Now().Add(time.Duration(config.ExpiresMinutes) * time.Minute).Unix(),
+	})
+	return token.SignedString([]byte(config.Secret))
 }
 
 func (env *environment) routeLogin(c echo.Context) error {
@@ -30,13 +48,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 	}
 	logrus.Infof("Login for user '%s' accepted", req.Username)
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    env.config.JWT.Issuer,
-		Subject:   account.UUID,
-		Audience:  req.Username,
-		ExpiresAt: time.Now().Add(time.Duration(env.config.JWT.ExpiresMinutes) * time.Minute).Unix(),
-	})
-	signedToken, err := token.SignedString([]byte(env.config.Secret))
+	signedToken, err := issueSessionJwt(&env.config.JWT, account)
 	if err != nil {
 		logrus.Warn(err)
 		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Something went wrong signing JWT"))

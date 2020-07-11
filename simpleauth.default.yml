@@ -2,9 +2,6 @@ web:
     # The host and port the server (API & Web) listens on
     host: "0.0.0.0:9002"
 
-    # Powers server-side cryptography, including JWT signing
-    secret: ""
-
     # Metadata is fed into the `tmpl` files to be rendered
     metadata:
         company: "My Company"
@@ -17,6 +14,8 @@ web:
         usernamemaxlength: 20
 
     jwt:
+        # Key for jwt-signing
+        secret: ""
         issuer: "simple-auth"
         expiresminutes: 30
 

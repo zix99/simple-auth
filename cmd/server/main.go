@@ -46,6 +46,9 @@ func simpleAuthServer(config *config.Config) error {
 	if config.Production {
 		logrus.Info("Running in production mode")
 	}
+	if config.Web.Secret == "" {
+		logrus.Fatal("SA_WEB_SECRET needs to be set for server-side key")
+	}
 
 	// Dependencies
 	env := &environment{
@@ -73,6 +76,9 @@ func simpleAuthServer(config *config.Config) error {
 	})
 	e.GET("/create", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "createAccount", context)
+	})
+	e.GET("/manage", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "manageAccount", context)
 	})
 
 	// Attach routes

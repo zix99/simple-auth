@@ -19,4 +19,5 @@ func NewRouter(group *echo.Group, db db.SADB, config *config.ConfigWeb) {
 	}
 
 	group.POST("/account", env.routeCreateAccount)
+	group.POST("/login", env.routeLogin)
 }

@@ -38,6 +38,7 @@ docker build .
 - Forgot password
 - OIDC Login Flow
 - Google Auth
+- TOTP
 
 # License
 

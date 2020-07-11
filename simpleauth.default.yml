@@ -2,6 +2,9 @@ web:
     # The host and port the server (API & Web) listens on
     host: "0.0.0.0:9002"
 
+    # Powers server-side cryptography, including JWT signing
+    secret: ""
+
     # Metadata is fed into the `tmpl` files to be rendered
     metadata:
         company: "My Company"
@@ -12,6 +15,10 @@ web:
         passwordmaxlength: 30
         usernameminlength: 5
         usernamemaxlength: 20
+
+    jwt:
+        issuer: "simple-auth"
+        expiresminutes: 30
 
     # Enable or disable recaptchav2
     recaptchav2:

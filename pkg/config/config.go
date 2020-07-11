@@ -30,10 +30,17 @@ type ConfigRecaptchaV2 struct {
 	Theme   string
 }
 
+type ConfigJWT struct {
+	Issuer         string
+	ExpiresMinutes int
+}
+
 type ConfigWeb struct {
 	Host         string
+	Secret       string
 	Requirements ConfigWebRequirements
 	RecaptchaV2  ConfigRecaptchaV2
+	JWT          ConfigJWT
 	Metadata     map[string]interface{}
 }
 

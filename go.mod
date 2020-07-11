@@ -3,7 +3,7 @@ module simple-auth
 go 1.14
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/google/uuid v1.1.1
 	github.com/jinzhu/gorm v1.9.14
 	github.com/kelseyhightower/envconfig v1.4.0

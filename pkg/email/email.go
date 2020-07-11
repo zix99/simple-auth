@@ -42,6 +42,10 @@ func extractHostname(host string) string {
 }
 
 func SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData) error {
+	if !cfg.Enabled {
+		return nil
+	}
+
 	logrus.Infof("Sending welcome email to %s...", to)
 	auth := smtp.PlainAuth(cfg.Identity, cfg.Username, cfg.Password, extractHostname(cfg.Host))
 

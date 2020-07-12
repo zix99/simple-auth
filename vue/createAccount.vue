@@ -1,10 +1,10 @@
 <template>
   <Card title="Create Account">
-    <div v-if="!loading">
-      <article class="message is-danger" v-if="error">
-        <div class="message-body">{{error}}</div>
-      </article>
+    <article class="message is-danger" v-if="error">
+      <div class="message-body">{{error}}</div>
+    </article>
 
+    <div v-if="!loading && !createdAccountId">
       <div class="field">
         <label class="label">Email</label>
         <div class="control has-icons-left has-icons-right">
@@ -81,6 +81,19 @@
       <i class="fas fa-circle-notch fa-spin" /> Creating account...
     </div>
 
+    <div v-if="createdAccountId">
+      <article class="message is-success">
+        <div class="message-body">
+          Account Successfully Created
+        </div>
+      </article>
+      <div>
+        <a :href="`/manage/${createdAccountId}`" class="button is-primary is-light">Manage Account</a>
+        <p class="is-size-5">or</p>
+        <LogoutButton />
+      </div>
+    </div>
+
   </Card>
 </template>
 
@@ -89,6 +102,7 @@ import validator from 'validator';
 import zxcvbn from 'zxcvbn';
 import axios from 'axios';
 import Card from './components/card.vue';
+import LogoutButton from './widgets/logoutButton.vue';
 import RecaptchaV2 from './components/recaptchav2.vue';
 
 export default {
@@ -123,11 +137,13 @@ export default {
       strength: {},
       loading: false,
       error: null,
+      createdAccountId: null,
     };
   },
   components: {
     Card,
     RecaptchaV2,
+    LogoutButton,
   },
   computed: {
     validEmail() {
@@ -169,8 +185,7 @@ export default {
       axios.post('/api/ui/account', postData)
         .then((resp) => {
           if (resp.status !== 201) throw new Error('Error creating account');
-          // TODO: Show form
-          this.error = 'Success';
+          this.createdAccountId = resp.data.id;
         }).catch((err) => {
           this.error = `${err.message}`;
           if (err.response && err.response.data) {

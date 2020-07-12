@@ -8,6 +8,8 @@ import (
 	"simple-auth/pkg/email"
 	"unicode/utf8"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/labstack/echo"
 )
 
@@ -57,7 +59,13 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 		WebHost:   "http://" + env.config.Host,
 	})
 
-	return c.JSON(201, map[string]string{
+	// log the user in to a session
+	err3 := createSession(c, &env.config.JWT, account)
+	if err3 != nil {
+		logrus.Warnf("Unable to create session post-login, ignoring: %v", err3)
+	}
+
+	return c.JSON(201, common.Json{
 		"id": account.UUID,
 	})
 }

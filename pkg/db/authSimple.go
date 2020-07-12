@@ -11,6 +11,7 @@ type AccountAuthSimple interface {
 	CreateAccountAuthSimple(belongsTo *Account, username, password string) error
 	FindAndVerifySimpleAuth(username, password string) (*Account, error)
 	FindAccountForSimpleAuth(username string) (*Account, error)
+	FindSimpleAuthUsername(account *Account) (string, error)
 }
 
 type accountAuthSimple struct {
@@ -68,6 +69,19 @@ func (s *sadb) resolveSimpleAuthForUser(username string) (*accountAuthSimple, *A
 	}
 
 	return &simpleAuth, &account, nil
+}
+
+func (s *sadb) FindSimpleAuthUsername(account *Account) (string, error) {
+	if account == nil {
+		return "", errors.New("No account")
+	}
+
+	var simpleAuth accountAuthSimple
+	if err := s.db.Model(&account).Related(&simpleAuth).Error; err != nil {
+		return "", nil
+	}
+
+	return simpleAuth.Username, nil
 }
 
 func (s *sadb) FindAccountForSimpleAuth(username string) (*Account, error) {

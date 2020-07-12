@@ -3,6 +3,7 @@ package ui
 import (
 	"errors"
 	"net/http"
+	"simple-auth/pkg/api/common"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"time"
@@ -54,4 +55,30 @@ func clearSession(c echo.Context) {
 		HttpOnly: true,
 		Expires:  time.Now(),
 	})
+}
+
+func loggedInMiddleware(key string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			cookie, err := c.Cookie(authCookieName)
+			if err != nil || cookie == nil {
+				return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Cookie not set"))
+			}
+
+			token, err := jwt.ParseWithClaims(cookie.Value, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+				return []byte(key), nil
+			})
+			if err != nil {
+				return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Unable to parse JWT"))
+			}
+
+			if claims, ok := token.Claims.(*jwt.StandardClaims); ok && token.Valid {
+				c.Set("auth", claims)
+				c.Set("accountUUID", claims.Subject)
+				return next(c)
+			}
+
+			return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Token rejected"))
+		}
+	}
 }

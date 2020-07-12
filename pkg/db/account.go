@@ -30,7 +30,8 @@ func (s *sadb) CreateAccount(email string) (*Account, error) {
 	return account, nil
 }
 
-func (s *sadb) FindAccount(uuid string) (account *Account, err error) {
-	err = s.db.Find(account, Account{UUID: uuid}).Error
-	return
+func (s *sadb) FindAccount(uuid string) (*Account, error) {
+	var account Account
+	err := s.db.Where(&Account{UUID: uuid}).First(&account).Error // Find(account, Account{UUID: uuid}).Error
+	return &account, err
 }

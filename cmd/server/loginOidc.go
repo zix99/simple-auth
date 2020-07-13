@@ -8,7 +8,7 @@ import (
 
 // Setup router on /oidc
 func setupOidcRouter(group *echo.Group) {
-	group.Group("", routeGetOidc)
+	group.GET("", routeGetOidc)
 }
 
 func routeGetOidc(c echo.Context) error {

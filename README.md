@@ -39,6 +39,7 @@ docker build .
 - OIDC Login Flow
 - Google Auth
 - TOTP
+- Embed all resources into single exe?
 
 # License
 

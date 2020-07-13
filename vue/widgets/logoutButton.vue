@@ -6,14 +6,14 @@
 import axios from 'axios';
 
 export default {
-    methods: {
-        logout() {
-            axios.post('/api/ui/logout')
-                .catch(() => {})
-                .then(() => {
-                    window.location = '/';
-                });
-        },
+  methods: {
+    logout() {
+      axios.post('/api/ui/logout')
+        .catch(() => {})
+        .then(() => {
+          window.location = '/';
+        });
     },
+  },
 };
 </script>

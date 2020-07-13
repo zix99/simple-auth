@@ -9,16 +9,6 @@ import (
 	"github.com/labstack/echo"
 )
 
-func newManagementRouter(env *environment, group *echo.Group) {
-	if env.config.JWT.Secret == "" {
-		logrus.Warn("No JWT secret specified, refusing to bind user management endpoints")
-		return
-	}
-
-	group.Use(loggedInMiddleware(env.config.JWT.Secret))
-	group.GET("", env.routeAccount)
-}
-
 func (env *environment) routeAccount(c echo.Context) error {
 	accountUUID := c.Get("accountUUID").(string)
 	logrus.Infof("Get account for %s", accountUUID)

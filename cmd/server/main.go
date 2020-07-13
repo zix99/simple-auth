@@ -83,7 +83,7 @@ func simpleAuthServer(config *config.Config) error {
 
 	// Attach routes
 	auth.NewRouter(e.Group("/api/v1/auth"), env.db, &config.Authenticators)
-	ui.NewRouter(e.Group("/api/ui"), env.db, &config.Web)
+	ui.NewRouter(env.db, &config.Web).Mount(e.Group("/api/ui"))
 
 	// Start
 	logrus.Infof("Starting server on http://%v", config.Web.Host)

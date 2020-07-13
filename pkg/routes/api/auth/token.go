@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"simple-auth/pkg/api/common"
 	"simple-auth/pkg/config"
+	"simple-auth/pkg/routes/common"
 	"time"
 
 	"github.com/labstack/echo"

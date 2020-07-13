@@ -2,10 +2,10 @@ package ui
 
 import (
 	"errors"
-	"simple-auth/pkg/api/common"
-	"simple-auth/pkg/api/ui/recaptcha"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/email"
+	"simple-auth/pkg/routes/api/ui/recaptcha"
+	"simple-auth/pkg/routes/common"
 	"unicode/utf8"
 
 	"github.com/sirupsen/logrus"

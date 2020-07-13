@@ -2,10 +2,10 @@ package main
 
 import (
 	"net/http"
-	"simple-auth/pkg/api/auth"
-	"simple-auth/pkg/api/ui"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
+	"simple-auth/pkg/routes/api/auth"
+	"simple-auth/pkg/routes/api/ui"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"

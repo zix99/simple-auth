@@ -1,4 +1,4 @@
-package main
+package pages
 
 import "github.com/labstack/echo"
 

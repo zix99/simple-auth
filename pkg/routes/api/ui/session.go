@@ -3,9 +3,9 @@ package ui
 import (
 	"errors"
 	"net/http"
-	"simple-auth/pkg/api/common"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
+	"simple-auth/pkg/routes/common"
 	"time"
 
 	"github.com/labstack/echo"

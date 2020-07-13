@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"simple-auth/pkg/api/common"
+	"simple-auth/pkg/routes/common"
 
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"

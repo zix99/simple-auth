@@ -4,19 +4,12 @@ import (
 	"simple-auth/pkg/routes/common"
 
 	"github.com/labstack/echo"
-	"github.com/sirupsen/logrus"
 )
 
 /*
-
 Simple authenticator will simply provide an endpoint that will either return a 200 or a 401
 depending on whether the username/password has been validated
 */
-
-func setupSimpleAuthenticator(env *environment, group *echo.Group) {
-	logrus.Info("Enabling simple auth...")
-	group.POST("", env.routeSimpleAuthenticate)
-}
 
 func (env *environment) routeSimpleAuthenticate(c echo.Context) error {
 	req := struct {

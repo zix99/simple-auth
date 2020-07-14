@@ -14,7 +14,7 @@ type environment struct {
 	config *config.ConfigWeb
 }
 
-func NewRouter(db db.SADB, config *config.ConfigWeb) common.Controller {
+func NewController(db db.SADB, config *config.ConfigWeb) common.Controller {
 	return &environment{
 		db:     db,
 		config: config,

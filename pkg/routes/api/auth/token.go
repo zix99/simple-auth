@@ -23,13 +23,6 @@ In this case, the following will happen:
 	3. The server, having the userId and verification token can validate that the two belong to each other, and are current and valid
 */
 
-func setupSessionAuthenticator(env *environment, g *echo.Group) {
-	logrus.Info("Enabling session auth...")
-	g.POST("", env.routeIssueSessionToken)
-	g.POST("/session", env.routeIssueVerificationToken)
-	g.POST("/session/verify", env.routeVerifyToken)
-}
-
 type responseToken struct {
 	Token string `json:"token"`
 }

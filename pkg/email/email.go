@@ -20,8 +20,12 @@ func init() {
 	templateEngine = multitemplate.New().LoadTemplates(templateDefinitions)
 }
 
+type EmailData struct {
+	Company string
+}
+
 type WelcomeEmailData struct {
-	Company   string
+	EmailData
 	Name      string
 	WebHost   string
 	AccountID string
@@ -41,12 +45,13 @@ func extractHostname(host string) string {
 	return host[:idx]
 }
 
-func SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData) error {
+func sendEmail(cfg *config.ConfigEmail, to string, templateName string, data *EmailData) error {
 	if !cfg.Enabled {
-		return nil
+		logrus.Infof("Skipping sending email %s to %s, disabled", templateName, to)
+		return nil // No error, just not enabled
 	}
 
-	logrus.Infof("Sending welcome email to %s...", to)
+	logrus.Infof("Sending %s email to %s...", templateName, to)
 	auth := smtp.PlainAuth(cfg.Identity, cfg.Username, cfg.Password, extractHostname(cfg.Host))
 
 	templateData := &emailData{
@@ -56,7 +61,7 @@ func SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData
 	}
 
 	var buf bytes.Buffer
-	err := templateEngine.Render(&buf, "welcome", templateData)
+	err := templateEngine.Render(&buf, templateName, templateData)
 	if err != nil {
 		logrus.Warn(err)
 		return err
@@ -69,4 +74,8 @@ func SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData
 		logrus.Infof("Email sent %d bytes to %s", buf.Len(), to)
 	}
 	return err
+}
+
+func SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData) error {
+	return sendEmail(cfg, to, "welcome", &data.EmailData)
 }

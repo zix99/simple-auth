@@ -52,7 +52,9 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 
 	// trigger email
 	go email.SendWelcomeEmail(env.email, req.Email, &email.WelcomeEmailData{
-		Company:   env.config.Metadata["company"].(string),
+		EmailData: email.EmailData{
+			Company: env.config.Metadata["company"].(string), // FIXME: Don't use metadata directly
+		},
 		AccountID: account.UUID,
 		Name:      req.Username,
 		WebHost:   "http://" + env.config.Host,

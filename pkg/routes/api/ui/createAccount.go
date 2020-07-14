@@ -2,7 +2,6 @@ package ui
 
 import (
 	"errors"
-	"simple-auth/pkg/config"
 	"simple-auth/pkg/email"
 	"simple-auth/pkg/routes/api/ui/recaptcha"
 	"simple-auth/pkg/routes/common"
@@ -52,7 +51,7 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 	}
 
 	// trigger email
-	go email.SendWelcomeEmail(&config.Global.Email, req.Email, &email.WelcomeEmailData{
+	go email.SendWelcomeEmail(env.email, req.Email, &email.WelcomeEmailData{
 		Company:   env.config.Metadata["company"].(string),
 		AccountID: account.UUID,
 		Name:      req.Username,

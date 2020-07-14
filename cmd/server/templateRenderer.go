@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"html/template"
 	"io"
-	"simple-auth/pkg/config"
 	"simple-auth/pkg/lib/multitemplate"
 
 	"github.com/labstack/echo"
@@ -31,10 +30,10 @@ func (t *templateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	return t.templates.Render(w, name, data)
 }
 
-func newTemplateRenderer() *templateRenderer {
+func newTemplateRenderer(autoreload bool) *templateRenderer {
 	engine := multitemplate.New().
 		Helpers(helpers).
-		AutoReload(!config.Global.Production).
+		AutoReload(autoreload).
 		LoadTemplates(templateDefinitions)
 
 	return &templateRenderer{

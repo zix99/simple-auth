@@ -63,7 +63,7 @@ func simpleAuthServer(config *config.Config) error {
 	e.Use(middleware.AddTrailingSlash())
 
 	// Static app router
-	e.Renderer = newTemplateRenderer()
+	e.Renderer = newTemplateRenderer(!config.Production)
 	e.Static("/static", "./static")
 	e.Static("/dist", "./dist")
 
@@ -83,7 +83,7 @@ func simpleAuthServer(config *config.Config) error {
 
 	// Attach routes
 	auth.NewController(env.db, &config.Authenticators).Mount(e.Group("/api/v1/auth"))
-	ui.NewController(env.db, &config.Web).Mount(e.Group("/api/ui"))
+	ui.NewController(env.db, &config.Web, &config.Email).Mount(e.Group("/api/ui"))
 
 	// Start
 	logrus.Infof("Starting server on http://%v", config.Web.Host)

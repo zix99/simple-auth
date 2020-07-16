@@ -19,6 +19,16 @@ web:
         issuer: "simple-auth"
         expiresminutes: 30
 
+    login:
+        cookie:
+            enabled: true
+            name: "auth"
+            signingkey: ""
+            expiresminutes: 1440
+            path: /
+            secureonly: false
+            httponly: true
+
     # Enable or disable recaptchav2
     recaptchav2:
         enabled: false

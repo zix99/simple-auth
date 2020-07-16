@@ -40,28 +40,32 @@ type ConfigJWT struct {
 	ExpiresMinutes int
 }
 
+type ConfigLoginCookie struct {
+	Enabled        bool
+	Name           string // Name of the cookie
+	SigningKey     string // Key used to sign cookie (and later for you to verify!)
+	ExpiresMinutes int
+	Path           string
+	Domain         string
+	SecureOnly     bool
+	HTTPOnly       bool
+}
+
+type ConfigLoginOIDC struct {
+	Enabled bool
+	Clients map[string]struct { // ClientID Key
+		Name        string
+		Author      string
+		ClientID    string
+		RedirectURI []string
+	}
+}
+
 type ConfigLogin struct {
 	// SameDomain authentication uses a cookie set to a domain (and presumably shared with your site).  Easiest to implement in a full-trust environment
-	Cookie struct {
-		Enabled        bool
-		Name           string // Name of the cookie
-		SigningKey     string // Key used to sign cookie (and later for you to verify!)
-		ExpiresMinutes int
-		Path           string
-		Domain         string
-		SecureOnly     bool
-		HTTPOnly       bool
-	}
+	Cookie ConfigLoginCookie
 	// OIDC (OAuth 2) flow that allows an external site to securely login and verify the user
-	OIDC struct {
-		Enabled bool
-		Clients map[string]struct { // ClientID Key
-			Name        string
-			Author      string
-			ClientID    string
-			RedirectURI []string
-		}
-	}
+	OIDC ConfigLoginOIDC
 }
 
 type ConfigWeb struct {

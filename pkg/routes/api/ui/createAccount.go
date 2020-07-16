@@ -5,6 +5,7 @@ import (
 	"simple-auth/pkg/email"
 	"simple-auth/pkg/routes/api/ui/recaptcha"
 	"simple-auth/pkg/routes/common"
+	"simple-auth/pkg/routes/middleware"
 	"unicode/utf8"
 
 	"github.com/sirupsen/logrus"
@@ -61,7 +62,7 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 	})
 
 	// log the user in to a session
-	err3 := createSession(c, &env.config.JWT, account)
+	err3 := middleware.CreateSession(c, &env.config.JWT, account)
 	if err3 != nil {
 		logrus.Warnf("Unable to create session post-login, ignoring: %v", err3)
 	}

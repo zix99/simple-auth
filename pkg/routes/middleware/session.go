@@ -1,4 +1,4 @@
-package ui
+package middleware
 
 import (
 	"errors"
@@ -31,7 +31,7 @@ func issueSessionJwt(config *config.ConfigJWT, account *db.Account) (string, err
 	return token.SignedString([]byte(config.Secret))
 }
 
-func createSession(c echo.Context, config *config.ConfigJWT, account *db.Account) error {
+func CreateSession(c echo.Context, config *config.ConfigJWT, account *db.Account) error {
 	signedToken, err := issueSessionJwt(config, account)
 	if err != nil {
 		logrus.Warn(err)
@@ -48,7 +48,7 @@ func createSession(c echo.Context, config *config.ConfigJWT, account *db.Account
 	return nil
 }
 
-func clearSession(c echo.Context) {
+func ClearSession(c echo.Context) {
 	c.SetCookie(&http.Cookie{
 		Name:     authCookieName,
 		Value:    "",
@@ -57,7 +57,7 @@ func clearSession(c echo.Context) {
 	})
 }
 
-func loggedInMiddleware(key string) echo.MiddlewareFunc {
+func LoggedInMiddleware(key string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			cookie, err := c.Cookie(authCookieName)

@@ -4,6 +4,7 @@ import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
+	"simple-auth/pkg/routes/middleware"
 
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
@@ -30,7 +31,7 @@ func (env *environment) Mount(group *echo.Group) {
 
 	if env.config.JWT.Secret != "" {
 		manageGroup := group.Group("/manage/")
-		manageGroup.Use(loggedInMiddleware(env.config.JWT.Secret))
+		manageGroup.Use(middleware.LoggedInMiddleware(env.config.JWT.Secret))
 		manageGroup.GET("", env.routeAccount)
 	} else {
 		logrus.Warn("No JWT secret specified, refusing to bind user management endpoints")

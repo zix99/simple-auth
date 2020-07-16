@@ -3,6 +3,7 @@ package ui
 import (
 	"net/http"
 	"simple-auth/pkg/routes/common"
+	"simple-auth/pkg/routes/middleware"
 
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
@@ -28,7 +29,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 	}
 	logrus.Infof("Login for user '%s' accepted", req.Username)
 
-	err = createSession(c, &env.config.JWT, account)
+	err = middleware.CreateSession(c, &env.config.JWT, account)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Something went wrong signing JWT"))
 	}
@@ -39,7 +40,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 }
 
 func (env *environment) routeLogout(c echo.Context) error {
-	clearSession(c)
+	middleware.ClearSession(c)
 	return c.JSON(http.StatusOK, common.Json{
 		"ok": true,
 	})

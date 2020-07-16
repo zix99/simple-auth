@@ -2,6 +2,7 @@ package auth
 
 import (
 	"simple-auth/pkg/config"
+	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
 	"time"
 
@@ -23,13 +24,32 @@ In this case, the following will happen:
 	3. The server, having the userId and verification token can validate that the two belong to each other, and are current and valid
 */
 
+type TokenAuthController struct {
+	db     db.SADB
+	config *config.ConfigTokenAuthenticator
+}
+
+func NewTokenAuthController(db db.SADB, config *config.ConfigTokenAuthenticator) *TokenAuthController {
+	return &TokenAuthController{
+		db,
+		config,
+	}
+}
+
+func (env *TokenAuthController) Mount(group *echo.Group) {
+	logrus.Info("Enabling session auth...")
+	group.POST("", env.routeIssueSessionToken)
+	group.POST("/session", env.routeIssueVerificationToken)
+	group.POST("/session/verify", env.routeVerifyToken)
+}
+
 type responseToken struct {
 	Token string `json:"token"`
 }
 
 // routeUser validates a user and issues a account-token
 // only one session can be active at a given time
-func (env *environment) routeIssueSessionToken(c echo.Context) error {
+func (env *TokenAuthController) routeIssueSessionToken(c echo.Context) error {
 	req := struct {
 		Username string `json:"username" form:"username"`
 		Password string `json:"password" form:"password"`
@@ -38,7 +58,7 @@ func (env *environment) routeIssueSessionToken(c echo.Context) error {
 		return c.JSON(400, common.JsonError(err))
 	}
 
-	expireDuration := time.Duration(config.Global.Authenticators.Token.SessionExpiresMinutes) * time.Minute
+	expireDuration := time.Duration(env.config.SessionExpiresMinutes) * time.Minute
 	token, err := env.db.AssertCreateSessionToken(req.Username, req.Password, expireDuration)
 	if err != nil {
 		return c.JSON(401, common.JsonErrorf("Unable to create session token"))
@@ -49,7 +69,7 @@ func (env *environment) routeIssueSessionToken(c echo.Context) error {
 	})
 }
 
-func (env *environment) routeIssueVerificationToken(c echo.Context) error {
+func (env *TokenAuthController) routeIssueVerificationToken(c echo.Context) error {
 	req := struct {
 		Username string `json:"username" form:"username"`
 		Token    string `json:"token" form:"token"`
@@ -70,7 +90,7 @@ func (env *environment) routeIssueVerificationToken(c echo.Context) error {
 	})
 }
 
-func (env *environment) routeVerifyToken(c echo.Context) error {
+func (env *TokenAuthController) routeVerifyToken(c echo.Context) error {
 	req := struct {
 		Username string `json:"username" form:"username"`
 		Token    string `json:"token" form:"token"`

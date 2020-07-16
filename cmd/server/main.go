@@ -82,7 +82,14 @@ func simpleAuthServer(config *config.Config) error {
 	})
 
 	// Attach routes
-	auth.NewController(env.db, &config.Authenticators).Mount(e.Group("/api/v1/auth"))
+	if config.Authenticators.Token.Enabled {
+		route := e.Group("/api/v1/auth/token")
+		auth.NewTokenAuthController(env.db, &config.Authenticators.Token).Mount(route)
+	}
+	if config.Authenticators.Simple.Enabled {
+		route := e.Group("/api/v1/auth/simple")
+		auth.NewSimpleAuthController(env.db).Mount(route)
+	}
 	ui.NewController(env.db, &config.Web, &config.Email).Mount(e.Group("/api/ui"))
 
 	// Start

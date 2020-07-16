@@ -5,15 +5,19 @@ type ConfigDatabase struct {
 	URL    string
 }
 
+type ConfigTokenAuthenticator struct {
+	Enabled                    bool
+	SessionExpiresMinutes      int
+	VerificationExpiresSeconds int
+}
+
+type ConfigSimple struct {
+	Enabled bool
+}
+
 type ConfigAuthencatorSet struct {
-	Token struct {
-		Enabled                    bool
-		SessionExpiresMinutes      int
-		VerificationExpiresSeconds int
-	}
-	Simple struct {
-		Enabled bool
-	}
+	Token  ConfigTokenAuthenticator
+	Simple ConfigSimple
 }
 
 type ConfigWebRequirements struct {

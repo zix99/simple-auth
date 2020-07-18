@@ -2,10 +2,12 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo"
@@ -16,19 +18,36 @@ import (
 
 const authCookieName = "auth"
 
+func parseSigningKey(method, key string) (interface{}, error) {
+	lm := strings.ToUpper(method)
+	if strings.HasPrefix(lm, "HS") {
+		return []byte(key), nil
+	}
+	if strings.HasPrefix(lm, "RS") {
+		return jwt.ParseRSAPrivateKeyFromPEM([]byte(key))
+	}
+	return nil, fmt.Errorf("Unable to parse key for %s", method)
+}
+
 func issueSessionJwt(config *config.ConfigJWT, account *db.Account) (string, error) {
 	if len(config.SigningKey) < 8 {
 		logrus.Warn("No JWT secret set, or secrete too short.  User not able to login")
 		return "", errors.New("Server needs secret")
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+	signingMethod := jwt.GetSigningMethod(config.SigningMethod)
+	decodedKey, err := parseSigningKey(config.SigningMethod, config.SigningKey)
+	if err != nil {
+		return "", err
+	}
+
+	token := jwt.NewWithClaims(signingMethod, jwt.StandardClaims{
 		Issuer:    config.Issuer,
 		Subject:   account.UUID,
 		Audience:  "simple-auth",
 		ExpiresAt: time.Now().Add(time.Duration(config.ExpiresMinutes) * time.Minute).Unix(),
 	})
-	return token.SignedString([]byte(config.SigningKey))
+	return token.SignedString(decodedKey)
 }
 
 func CreateSession(c echo.Context, config *config.ConfigLoginCookie, account *db.Account) error {
@@ -71,7 +90,7 @@ func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
 			}
 
 			token, err := jwt.ParseWithClaims(cookie.Value, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-				return []byte(config.SigningKey), nil
+				return parseSigningKey(config.SigningMethod, config.SigningKey)
 			})
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Unable to parse JWT"))

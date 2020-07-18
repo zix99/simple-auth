@@ -29,7 +29,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 	}
 	logrus.Infof("Login for user '%s' accepted", req.Username)
 
-	err = middleware.CreateSession(c, &env.config.JWT, account)
+	err = middleware.CreateSession(c, &env.config.Login.Cookie, account)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Something went wrong signing JWT"))
 	}

@@ -46,8 +46,8 @@ func simpleAuthServer(config *config.Config) error {
 	if config.Production {
 		logrus.Info("Running in production mode")
 	}
-	if config.Web.JWT.Secret == "" {
-		logrus.Warn("No web.jwt.secret is set, user will not be able to login")
+	if config.Web.Login.Cookie.JWT.SigningKey == "" {
+		logrus.Warn("No web.login.cookie.jwt.signingkey is set, user will not be able to login")
 	}
 
 	// Dependencies
@@ -92,11 +92,9 @@ func simpleAuthServer(config *config.Config) error {
 	}
 
 	// Attach UI/access routes
-	if config.Web.Login.Cookie.Enabled {
-		e.GET("/login", func(c echo.Context) error {
-			return c.Render(http.StatusOK, "login", context)
-		})
-	}
+	e.GET("/login", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "login", context)
+	})
 	ui.NewController(env.db, &config.Web, &config.Email).Mount(e.Group("/api/ui"))
 
 	// Start

@@ -13,19 +13,16 @@ web:
         usernameminlength: 5
         usernamemaxlength: 20
 
-    jwt:
-        # Key for jwt-signing
-        secret: ""
-        issuer: "simple-auth"
-        expiresminutes: 30
-
     login:
         cookie:
-            enabled: true
+            jwt:
+                # Key for jwt-signing
+                signingmethod: "hs256"
+                signingkey: ""
+                issuer: "simple-auth"
+                expiresminutes: 30
             name: "auth"
-            signingkey: ""
             expiresminutes: 1440
-            path: /
             secureonly: false
             httponly: true
 

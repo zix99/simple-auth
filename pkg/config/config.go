@@ -35,20 +35,19 @@ type ConfigRecaptchaV2 struct {
 }
 
 type ConfigJWT struct {
-	Secret         string
-	Issuer         string
+	SigningMethod  string // As defined by go-jwt. Commonly HS256, HS512, RS256, RS512
+	SigningKey     string // Key used to sign cookie (and later for you to verify!). If RS based, will be parsed as PEM
 	ExpiresMinutes int
+	Issuer         string
 }
 
 type ConfigLoginCookie struct {
-	Enabled        bool
-	Name           string // Name of the cookie
-	SigningKey     string // Key used to sign cookie (and later for you to verify!)
-	ExpiresMinutes int
-	Path           string
-	Domain         string
-	SecureOnly     bool
-	HTTPOnly       bool
+	Name       string // Name of the cookie
+	JWT        ConfigJWT
+	Path       string
+	Domain     string
+	SecureOnly bool
+	HTTPOnly   bool
 }
 
 type ConfigLoginOIDC struct {
@@ -72,7 +71,6 @@ type ConfigWeb struct {
 	Host         string
 	Requirements ConfigWebRequirements
 	RecaptchaV2  ConfigRecaptchaV2
-	JWT          ConfigJWT
 	Login        ConfigLogin
 	Metadata     map[string]interface{}
 }

@@ -17,7 +17,7 @@ import (
 const authCookieName = "auth"
 
 func issueSessionJwt(config *config.ConfigJWT, account *db.Account) (string, error) {
-	if len(config.Secret) < 8 {
+	if len(config.SigningKey) < 8 {
 		logrus.Warn("No JWT secret set, or secrete too short.  User not able to login")
 		return "", errors.New("Server needs secret")
 	}
@@ -28,22 +28,27 @@ func issueSessionJwt(config *config.ConfigJWT, account *db.Account) (string, err
 		Audience:  "simple-auth",
 		ExpiresAt: time.Now().Add(time.Duration(config.ExpiresMinutes) * time.Minute).Unix(),
 	})
-	return token.SignedString([]byte(config.Secret))
+	return token.SignedString([]byte(config.SigningKey))
 }
 
-func CreateSession(c echo.Context, config *config.ConfigJWT, account *db.Account) error {
-	signedToken, err := issueSessionJwt(config, account)
+func CreateSession(c echo.Context, config *config.ConfigLoginCookie, account *db.Account) error {
+	signedToken, err := issueSessionJwt(&config.JWT, account)
 	if err != nil {
 		logrus.Warn(err)
 		return err
 	}
 
-	c.SetCookie(&http.Cookie{
+	cookie := &http.Cookie{
 		Name:     authCookieName,
 		Value:    signedToken,
-		HttpOnly: true,
-		Expires:  time.Now().Add(time.Duration(config.ExpiresMinutes) * time.Minute),
-	})
+		HttpOnly: config.HTTPOnly,
+		Secure:   config.SecureOnly,
+		Expires:  time.Now().Add(time.Duration(config.JWT.ExpiresMinutes) * time.Minute),
+		Domain:   config.Domain,
+		Path:     config.Path,
+	}
+
+	c.SetCookie(cookie)
 
 	return nil
 }
@@ -57,7 +62,7 @@ func ClearSession(c echo.Context) {
 	})
 }
 
-func LoggedInMiddleware(key string) echo.MiddlewareFunc {
+func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			cookie, err := c.Cookie(authCookieName)
@@ -66,7 +71,7 @@ func LoggedInMiddleware(key string) echo.MiddlewareFunc {
 			}
 
 			token, err := jwt.ParseWithClaims(cookie.Value, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-				return []byte(key), nil
+				return []byte(config.SigningKey), nil
 			})
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Unable to parse JWT"))

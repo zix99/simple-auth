@@ -62,7 +62,7 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 	})
 
 	// log the user in to a session
-	err3 := middleware.CreateSession(c, &env.config.JWT, account)
+	err3 := middleware.CreateSession(c, &env.config.Login.Cookie, account)
 	if err3 != nil {
 		logrus.Warnf("Unable to create session post-login, ignoring: %v", err3)
 	}

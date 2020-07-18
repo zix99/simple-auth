@@ -29,9 +29,9 @@ func (env *environment) Mount(group *echo.Group) {
 	group.POST("/login", env.routeLogin)
 	group.POST("/logout", env.routeLogout)
 
-	if env.config.JWT.Secret != "" {
+	if env.config.Login.Cookie.JWT.SigningKey != "" {
 		manageGroup := group.Group("/manage/")
-		manageGroup.Use(middleware.LoggedInMiddleware(env.config.JWT.Secret))
+		manageGroup.Use(middleware.LoggedInMiddleware(&env.config.Login.Cookie.JWT))
 		manageGroup.GET("", env.routeAccount)
 	} else {
 		logrus.Warn("No JWT secret specified, refusing to bind user management endpoints")

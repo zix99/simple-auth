@@ -33,6 +33,24 @@
       <a href="#" @click.prevent="forgotPassword">Forgot Password?</a>
     </div>
 
+    <div v-if="state === 'totp'">
+      <p>Your account requires a two-factor login.  Please enter your token below to continue.</p>
+      <div class="field">
+        <label class="label">2FA</label>
+        <div class="control has-icons-left">
+          <input class="input" type="text" placeholder="2FA Token" v-model="totp" />
+          <span class="icon is-small is-left">
+            <i class="fas fa-lock" />
+          </span>
+        </div>
+      </div>
+      <div class="field is-grouped">
+        <div class="control">
+          <button class="button is-link" @click="submitClick">Login</button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="state === 'forgot'">
       Forgot pass
     </div>
@@ -48,6 +66,7 @@ export default {
       error: null,
       username: '',
       password: '',
+      totp: '',
       state: 'login',
     };
   },
@@ -56,6 +75,7 @@ export default {
       const postData = {
         username: this.username,
         password: this.password,
+        totp: this.totp,
       };
       axios.post('api/ui/login', postData)
         .then(() => {

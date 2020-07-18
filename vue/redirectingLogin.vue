@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Login @loggedIn="loginSuccess"/>
+    <Login @loggedIn="loginSuccess" />
   </div>
 </template>
 
@@ -8,12 +8,19 @@
 import Login from './widgets/login.vue';
 
 export default {
+  properties: {
+    successUrl: null,
+  },
   components: {
     Login,
   },
   methods: {
     loginSuccess() {
-      console.log("Logged in");
+      if (this.successUrl) {
+        window.location = this.successUrl;
+      } else {
+        window.location = '/';
+      }
     },
   },
 };

@@ -6,6 +6,7 @@ import (
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/api/auth"
 	"simple-auth/pkg/routes/api/ui"
+	logMiddleware "simple-auth/pkg/routes/middleware"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -58,7 +59,7 @@ func simpleAuthServer(config *config.Config) error {
 	e := echo.New()
 	e.Debug = !config.Production
 
-	e.Use(middleware.Logger())
+	e.Use(logMiddleware.NewLoggerMiddleware())
 	e.Use(middleware.Recover())
 	e.Use(middleware.AddTrailingSlash())
 

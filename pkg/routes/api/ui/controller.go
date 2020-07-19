@@ -7,6 +7,7 @@ import (
 	"simple-auth/pkg/routes/middleware"
 
 	"github.com/labstack/echo"
+	echoMiddleware "github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,6 +26,8 @@ func NewController(db db.SADB, config *config.ConfigWeb, emailConfig *config.Con
 }
 
 func (env *environment) Mount(group *echo.Group) {
+	group.Use(echoMiddleware.CSRF())
+
 	group.POST("/account", env.routeCreateAccount)
 	group.POST("/login", env.routeLogin)
 	group.POST("/logout", env.routeLogout)

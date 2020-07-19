@@ -39,6 +39,8 @@ docker build .
 - OIDC Login Flow
 - Google Auth
 - TOTP
+- AutoTLS
+- Prometheus
 - Embed all resources into single exe?
 
 # License

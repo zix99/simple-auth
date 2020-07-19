@@ -35,7 +35,11 @@ func issueSessionJwt(config *config.ConfigJWT, account *db.Account) (string, err
 		return "", errors.New("Server needs secret")
 	}
 
-	signingMethod := jwt.GetSigningMethod(config.SigningMethod)
+	signingMethod := jwt.GetSigningMethod(strings.ToUpper(config.SigningMethod))
+	if signingMethod == nil {
+		return "", fmt.Errorf("Unknown signing method %s, check your config", config.SigningMethod)
+	}
+
 	decodedKey, err := parseSigningKey(config.SigningMethod, config.SigningKey)
 	if err != nil {
 		return "", err

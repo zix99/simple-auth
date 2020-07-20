@@ -10,38 +10,40 @@ import (
 
 type uiController struct {
 	config *config.ConfigWeb
+	meta   *config.ConfigMetadata
 }
 
-func newUIController(config *config.ConfigWeb) *uiController {
-	return &uiController{config}
+func newUIController(config *config.ConfigWeb, meta *config.ConfigMetadata) *uiController {
+	return &uiController{config, meta}
 }
 
 func (s *uiController) Mount(group *echo.Group) {
 	group.Use(middleware.CSRF())
 
 	group.GET("/", func(c echo.Context) error {
-		context := buildTemplateContext(c, s.config)
+		context := buildTemplateContext(c, s.meta, s.config)
 		return c.Render(http.StatusOK, "home", context)
 	})
 	group.GET("/create", func(c echo.Context) error {
-		context := buildTemplateContext(c, s.config)
+		context := buildTemplateContext(c, s.meta, s.config)
 		return c.Render(http.StatusOK, "createAccount", context)
 	})
 	group.GET("/manage", func(c echo.Context) error {
-		context := buildTemplateContext(c, s.config)
+		context := buildTemplateContext(c, s.meta, s.config)
 		return c.Render(http.StatusOK, "manageAccount", context)
 	})
 	group.GET("/login", func(c echo.Context) error {
-		context := buildTemplateContext(c, s.config)
+		context := buildTemplateContext(c, s.meta, s.config)
 		return c.Render(http.StatusOK, "login", context)
 	})
 }
 
-func buildTemplateContext(c echo.Context, web *config.ConfigWeb) map[string]interface{} {
+func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *config.ConfigWeb) map[string]interface{} {
 	context := make(map[string]interface{})
-	for k, v := range web.Metadata {
+	for k, v := range meta.Bucket {
 		context[k] = v
 	}
+	context["company"] = meta.Company
 	context["Requirements"] = web.Requirements
 	context["RecaptchaV2"] = struct {
 		Enabled bool

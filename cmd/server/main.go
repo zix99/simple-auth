@@ -57,7 +57,7 @@ func simpleAuthServer(config *config.Config) error {
 	e.GET("/health", env.routeHealth)
 
 	// UI
-	newUIController(&config.Web).Mount(e.Group(""))
+	newUIController(&config.Web, &config.Metadata).Mount(e.Group(""))
 
 	// Attach authenticator routes
 	if config.Authenticators.Token.Enabled {
@@ -70,7 +70,7 @@ func simpleAuthServer(config *config.Config) error {
 	}
 
 	// Attach UI/access router
-	ui.NewController(env.db, &config.Web, &config.Email).Mount(e.Group("/api/ui"))
+	ui.NewController(env.db, &config.Metadata, &config.Web, &config.Email).Mount(e.Group("/api/ui"))
 
 	// Start
 	logrus.Infof("Starting server on http://%v", config.Web.Host)

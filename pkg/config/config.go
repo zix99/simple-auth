@@ -67,12 +67,16 @@ type ConfigLogin struct {
 	OIDC ConfigLoginOIDC
 }
 
+type ConfigMetadata struct {
+	Company string
+	Bucket  map[string]interface{}
+}
+
 type ConfigWeb struct {
 	Host         string
 	Requirements ConfigWebRequirements
 	RecaptchaV2  ConfigRecaptchaV2
 	Login        ConfigLogin
-	Metadata     map[string]interface{}
 }
 
 type ConfigEmail struct {
@@ -85,6 +89,7 @@ type ConfigEmail struct {
 }
 
 type Config struct {
+	Metadata       ConfigMetadata
 	Db             ConfigDatabase
 	Web            ConfigWeb            // Configure how the user interacts with the web
 	Email          ConfigEmail          // SMTP/Email sending config

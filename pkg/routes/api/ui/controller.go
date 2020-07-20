@@ -13,15 +13,17 @@ import (
 
 type environment struct {
 	db     db.SADB
+	meta   *config.ConfigMetadata
 	config *config.ConfigWeb
 	email  *config.ConfigEmail
 }
 
-func NewController(db db.SADB, config *config.ConfigWeb, emailConfig *config.ConfigEmail) common.Controller {
+func NewController(db db.SADB, meta *config.ConfigMetadata, config *config.ConfigWeb, emailConfig *config.ConfigEmail) common.Controller {
 	return &environment{
 		db:     db,
 		config: config,
 		email:  emailConfig,
+		meta:   meta,
 	}
 }
 

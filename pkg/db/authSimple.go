@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -34,6 +35,13 @@ func (s *sadb) CreateAccountAuthSimple(belongsTo *Account, username, password st
 		return errors.New("Unable to associate with deactivated account")
 	}
 
+	username = strings.TrimSpace(strings.ToLower(username))
+	password = strings.TrimSpace(password)
+
+	if username == "" || password == "" {
+		return errors.New("Invalid username or password")
+	}
+
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), 0)
 	if err != nil {
 		return err
@@ -53,6 +61,7 @@ func (s *sadb) resolveSimpleAuthForUser(username string) (*accountAuthSimple, *A
 	if username == "" {
 		return nil, nil, errors.New("Invalid username")
 	}
+	username = strings.ToLower(username)
 
 	var simpleAuth accountAuthSimple
 	if err := s.db.Where(&accountAuthSimple{Username: username}).First(&simpleAuth).Error; err != nil {

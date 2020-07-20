@@ -1,6 +1,9 @@
 package db
 
 import (
+	"errors"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 )
@@ -19,6 +22,11 @@ type Account struct {
 }
 
 func (s *sadb) CreateAccount(email string) (*Account, error) {
+	email = strings.TrimSpace(strings.ToLower(email))
+	if email == "" {
+		return nil, errors.New("Invalid email")
+	}
+
 	account := &Account{
 		UUID:   uuid.New().String(),
 		Email:  email,

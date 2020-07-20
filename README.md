@@ -48,7 +48,6 @@ docker build .
 ```
 
 ## Feature Wishlist
-- bulma embed: https://www.npmjs.com/package/bulma
 - ALways lowercase username
 - Simple auth return a JWT token for continued longetivity and verification
 - Should simple-auth API have a shared secret?

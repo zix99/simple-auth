@@ -88,5 +88,5 @@ func simpleAuthServer(config *config.Config) error {
 }
 
 func main() {
-	logrus.Fatal(simpleAuthServer(config.Global))
+	logrus.Fatal(simpleAuthServer(config.Load(true)))
 }

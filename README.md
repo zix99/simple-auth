@@ -8,6 +8,22 @@ with a UI, offering various security measures.  Then, via various authenticators
 
 TODO
 
+## Stand-Alone Mode
+
+In Stand-Alone mode, you run *simple-auth* completely in isolation.  Users can sign-up on the site, and then you can authenticate them with various startegies (see below).  In this code, simple-auth doesn't communicate to anyone externally, and counts on you making an API request in the future.
+
+### External Authentication
+
+**Simple**: Make a `POST` to `/api/v1/auth/simple` with username/password and optionally totp parameters.  Will return 200 on access-allowed, 401 on denied.  Only works with simple-auth (eg, not external OIDC providers).  This method is least-secure, but easiest to consume in a pure-trust environment.
+
+**Token**: TBD
+
+**OIDC**: Full OpenID Connect OAuth2 flow.
+
+## Same-Domain Cookie
+
+## Reverse Proxy Gateway
+
 # Development
 
 ## Dev-Mode
@@ -32,6 +48,10 @@ docker build .
 ```
 
 ## Feature Wishlist
+- bulma embed: https://www.npmjs.com/package/bulma
+- ALways lowercase username
+- Simple auth return a JWT token for continued longetivity and verification
+- Should simple-auth API have a shared secret?
 - Company name first class citizen
 - Real success page
 - Account management

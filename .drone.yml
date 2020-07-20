@@ -24,6 +24,7 @@ steps:
       - go test -race ./...
       - go vet $(go list ./... | grep -v "vendor")
       - go build -o simple-auth-server simple-auth/cmd/server
+      - go build -o simple-auth-cli simple-auth/cmd/cli
   - name: Docker Build
     image: docker:19
     volumes:

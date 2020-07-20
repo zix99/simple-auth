@@ -30,7 +30,7 @@ func loadEnvironment(config *Config) error {
 	return envconfig.Process(envPrefix, config)
 }
 
-func readConfig() (config *Config) {
+func readConfig(parseArgs bool) (config *Config) {
 	config = &Config{}
 	logrus.Info("Loading config...")
 
@@ -45,16 +45,22 @@ func readConfig() (config *Config) {
 		logrus.Warnf("Unable to load environment variables: %v", err)
 	}
 
-	if err := argparser.LoadArgs(config, os.Args[1:]...); err != nil {
-		logrus.Fatalf("Unable to load arguments: %v", err)
+	if parseArgs {
+		if err := argparser.LoadArgs(config, os.Args[1:]...); err != nil {
+			logrus.Fatalf("Unable to load arguments: %v", err)
+		}
 	}
 
 	return
 }
 
 // Global configuration
-var Global *Config
+var config *Config
 
-func init() {
-	Global = readConfig()
+// Global reads global configuration
+func Load(parseArgs bool) *Config {
+	if config == nil {
+		config = readConfig(parseArgs)
+	}
+	return config
 }

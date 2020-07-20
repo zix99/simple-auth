@@ -39,6 +39,9 @@ docker build .
 - OIDC Login Flow
 - Google Auth
 - TOTP
+- Act as reverse proxy to application
+- Disable logins
+- CLI tool
 - AutoTLS
 - Prometheus
 - Embed all resources into single exe?

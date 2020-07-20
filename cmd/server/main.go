@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/api/auth"
@@ -27,23 +26,6 @@ func (env *environment) routeHealth(c echo.Context) error {
 		Status: "OK",
 		DB:     env.db.IsAlive(),
 	})
-}
-
-func buildTemplateContext(c echo.Context, web *config.ConfigWeb) map[string]interface{} {
-	context := make(map[string]interface{})
-	for k, v := range web.Metadata {
-		context[k] = v
-	}
-	context["Requirements"] = web.Requirements
-	context["RecaptchaV2"] = struct {
-		Enabled bool
-		SiteKey string
-		Theme   string
-	}{web.RecaptchaV2.Enabled, web.RecaptchaV2.SiteKey, web.RecaptchaV2.Theme}
-
-	context["csrf"] = c.Get("csrf")
-
-	return context
 }
 
 func simpleAuthServer(config *config.Config) error {
@@ -74,18 +56,8 @@ func simpleAuthServer(config *config.Config) error {
 	// Health
 	e.GET("/health", env.routeHealth)
 
-	e.GET("/", func(c echo.Context) error {
-		context := buildTemplateContext(c, &config.Web)
-		return c.Render(http.StatusOK, "home", context)
-	}, middleware.CSRF())
-	e.GET("/create", func(c echo.Context) error {
-		context := buildTemplateContext(c, &config.Web)
-		return c.Render(http.StatusOK, "createAccount", context)
-	}, middleware.CSRF())
-	e.GET("/manage", func(c echo.Context) error {
-		context := buildTemplateContext(c, &config.Web)
-		return c.Render(http.StatusOK, "manageAccount", context)
-	}, middleware.CSRF())
+	// UI
+	newUIController(&config.Web).Mount(e.Group(""))
 
 	// Attach authenticator routes
 	if config.Authenticators.Token.Enabled {
@@ -97,11 +69,7 @@ func simpleAuthServer(config *config.Config) error {
 		auth.NewSimpleAuthController(env.db).Mount(route)
 	}
 
-	// Attach UI/access routes
-	e.GET("/login", func(c echo.Context) error {
-		context := buildTemplateContext(c, &config.Web)
-		return c.Render(http.StatusOK, "login", context)
-	}, middleware.CSRF())
+	// Attach UI/access router
 	ui.NewController(env.db, &config.Web, &config.Email).Mount(e.Group("/api/ui"))
 
 	// Start

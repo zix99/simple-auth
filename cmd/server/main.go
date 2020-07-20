@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 type environment struct {
@@ -74,7 +75,16 @@ func simpleAuthServer(config *config.Config) error {
 
 	// Start
 	logrus.Infof("Starting server on http://%v", config.Web.Host)
-	return e.Start(config.Web.Host)
+	if config.Web.TLS.Enabled {
+		if config.Web.TLS.Auto {
+			e.AutoTLSManager.Cache = autocert.DirCache(config.Web.TLS.Cache)
+			return e.StartAutoTLS(config.Web.Host)
+		} else {
+			return e.StartTLS(config.Web.Host, config.Web.TLS.CertFile, config.Web.TLS.KeyFile)
+		}
+	} else {
+		return e.Start(config.Web.Host)
+	}
 }
 
 func main() {

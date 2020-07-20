@@ -72,8 +72,17 @@ type ConfigMetadata struct {
 	Bucket  map[string]interface{}
 }
 
+type ConfigWebTLS struct {
+	Enabled  bool
+	Auto     bool   // Auto get certificate via Let's Encrypt
+	Cache    string // If auto TLS, directory certs to be stored
+	CertFile string // If not auto, cert
+	KeyFile  string // If not auto, key
+}
+
 type ConfigWeb struct {
 	Host         string
+	TLS          ConfigWebTLS
 	Requirements ConfigWebRequirements
 	RecaptchaV2  ConfigRecaptchaV2
 	Login        ConfigLogin

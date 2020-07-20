@@ -5,6 +5,10 @@ metadata:
 web:
     # The host and port the server (API & Web) listens on
     host: "0.0.0.0:9002"
+    tls:
+        enabled: false
+        auto: true
+        cache: ./
 
     # Requirements inform server and client of any form requirements
     requirements:

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import axios from 'axios';
+import 'bulma/css/bulma.css';
 import banner from './components/banner.vue';
 import createaccount from './createAccount.vue';
 import manageaccount from './manageAccount.vue';

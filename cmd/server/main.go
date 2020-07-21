@@ -67,7 +67,7 @@ func simpleAuthServer(config *config.Config) error {
 	}
 	if config.Authenticators.Simple.Enabled {
 		route := e.Group("/api/v1/auth/simple")
-		auth.NewSimpleAuthController(env.db).Mount(route)
+		auth.NewSimpleAuthController(env.db, &config.Authenticators.Simple).Mount(route)
 	}
 
 	// Attach UI/access router

@@ -11,13 +11,14 @@ type ConfigTokenAuthenticator struct {
 	VerificationExpiresSeconds int
 }
 
-type ConfigSimple struct {
-	Enabled bool
+type ConfigSimpleAuthenticator struct {
+	Enabled      bool
+	SharedSecret string // If non-empty, will be required as a Bearer token in the Authorization header. If empty, anyone can use this endpoint (if enabled)
 }
 
 type ConfigAuthencatorSet struct {
 	Token  ConfigTokenAuthenticator
-	Simple ConfigSimple
+	Simple ConfigSimpleAuthenticator
 }
 
 type ConfigWebRequirements struct {

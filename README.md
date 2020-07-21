@@ -48,7 +48,6 @@ docker build .
 ```
 
 ## Feature Wishlist
-- ALways lowercase username
 - Simple auth return a JWT token for continued longetivity and verification
 - Should simple-auth API have a shared secret?
 - Company name first class citizen

@@ -1,12 +1,14 @@
 # Metadata is fed into the `tmpl` files to be rendered
 metadata:
     company: "My Company"
-    bucket: {}
+    bucket: {} # Not used by default. Can be used to customize
 web:
     # The host and port the server (API & Web) listens on
     host: "0.0.0.0:9002"
     tls:
         enabled: false
+        # AutoTLS (and cache) are used to leverage LetsEncrypt to acquire certificate
+        # Needs to be internet-facing to work
         auto: true
         cache: ./
 
@@ -45,6 +47,7 @@ authenticators:
         verificationexpiresseconds: 15
     simple:
         enabled: true
+        sharedsecret: "your-super-secret-token"
 db:
     driver: "sqlite3"
     url: "test.db"

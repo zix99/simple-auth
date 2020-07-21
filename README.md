@@ -48,19 +48,19 @@ docker build .
 ```
 
 ## Feature Wishlist
-- Simple auth return a JWT token for continued longetivity and verification
-- Should simple-auth API have a shared secret?
-- Company name first class citizen
+
+### V0
 - Real success page
 - Account management
 - Forgot password
+- Act as reverse proxy to application
+
+### V1
 - OIDC Login Flow
 - Google Auth
 - TOTP
-- Act as reverse proxy to application
 - Disable logins
-- CLI tool
-- AutoTLS
+- CLI tool: resetpass, invalidate user, etc
 - Prometheus
 - Embed all resources into single exe?
 

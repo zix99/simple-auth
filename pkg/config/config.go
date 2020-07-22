@@ -70,6 +70,7 @@ type ConfigLogin struct {
 
 type ConfigMetadata struct {
 	Company string
+	Footer  string
 	Bucket  map[string]interface{}
 }
 

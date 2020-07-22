@@ -44,6 +44,7 @@ func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *conf
 		context[k] = v
 	}
 	context["company"] = meta.Company
+	context["footer"] = meta.Footer
 	context["Requirements"] = web.Requirements
 	context["RecaptchaV2"] = struct {
 		Enabled bool

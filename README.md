@@ -24,6 +24,19 @@ In Stand-Alone mode, you run *simple-auth* completely in isolation.  Users can s
 
 ## Reverse Proxy Gateway
 
+# Configuration
+
+TODO
+
+# Customization
+
+Since *simple-auth* is a whitelabeled solution, it supports some level of customization via custom styles and template modifications.
+
+The most prominant place to put styles is in `static/common.css`.  This file doesn't have anything in it by default, and can act
+as a place to add overrides.
+
+The `metadata` section of the configuration also has some pre-configured tweakable things like `company` and `copyright`.  See [simpleauth.default.yml](simpleauth.default.yml) for a full list of things to change.
+
 # Development
 
 ## Dev-Mode

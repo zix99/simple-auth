@@ -1,6 +1,7 @@
 # Metadata is fed into the `tmpl` files to be rendered
 metadata:
     company: "My Company"
+    footer: ""
     bucket: {} # Not used by default. Can be used to customize
 web:
     # The host and port the server (API & Web) listens on

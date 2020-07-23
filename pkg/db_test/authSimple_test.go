@@ -72,3 +72,8 @@ func TestAssertLoginFail(t *testing.T) {
 	assert.Nil(t, account)
 	assert.Error(t, err)
 }
+
+func TestCreateDupeUsername(t *testing.T) {
+	err := sadb.CreateAccountAuthSimple(authSimpleAccount, authSimpleUsername, authSimplePassword)
+	assert.Error(t, err)
+}

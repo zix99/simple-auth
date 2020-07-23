@@ -44,10 +44,10 @@ func (s *sadb) AssertCreateSessionToken(username, password string, expires time.
 	}
 
 	// Invalidate all existing tokens
-	s.db.Where(accountAuthSessionToken{
-		AccountID:   account.ID,
-		Invalidated: false,
-	}).Updates(accountAuthSessionToken{Invalidated: true})
+	err = s.db.Model(&accountAuthSessionToken{}).Where("account_id = ? and not invalidated", account.ID).Update("invalidated", true).Error
+	if err != nil {
+		return "", err
+	}
 
 	// Create new session tokens
 	sessionToken := &accountAuthSessionToken{
@@ -56,13 +56,15 @@ func (s *sadb) AssertCreateSessionToken(username, password string, expires time.
 		Expires:      time.Now().UTC().Add(expires),
 		Invalidated:  false,
 	}
-	s.db.Create(sessionToken)
+	if err := s.db.Create(sessionToken).Error; err != nil {
+		return "", err
+	}
 
 	return sessionToken.SessionToken, nil
 }
 
 func (s *sadb) InvalidateSession(sessionToken string) error {
-	return s.db.Where(accountAuthSessionToken{
+	return s.db.Model(&accountAuthSessionToken{}).Where(&accountAuthSessionToken{
 		SessionToken: sessionToken,
 		Invalidated:  false,
 	}).Updates(accountAuthSessionToken{Invalidated: true}).Error
@@ -95,7 +97,9 @@ func (s *sadb) CreateVerificationToken(username, sessionToken string) (string, e
 		Consumed:                  false,
 		Expires:                   time.Now().UTC().Add(10 * time.Second),
 	}
-	s.db.Create(verificationToken)
+	if err := s.db.Create(verificationToken).Error; err != nil {
+		return "", err
+	}
 
 	return verificationToken.VerificationToken, nil
 }

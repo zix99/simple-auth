@@ -53,8 +53,7 @@ func (s *sadb) CreateAccountAuthSimple(belongsTo *Account, username, password st
 		PasswordBcrypt: string(hashed),
 	}
 
-	s.db.Create(auth)
-	return nil
+	return s.db.Create(auth).Error
 }
 
 func (s *sadb) resolveSimpleAuthForUser(username string) (*accountAuthSimple, *Account, error) {

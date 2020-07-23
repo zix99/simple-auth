@@ -20,3 +20,17 @@ func TestCreateAccountDupeEmails(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, account)
 }
+
+func TestFindAccount(t *testing.T) {
+	newAccount, _ := sadb.CreateAccount("findme@asdf.com")
+	account, err := sadb.FindAccount(newAccount.UUID)
+	assert.NoError(t, err)
+	assert.Equal(t, newAccount.ID, account.ID)
+	assert.Equal(t, "findme@asdf.com", account.Email)
+}
+
+func TestFindAccountFail(t *testing.T) {
+	account, err := sadb.FindAccount("not-exist")
+	assert.Nil(t, account)
+	assert.Error(t, err)
+}

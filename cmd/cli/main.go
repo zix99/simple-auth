@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -17,6 +18,10 @@ func funcAddUser(c *cli.Context) error {
 
 	email := c.Args().Get(0)
 	username := c.Args().Get(1)
+
+	if email == "" || username == "" {
+		return errors.New("Please specify <email> <username>")
+	}
 
 	fmt.Printf("Email:    %s\n", email)
 	fmt.Printf("Username: %s\n", username)

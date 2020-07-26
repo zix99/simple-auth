@@ -40,7 +40,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 }
 
 func (env *environment) routeLogout(c echo.Context) error {
-	middleware.ClearSession(c)
+	middleware.ClearSession(c, &env.config.Login.Cookie)
 	return c.JSON(http.StatusOK, common.Json{
 		"ok": true,
 	})

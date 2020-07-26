@@ -11,7 +11,11 @@ export default {
       axios.post('/api/ui/logout')
         .catch(() => {})
         .then(() => {
-          window.location = '/';
+          if (this.$router) {
+            this.$router.push('/');
+          } else {
+            window.location = '/';
+          }
         });
     },
   },

@@ -21,6 +21,9 @@ web:
         usernamemaxlength: 20
 
     login:
+        createaccountenabled: true # If allowed to create account
+        routeonlogin: '#/manage' # Where to route to post-login (either login or create)
+        allowedcontinueurls: [] # Urls, in addition to local pages, allowed post-login via ?continue query param
         cookie:
             jwt:
                 # Key for jwt-signing
@@ -29,9 +32,13 @@ web:
                 issuer: "simple-auth"
                 expiresminutes: 30
             name: "auth"
+            path: /
             expiresminutes: 1440
             secureonly: false
             httponly: true
+        gateway:
+            enabled: false
+            logoutpath: "/logout"
 
     # Enable or disable recaptchav2
     recaptchav2:
@@ -51,5 +58,5 @@ authenticators:
         sharedsecret: "your-super-secret-token"
 db:
     driver: "sqlite3"
-    url: "test.db"
+    url: "simpleauth.db"
 production: false

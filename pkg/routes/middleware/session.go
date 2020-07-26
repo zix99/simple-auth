@@ -16,7 +16,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const authCookieName = "auth"
+const (
+	authCookieName = "auth"
+)
+
+const (
+	ContextClaims      = "auth"
+	ContextAccountUUID = "accountUUID"
+)
 
 func parseSigningKey(method, key string) (interface{}, error) {
 	lm := strings.ToUpper(method)
@@ -31,7 +38,7 @@ func parseSigningKey(method, key string) (interface{}, error) {
 
 func issueSessionJwt(config *config.ConfigJWT, account *db.Account) (string, error) {
 	if len(config.SigningKey) < 8 {
-		logrus.Warn("No JWT secret set, or secrete too short.  User not able to login")
+		logrus.Warn("No JWT secret set, or secret too short.  User not able to login")
 		return "", errors.New("Server needs secret")
 	}
 
@@ -76,37 +83,48 @@ func CreateSession(c echo.Context, config *config.ConfigLoginCookie, account *db
 	return nil
 }
 
-func ClearSession(c echo.Context) {
+func ClearSession(c echo.Context, config *config.ConfigLoginCookie) {
 	c.SetCookie(&http.Cookie{
 		Name:     authCookieName,
 		Value:    "",
-		HttpOnly: true,
+		HttpOnly: config.HTTPOnly,
+		Secure:   config.SecureOnly,
 		Expires:  time.Now(),
+		Domain:   config.Domain,
+		Path:     config.Path,
 	})
+}
+
+func parseContextSession(config *config.ConfigJWT, c echo.Context) (*jwt.StandardClaims, error) {
+	cookie, err := c.Cookie(authCookieName)
+	if err != nil || cookie == nil {
+		return nil, errors.New("Auth cookie not set")
+	}
+
+	token, err := jwt.ParseWithClaims(cookie.Value, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return parseSigningKey(config.SigningMethod, config.SigningKey)
+	})
+	if err != nil {
+		return nil, errors.New("Unable to parse JWT")
+	}
+
+	if claims, ok := token.Claims.(*jwt.StandardClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, errors.New("Token rejected")
 }
 
 func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			cookie, err := c.Cookie(authCookieName)
-			if err != nil || cookie == nil {
-				return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Cookie not set"))
-			}
-
-			token, err := jwt.ParseWithClaims(cookie.Value, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-				return parseSigningKey(config.SigningMethod, config.SigningKey)
-			})
+			claims, err := parseContextSession(config, c)
 			if err != nil {
-				return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Unable to parse JWT"))
+				return c.JSON(http.StatusUnauthorized, common.JsonError(err))
 			}
-
-			if claims, ok := token.Claims.(*jwt.StandardClaims); ok && token.Valid {
-				c.Set("auth", claims)
-				c.Set("accountUUID", claims.Subject)
-				return next(c)
-			}
-
-			return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Token rejected"))
+			c.Set(ContextClaims, claims)
+			c.Set(ContextAccountUUID, claims.Subject)
+			return next(c)
 		}
 	}
 }

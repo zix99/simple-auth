@@ -4,6 +4,10 @@
       <div class="message-body">{{error}}</div>
     </article>
 
+    <LoadingBanner v-if="loading">
+      Signing in...
+    </LoadingBanner>
+
     <div v-if="state === 'login'">
       <div class="field">
         <label class="label">Username</label>
@@ -27,7 +31,7 @@
 
       <div class="field is-grouped">
         <div class="control">
-          <button class="button is-link" @click="submitClick">Login</button>
+          <button class="button is-link" @click="submitClick" :disabled="loading">Login</button>
         </div>
       </div>
       <a href="#" @click.prevent="forgotPassword">Forgot Password?</a>
@@ -50,17 +54,17 @@
         </div>
       </div>
     </div>
-
-    <div v-if="state === 'forgot'">
-      Forgot pass
-    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import LoadingBanner from '../components/loadingBanner.vue';
 
 export default {
+  components: {
+    LoadingBanner,
+  },
   data() {
     return {
       error: null,
@@ -68,10 +72,14 @@ export default {
       password: '',
       totp: '',
       state: 'login',
+      loading: false,
     };
   },
   methods: {
     submitClick() {
+      this.loading = true;
+      this.error = null;
+
       const postData = {
         username: this.username,
         password: this.password,
@@ -82,6 +90,8 @@ export default {
           this.$emit('loggedIn');
         }).catch((err) => {
           this.error = err.message;
+        }).then(() => {
+          this.loading = false;
         });
     },
     forgotPassword() {

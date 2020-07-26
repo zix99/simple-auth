@@ -1,10 +1,16 @@
 <template>
-  <Card title="Create Account">
+  <CenterCard title="Create Account">
     <article class="message is-danger" v-if="error">
       <div class="message-body">{{error}}</div>
     </article>
 
-    <div v-if="!loading && !createdAccountId">
+    <article class="message is-warning" v-if="!appdata.login.createAccount">
+      <div class="message-body">
+        Account creation has been disabled on this server.
+      </div>
+    </article>
+
+    <div v-if="!loading && !createdAccountId && appdata.login.createAccount">
       <div class="field">
         <label class="label">Email</label>
         <div class="control has-icons-left has-icons-right">
@@ -35,7 +41,7 @@
           </span>
         </div>
         <p class="help is-danger" v-if="!validUsername">
-          Expected username to be between {{requirements.UsernameMinLength}} and {{requirements.UsernameMaxLength}} long
+          Expected username to be between {{appdata.requirements.UsernameMinLength}} and {{appdata.requirements.UsernameMaxLength}} long
         </p>
       </div>
 
@@ -48,7 +54,7 @@
           </span>
         </div>
         <p class="help is-danger" v-if="!validPassword">
-          Expected password to be between {{requirements.PasswordMinLength}} and {{requirements.PasswordMaxLength}} long,
+          Expected password to be between {{appdata.requirements.PasswordMinLength}} and {{appdata.requirements.PasswordMaxLength}} long,
           and a score greater than 2 (Currently {{strength.score}})
         </p>
         <p class="help" v-if="strength.feedback">
@@ -68,7 +74,7 @@
         <p class="help is-danger" v-if="!passwordMatch">Password does not match</p>
       </div>
 
-      <RecaptchaV2 v-if="recaptchav2.Enabled" :sitekey="recaptchav2.SiteKey" :theme="recaptchav2.Theme" ref="recaptchav2" />
+      <RecaptchaV2 v-if="appdata.recaptchav2.enabled" :sitekey="appdata.recaptchav2.sitekey" :theme="appdata.recaptchav2.theme" ref="recaptchav2" />
 
       <div class="field is-grouped">
         <div class="control">
@@ -84,45 +90,44 @@
     <div v-if="createdAccountId">
       <article class="message is-success">
         <div class="message-body">
-          Account Successfully Created
+          <i class="fas fa-check"></i> Account Successfully Created!
         </div>
       </article>
       <div>
-        <a :href="`/manage/${createdAccountId}`" class="button is-primary is-light">Manage Account</a>
-        <p class="is-size-5">or</p>
-        <LogoutButton />
+        <i class="fas fa-cog fa-spin"></i> Redirecting...
       </div>
     </div>
 
-  </Card>
+  </CenterCard>
 </template>
 
 <script>
 import validator from 'validator';
 import zxcvbn from 'zxcvbn';
 import axios from 'axios';
-import Card from './components/card.vue';
-import LogoutButton from './widgets/logoutButton.vue';
-import RecaptchaV2 from './components/recaptchav2.vue';
+import CenterCard from '../components/centerCard.vue';
+import RecaptchaV2 from '../components/recaptchav2.vue';
 
 export default {
   props: {
-    requirements: {
-      type: Object,
-      default: () => ({
-        UsernameMinLength: 1,
-        UsernameMaxLength: 999,
-        PasswordMinLength: 1,
-        PasswordMaxLength: 999,
-      }),
-    },
-    recaptchav2: {
-      type: Object,
-      default: () => ({
-        Enabled: false,
-        SiteKey: '',
-        Theme: 'light',
-      }),
+    appdata: {
+      requirements: {
+        type: Object,
+        default: () => ({
+          UsernameMinLength: 1,
+          UsernameMaxLength: 999,
+          PasswordMinLength: 1,
+          PasswordMaxLength: 999,
+        }),
+      },
+      recaptchav2: {
+        type: Object,
+        default: () => ({
+          Enabled: false,
+          SiteKey: '',
+          Theme: 'light',
+        }),
+      },
     },
   },
   data() {
@@ -141,24 +146,23 @@ export default {
     };
   },
   components: {
-    Card,
+    CenterCard,
     RecaptchaV2,
-    LogoutButton,
   },
   computed: {
     validEmail() {
       return validator.isEmail(this.email);
     },
     validUsername() {
-      return this.username.length >= this.requirements.UsernameMinLength
-        && this.username.length <= this.requirements.UsernameMaxLength;
+      return this.username.length >= this.appdata.requirements.UsernameMinLength
+        && this.username.length <= this.appdata.requirements.UsernameMaxLength;
     },
     passwordMatch() {
       return this.password1 === this.password2;
     },
     validPassword() {
-      return this.password1.length >= this.requirements.PasswordMinLength
-        && this.password1.length <= this.requirements.PasswordMaxLength
+      return this.password1.length >= this.appdata.requirements.PasswordMinLength
+        && this.password1.length <= this.appdata.requirements.PasswordMaxLength
         && this.strength.score >= 2;
     },
   },
@@ -178,7 +182,7 @@ export default {
         email: this.email,
       };
 
-      if (this.recaptchav2.Enabled) {
+      if (this.appdata.recaptchav2.enabled) {
         postData.recaptchav2 = this.$refs.recaptchav2.getResponse();
       }
 
@@ -186,6 +190,9 @@ export default {
         .then((resp) => {
           if (resp.status !== 201) throw new Error('Error creating account');
           this.createdAccountId = resp.data.id;
+          setTimeout(() => {
+            this.$router.push('/login-redirect');
+          }, 2.5 * 1000);
         }).catch((err) => {
           this.error = `${err.message}`;
           if (err.response && err.response.data) {

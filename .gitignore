@@ -1,6 +1,6 @@
 # Custom
 simpleauth.yml
-test.db
+simpleauth.db
 dist/
 simple-auth-server
 

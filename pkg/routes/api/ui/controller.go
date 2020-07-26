@@ -5,6 +5,7 @@ import (
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"time"
 
 	"github.com/labstack/echo"
 	echoMiddleware "github.com/labstack/echo/middleware"
@@ -30,14 +31,17 @@ func NewController(db db.SADB, meta *config.ConfigMetadata, config *config.Confi
 func (env *environment) Mount(group *echo.Group) {
 	group.Use(echoMiddleware.CSRF())
 
-	group.POST("/account", env.routeCreateAccount)
-	group.POST("/login", env.routeLogin)
+	delayGroup := middleware.NewThrottleGroup(1, 1*time.Second)
+
+	if env.config.Login.CreateAccountEnabled {
+		group.POST("/account", env.routeCreateAccount, delayGroup)
+	}
+	group.POST("/login", env.routeLogin, delayGroup)
 	group.POST("/logout", env.routeLogout)
 
 	if env.config.Login.Cookie.JWT.SigningKey != "" {
-		manageGroup := group.Group("/manage/")
-		manageGroup.Use(middleware.LoggedInMiddleware(&env.config.Login.Cookie.JWT))
-		manageGroup.GET("", env.routeAccount)
+		loggedIn := middleware.LoggedInMiddleware(&env.config.Login.Cookie.JWT)
+		group.GET("/account", env.routeAccount, loggedIn)
 	} else {
 		logrus.Warn("No JWT secret specified, refusing to bind user management endpoints")
 	}

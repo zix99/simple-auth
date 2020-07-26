@@ -1,13 +1,9 @@
 {{template "layout.tmpl" .}}
 {{define "content"}}
-<div class="columns is-centered">
-  <div class="column is-half">
-    <div class="box has-text-centered">
-      <h2 class="subtitle">{{ .company }} Account Management</h2>
-      <a href="/create" class="button is-primary is-light">Create Account</a>
-      <p class="is-size-5">or</p>
-      <a href="/manage" class="button is-link is-light">Manage Account</a>
-    </div>
-  </div>
+<div id="app">
+  <router-view />
 </div>
+<script>bindRouter('#app', {
+  appdata: {{json .}},
+});</script>
 {{end}}

@@ -1,22 +1,28 @@
 import Vue from 'vue';
+import VueRouter from 'vue-router';
 import axios from 'axios';
 import 'bulma/css/bulma.css';
-import banner from './components/banner.vue';
-import createaccount from './createAccount.vue';
-import manageaccount from './manageAccount.vue';
-import redirectinglogin from './redirectingLogin.vue';
+import Home from './routes/home.vue';
+import CreateAccount from './routes/createAccount.vue';
+import LoginRedirect from './routes/loginRedirect.vue';
+import ManageAccount from './routes/manageAccount.vue';
+import PageNotFound from './routes/pageNotFound.vue';
 
 axios.defaults.headers.common['X-CSRF-TOKEN'] = document.head.querySelector('meta[name="csrf"]').content;
 
-window.bindVue = function bindVue(el, data = {}) {
+window.bindRouter = function bindRouter(el, data = {}) {
+  const router = new VueRouter({
+    routes: [
+      { path: '/', component: Home, props: data },
+      { path: '/create', component: CreateAccount, props: data },
+      { path: '/login-redirect', component: LoginRedirect, props: data },
+      { path: '/manage', component: ManageAccount, props: data },
+      { path: '*', component: PageNotFound },
+    ],
+  });
+  Vue.use(VueRouter);
   return new Vue({
     el,
-    data,
-    components: {
-      banner,
-      createaccount,
-      manageaccount,
-      redirectinglogin,
-    },
+    router,
   });
 };

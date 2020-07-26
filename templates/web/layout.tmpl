@@ -17,14 +17,14 @@
                 <a href="/"><h1 class="title">{{ .company }}</h1></a>
                 {{template "content" .}}
             </div>
-            <footer class="footer">
-                <div class="content has-text-centered">
-                    <p>
-                        {{ .footer }} Simple-Auth &copy; 2020
-                    </p>
-                </div>
-            </footer>
         </section>
+        <footer class="footer">
+            <div class="content has-text-centered">
+                <p>
+                    {{ .footer }} Simple-Auth &copy; 2020
+                </p>
+            </div>
+        </footer>
         {{block "footjs" .}}{{end}}
     </body>
 </html>

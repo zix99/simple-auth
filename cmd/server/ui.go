@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"simple-auth/pkg/config"
+	"simple-auth/pkg/routes/common"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -24,35 +25,43 @@ func (s *uiController) Mount(group *echo.Group) {
 		context := buildTemplateContext(c, s.meta, s.config)
 		return c.Render(http.StatusOK, "home", context)
 	})
-	group.GET("/create", func(c echo.Context) error {
-		context := buildTemplateContext(c, s.meta, s.config)
-		return c.Render(http.StatusOK, "createAccount", context)
-	})
-	group.GET("/manage", func(c echo.Context) error {
-		context := buildTemplateContext(c, s.meta, s.config)
-		return c.Render(http.StatusOK, "manageAccount", context)
-	})
-	group.GET("/login", func(c echo.Context) error {
-		context := buildTemplateContext(c, s.meta, s.config)
-		return c.Render(http.StatusOK, "login", context)
-	})
+}
+
+func stringInList(val string, lst []string) bool {
+	for _, item := range lst {
+		if item == val {
+			return true
+		}
+	}
+	return false
 }
 
 func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *config.ConfigWeb) map[string]interface{} {
-	context := make(map[string]interface{})
-	for k, v := range meta.Bucket {
-		context[k] = v
+	continueURL := web.Login.RouteOnLogin
+	queryContinue := c.QueryParam("continue")
+	if queryContinue != "" && stringInList(queryContinue, web.Login.AllowedContinueUrls) {
+		continueURL = queryContinue
 	}
-	context["company"] = meta.Company
-	context["footer"] = meta.Footer
-	context["Requirements"] = web.Requirements
-	context["RecaptchaV2"] = struct {
-		Enabled bool
-		SiteKey string
-		Theme   string
-	}{web.RecaptchaV2.Enabled, web.RecaptchaV2.SiteKey, web.RecaptchaV2.Theme}
 
-	context["csrf"] = c.Get("csrf")
+	app := common.Json{
+		"company": meta.Company,
+		"footer":  meta.Footer,
+		"csrf":    c.Get("csrf"),
+		"login": common.Json{
+			"createAccount": web.Login.CreateAccountEnabled,
+			"continue":      continueURL,
+		},
+		"requirements": web.Requirements,
+		"recaptchav2": common.Json{
+			"enabled": web.RecaptchaV2.Enabled,
+			"sitekey": web.RecaptchaV2.SiteKey,
+			"theme":   web.RecaptchaV2.Theme,
+		},
+	}
 
-	return context
+	for k, v := range meta.Bucket {
+		app[k] = v
+	}
+
+	return app
 }

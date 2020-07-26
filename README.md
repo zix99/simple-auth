@@ -64,9 +64,11 @@ docker build .
 
 ### V0
 - Real success page
+- Username valid regex/characters
 - Account management
 - Forgot password
-- Act as reverse proxy to application
+- UX Tweaking, autofocus, tab, enter
+- Documentation
 
 ### V1
 - OIDC Login Flow

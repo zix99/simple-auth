@@ -10,17 +10,14 @@ import (
 )
 
 var helpers = template.FuncMap{
-	"json": func(obj interface{}) template.HTML {
+	"json": func(obj interface{}) template.JS {
 		jsonBytes, _ := json.Marshal(obj)
-		return template.HTML(jsonBytes)
+		return template.JS(jsonBytes)
 	},
 }
 
 var templateDefinitions = map[string][]string{
-	"login":         {"templates/web/login.tmpl", "templates/web/layout.tmpl", "templates/web/layoutVue.tmpl"},
-	"createAccount": {"templates/web/createAccount.tmpl", "templates/web/layout.tmpl", "templates/web/layoutVue.tmpl"},
-	"manageAccount": {"templates/web/manageAccount.tmpl", "templates/web/layout.tmpl", "templates/web/layoutVue.tmpl"},
-	"home":          {"templates/web/home.tmpl", "templates/web/layout.tmpl"},
+	"home": {"templates/web/home.tmpl", "templates/web/layout.tmpl"},
 }
 
 type templateRenderer struct {

@@ -1,8 +1,9 @@
 package config
 
+// ConfigDatabase holds database-specific configuration
 type ConfigDatabase struct {
-	Driver string
-	URL    string
+	Driver string // Driver, eg "sqlite3", "postgres", or "mysql"
+	URL    string // Connection string for the driver. See http://gorm.io/docs/connecting_to_the_database.html
 }
 
 type ConfigTokenAuthenticator struct {
@@ -42,6 +43,15 @@ type ConfigJWT struct {
 	Issuer         string
 }
 
+type ConfigLoginGateway struct {
+	Enabled    bool
+	Targets    []string
+	Host       string            // Override the host header
+	LogoutPath string            // Path for the logout url (to override & skip proxying)
+	Rewrite    map[string]string // Rewrite URLs upon proxying eg "/old"->"/new" or "/api/*"->"/$1"
+	Headers    map[string]string // Override additional headers (excluding host header)
+}
+
 type ConfigLoginCookie struct {
 	Name       string // Name of the cookie
 	JWT        ConfigJWT
@@ -64,8 +74,14 @@ type ConfigLoginOIDC struct {
 type ConfigLogin struct {
 	// SameDomain authentication uses a cookie set to a domain (and presumably shared with your site).  Easiest to implement in a full-trust environment
 	Cookie ConfigLoginCookie
+	// Gateway
+	Gateway ConfigLoginGateway
 	// OIDC (OAuth 2) flow that allows an external site to securely login and verify the user
 	OIDC ConfigLoginOIDC
+	// Login Rules
+	CreateAccountEnabled bool
+	RouteOnLogin         string
+	AllowedContinueUrls  []string
 }
 
 type ConfigMetadata struct {

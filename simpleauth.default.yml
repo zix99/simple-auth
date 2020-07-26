@@ -15,6 +15,7 @@ web:
 
     # Requirements inform server and client of any form requirements
     requirements:
+        usernameregex: '^[a-z][a-z0-9]+$'
         passwordminlength: 3
         passwordmaxlength: 30
         usernameminlength: 5

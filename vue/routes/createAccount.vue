@@ -43,6 +43,9 @@
         <p class="help is-danger" v-if="!validUsername">
           Expected username to be between {{appdata.requirements.UsernameMinLength}} and {{appdata.requirements.UsernameMaxLength}} long
         </p>
+        <p class="help is-danger" v-if="!validUsernameCharacters && validUsername">
+          Username contains invalid characters. Expected {{appdata.requirements.UsernameRegex}}
+        </p>
       </div>
 
       <div class="field">
@@ -78,7 +81,7 @@
 
       <div class="field is-grouped">
         <div class="control">
-          <button class="button is-link" @click="submitClick" :disabled="!validEmail || !validPassword || !validUsername">Submit</button>
+          <button class="button is-link" @click="submitClick" :disabled="!validEmail || !validPassword || !validUsername || !validUsernameCharacters">Submit</button>
         </div>
       </div>
     </div>
@@ -156,6 +159,10 @@ export default {
     validUsername() {
       return this.username.length >= this.appdata.requirements.UsernameMinLength
         && this.username.length <= this.appdata.requirements.UsernameMaxLength;
+    },
+    validUsernameCharacters() {
+      if (!this.appdata.requirements.UsernameRegex) return true;
+      return this.username.match(this.appdata.requirements.UsernameRegex);
     },
     passwordMatch() {
       return this.password1 === this.password2;

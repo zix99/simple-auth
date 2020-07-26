@@ -23,6 +23,7 @@ type ConfigAuthencatorSet struct {
 }
 
 type ConfigWebRequirements struct {
+	UsernameRegex     string // Regex match for allowed username characters (server & client enforced)
 	PasswordMinLength int
 	PasswordMaxLength int
 	UsernameMinLength int

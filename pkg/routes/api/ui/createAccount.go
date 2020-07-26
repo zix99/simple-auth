@@ -2,6 +2,7 @@ package ui
 
 import (
 	"errors"
+	"regexp"
 	"simple-auth/pkg/email"
 	"simple-auth/pkg/routes/api/ui/recaptcha"
 	"simple-auth/pkg/routes/common"
@@ -80,6 +81,17 @@ func (env *environment) validateUsername(username string) error {
 	if ulen > env.config.Requirements.UsernameMaxLength {
 		return errors.New("Username too long")
 	}
+
+	if env.config.Requirements.UsernameRegex != "" {
+		re, err := regexp.Compile(env.config.Requirements.UsernameRegex)
+		if err != nil {
+			return errors.New("Unable to parse valid username regex, ask your server admin to fix this")
+		}
+		if !re.MatchString(username) {
+			return errors.New("Invalid username characters")
+		}
+	}
+
 	return nil
 }
 

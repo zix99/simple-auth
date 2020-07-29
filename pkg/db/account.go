@@ -35,6 +35,9 @@ func (s *sadb) CreateAccount(email string) (*Account, error) {
 	if result := s.db.Create(&account); result.Error != nil {
 		return nil, result.Error
 	}
+
+	s.CreateAuditRecord(account, AuditModuleAccount, AuditLevelInfo, "Account created")
+
 	return account, nil
 }
 

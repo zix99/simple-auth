@@ -9,7 +9,6 @@ import (
 
 	"github.com/labstack/echo"
 	echoMiddleware "github.com/labstack/echo/middleware"
-	"github.com/sirupsen/logrus"
 )
 
 type environment struct {
@@ -39,10 +38,7 @@ func (env *environment) Mount(group *echo.Group) {
 	group.POST("/login", env.routeLogin, delayGroup)
 	group.POST("/logout", env.routeLogout)
 
-	if env.config.Login.Cookie.JWT.SigningKey != "" {
-		loggedIn := middleware.LoggedInMiddleware(&env.config.Login.Cookie.JWT)
-		group.GET("/account", env.routeAccount, loggedIn)
-	} else {
-		logrus.Warn("No JWT secret specified, refusing to bind user management endpoints")
-	}
+	loggedIn := middleware.LoggedInMiddleware(&env.config.Login.Cookie.JWT)
+	group.GET("/account", env.routeAccount, loggedIn)
+	group.GET("/account/audit", env.routeAccountAudit, loggedIn)
 }

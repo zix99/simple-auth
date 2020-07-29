@@ -12,7 +12,7 @@
       <div class="field">
         <label class="label">Username</label>
         <div class="control has-icons-left">
-          <input class="input" type="text" placeholder="Text Input" v-model="username">
+          <input class="input" type="text" placeholder="Text Input" v-model="username" @keypress.enter="submitClick" />
           <span class="icon is-small is-left">
             <i class="fas fa-user" />
           </span>
@@ -22,7 +22,7 @@
       <div class="field">
         <label class="label">Password</label>
         <div class="control has-icons-left">
-          <input class="input" type="password" placeholder="Password" v-model="password" />
+          <input class="input" type="password" placeholder="Password" v-model="password" @keypress.enter="submitClick" />
           <span class="icon is-small is-left">
             <i class="fas fa-lock" />
           </span>
@@ -77,6 +77,10 @@ export default {
   },
   methods: {
     submitClick() {
+      if (this.username === '' || this.password === '') {
+        return;
+      }
+
       this.loading = true;
       this.error = null;
 

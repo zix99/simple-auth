@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import axios from 'axios';
+import dayjs from 'dayjs';
+import localizedPlugin from 'dayjs/plugin/localizedFormat';
 import 'bulma/css/bulma.css';
 import Home from './routes/home.vue';
 import CreateAccount from './routes/createAccount.vue';
@@ -9,6 +11,7 @@ import ManageAccount from './routes/manageAccount.vue';
 import PageNotFound from './routes/pageNotFound.vue';
 
 axios.defaults.headers.common['X-CSRF-TOKEN'] = document.head.querySelector('meta[name="csrf"]').content;
+dayjs.extend(localizedPlugin);
 
 window.bindRouter = function bindRouter(el, data = {}) {
   const router = new VueRouter({

@@ -60,6 +60,8 @@ func (s *sadb) AssertCreateSessionToken(username, password string, expires time.
 		return "", err
 	}
 
+	s.CreateAuditRecord(account, AuditModuleToken, AuditLevelInfo, "Created session token")
+
 	return sessionToken.SessionToken, nil
 }
 
@@ -80,13 +82,16 @@ func (s *sadb) CreateVerificationToken(username, sessionToken string) (string, e
 	var session accountAuthSessionToken
 	logrus.Infof("Looking for %v(%v) and token=%v", username, account, sessionToken)
 	if err := s.db.Where("account_id = ? AND session_token = ? AND not invalidated", account.ID, sessionToken).First(&session).Error; err != nil {
+		s.CreateAuditRecord(account, AuditModuleToken, AuditLevelWarn, "Failed to create verification token on undefined session")
 		return "", fmt.Errorf("Session not found: %w", err)
 	}
 
 	if session.Invalidated {
+		s.CreateAuditRecord(account, AuditModuleToken, AuditLevelWarn, "Failed to create verification token on invalidated session")
 		return "", errors.New("Session invalidated")
 	}
 	if time.Now().After(session.Expires) {
+		s.CreateAuditRecord(account, AuditModuleToken, AuditLevelWarn, "Failed to create verification token on expired session")
 		return "", errors.New("Session expired")
 	}
 
@@ -100,6 +105,8 @@ func (s *sadb) CreateVerificationToken(username, sessionToken string) (string, e
 	if err := s.db.Create(verificationToken).Error; err != nil {
 		return "", err
 	}
+
+	s.CreateAuditRecord(account, AuditModuleToken, AuditLevelInfo, "Created verification token")
 
 	return verificationToken.VerificationToken, nil
 }
@@ -130,6 +137,8 @@ func (s *sadb) AssertVerificationToken(username, verificationToken string) (*Acc
 	if token.VerificationToken != verificationToken {
 		return nil, errors.New("Invalid verification token")
 	}
+
+	s.CreateAuditRecord(account, AuditModuleToken, AuditLevelDebug, "Verification Token Validated")
 
 	return account, nil
 }

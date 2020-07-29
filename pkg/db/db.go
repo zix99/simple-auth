@@ -13,6 +13,8 @@ type SADB interface {
 	AccountAuthToken
 	AccountAuthSimple
 	AccountStore
+	AccountAudit
+	EnableLogging(enable bool)
 	IsAlive() bool
 }
 
@@ -24,7 +26,10 @@ func New(driver string, args string) SADB {
 		logrus.Fatal(err)
 	}
 
+	db.SetLogger(logrus.StandardLogger())
+
 	db.AutoMigrate(&Account{})
+	db.AutoMigrate(&AccountAuditRecord{})
 	db.AutoMigrate(&accountAuthSimple{})
 	db.AutoMigrate(&accountAuthSessionToken{})
 	db.AutoMigrate(&accountAuthVerificationToken{})
@@ -34,4 +39,8 @@ func New(driver string, args string) SADB {
 
 func (s *sadb) IsAlive() bool {
 	return s.db.DB().Ping() == nil
+}
+
+func (s *sadb) EnableLogging(enable bool) {
+	s.db.LogMode(enable)
 }

@@ -41,6 +41,7 @@ func simpleAuthServer(config *config.Config) error {
 	env := &environment{
 		db: db.New(config.Db.Driver, config.Db.URL),
 	}
+	env.db.EnableLogging(config.Db.Debug)
 
 	e := echo.New()
 	e.Debug = !config.Production

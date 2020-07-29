@@ -63,7 +63,6 @@ docker build .
 ## Feature Wishlist
 
 ### V0
-- Real success page
 - Username valid regex/characters
 - Account management
 - Forgot password

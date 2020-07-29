@@ -4,6 +4,7 @@ package config
 type ConfigDatabase struct {
 	Driver string // Driver, eg "sqlite3", "postgres", or "mysql"
 	URL    string // Connection string for the driver. See http://gorm.io/docs/connecting_to_the_database.html
+	Debug  bool   // Enable debug logging
 }
 
 type ConfigTokenAuthenticator struct {

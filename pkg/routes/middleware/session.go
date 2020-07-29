@@ -116,6 +116,16 @@ func parseContextSession(config *config.ConfigJWT, c echo.Context) (*jwt.Standar
 }
 
 func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
+	_, parseErr := parseSigningKey(config.SigningMethod, config.SigningKey)
+	if config.SigningKey == "" || parseErr != nil {
+		logrus.Warn("No JWT secret specified, refusing to bind user management endpoints")
+		return func(next echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				return c.JSON(http.StatusMethodNotAllowed, common.JsonErrorf("Server not configured to allow session API calls"))
+			}
+		}
+	}
+
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			claims, err := parseContextSession(config, c)

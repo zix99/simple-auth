@@ -108,8 +108,11 @@ func (s *sadb) FindAndVerifySimpleAuth(username, password string) (*Account, err
 	}
 
 	if !auth.verifyPassword(password) {
+		s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelWarn, "Login failed")
 		return nil, UserVerificationFailed
 	}
+
+	s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelInfo, "Login Successful")
 
 	return account, nil
 }

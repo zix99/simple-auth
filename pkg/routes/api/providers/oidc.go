@@ -118,17 +118,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	})
 
 	// Resolve continue-url
-	continueURL := env.loginConfig.RouteOnLogin
-	if continueCookie, err := c.Cookie(continueCookieName); err == nil && continueCookie.Value != "" {
-		continueURL = continueCookie.Value
-
-		c.SetCookie(&http.Cookie{
-			Name:     continueCookieName,
-			Expires:  time.Now(),
-			Path:     "/",
-			HttpOnly: true,
-		})
-	}
+	continueURL := env.getContinuationURL(c)
 
 	// Trade in the token
 	token, err := env.tradeCodeForToken(code)
@@ -216,4 +206,20 @@ func (env *OIDCController) tradeCodeForToken(code string) (string, error) {
 
 func (env *OIDCController) buildRedirectUri() string {
 	return env.baseURL + "/" + env.id + "/callback"
+}
+
+func (env *OIDCController) getContinuationURL(c echo.Context) string {
+	if continueCookie, err := c.Cookie(continueCookieName); err == nil && continueCookie.Value != "" {
+		c.SetCookie(&http.Cookie{
+			Name:     continueCookieName,
+			Expires:  time.Now(),
+			Path:     "/",
+			HttpOnly: true,
+		})
+		return continueCookie.Value
+	}
+	if env.loginConfig.RouteOnLogin != "" {
+		return env.loginConfig.RouteOnLogin
+	}
+	return "/"
 }

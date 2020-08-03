@@ -24,7 +24,7 @@ web:
     login:
         settings:
             createaccountenabled: true # If allowed to create account
-            routeonlogin: '/#/manage' # Where to route to post-login (either login or create)
+            routeonlogin: null # Where to route to post-login (either login or create)
             allowedcontinueurls: [] # Urls, in addition to local pages, allowed post-login via ?continue query param
         cookie:
             jwt:

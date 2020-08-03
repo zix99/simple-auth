@@ -15,6 +15,7 @@
         <label class="label">Email</label>
         <div class="control has-icons-left has-icons-right">
           <input class="input"
+            ref="email"
             :class="{ 'is-danger': !validEmail }"
             type="email"
             placeholder="Email input"
@@ -151,6 +152,9 @@ export default {
   components: {
     CenterCard,
     RecaptchaV2,
+  },
+  mounted() {
+    this.$refs.email.focus();
   },
   computed: {
     validEmail() {

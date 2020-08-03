@@ -2,7 +2,12 @@
   <div class="columns is-centered">
     <div class="column is-half">
       <div class="box has-text-centered">
-        <h2 class="subtitle">{{appdata.company}} Account Management</h2>
+        <h2 class="subtitle" v-if="!appdata.login.continue">{{appdata.company}} Account Management</h2>
+        <div v-if="appdata.login.continue">
+          <h2 class="subtitle">{{appdata.company}} Login</h2>
+          <p>After logging in, you will be redirected to:<br /><strong>{{appdata.login.continue}}</strong></p>
+        </div>
+
         <div class="has-text-left">
           <Login @loggedIn="$router.push('/login-redirect')" />
         </div>

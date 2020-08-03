@@ -9,7 +9,9 @@ export default {
   },
   created() {
     const continueUrl = this.appdata.login.continue;
-    if (continueUrl.startsWith('#')) {
+    if (!continueUrl) {
+      this.$router.push('manage');
+    } else if (continueUrl.startsWith('#')) {
       this.$router.push(continueUrl.substring(1));
     } else {
       window.location = continueUrl;

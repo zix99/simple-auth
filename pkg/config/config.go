@@ -111,6 +111,7 @@ type ConfigWeb struct {
 	Requirements ConfigWebRequirements
 	RecaptchaV2  ConfigRecaptchaV2
 	Login        ConfigLogin
+	Prometheus   bool // If true, will enable /metrics endpoint
 }
 
 type ConfigEmail struct {

@@ -8,6 +8,7 @@ import (
 	"simple-auth/pkg/routes/api/ui"
 	saMiddleware "simple-auth/pkg/routes/middleware"
 
+	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
@@ -49,6 +50,12 @@ func simpleAuthServer(config *config.Config) error {
 
 	e.Use(saMiddleware.NewLoggerMiddleware())
 	e.Use(middleware.Recover())
+
+	// Prometheus
+	if config.Web.Prometheus {
+		p := prometheus.NewPrometheus("sa", nil)
+		p.Use(e)
+	}
 
 	// Gateway
 	if config.Web.Login.Gateway.Enabled {

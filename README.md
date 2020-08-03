@@ -90,7 +90,6 @@ docker build .
 
 #### Bugs
 - Home wording tweaks (login rather than "manage").  Default to /#manage in login (rather than explicit all the time)
-- Prometheus
 - Gateway seems to be caching and not logging-in/out correctly
 - Using a RSA key seems to not allow signing in to account
 - General tests for OIDC and different cases

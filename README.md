@@ -88,6 +88,11 @@ docker build .
 - UX Tweaking, autofocus, tab, enter
 - Documentation
 
+#### Bugs
+- Gateway seems to be caching and not logging-in/out correctly
+- Using a RSA key seems to not allow signing in to account
+- General tests for OIDC and different cases
+
 ### V1
 - OIDC Login Flow
 - Google Auth

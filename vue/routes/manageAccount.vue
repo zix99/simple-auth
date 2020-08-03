@@ -11,7 +11,7 @@
           <table class="table">
             <tbody>
               <tr>
-                <th>Enabled</th><td>Yes</td>
+                <th>Enabled</th><td>{{account.auth.simple ? 'Yes' : 'No'}}</td>
               </tr>
               <tr>
                 <th>Username</th><td>{{account.auth.simple.username}}</td>
@@ -57,6 +57,8 @@ export default {
     this.loadingPromise = axios.get('/api/ui/account')
       .then((resp) => {
         this.account = resp.data;
+      }).catch(() => {
+        this.$router.push('/');
       });
   },
 };

@@ -32,7 +32,7 @@ func (env *environment) Mount(group *echo.Group) {
 
 	delayGroup := middleware.NewThrottleGroup(1, 1*time.Second)
 
-	if env.config.Login.CreateAccountEnabled {
+	if env.config.Login.Settings.CreateAccountEnabled {
 		group.POST("/account", env.routeCreateAccount, delayGroup)
 	}
 	group.POST("/login", env.routeLogin, delayGroup)

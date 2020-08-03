@@ -27,28 +27,15 @@ func (s *uiController) Mount(group *echo.Group) {
 	})
 }
 
-func stringInList(val string, lst []string) bool {
-	for _, item := range lst {
-		if item == val {
-			return true
-		}
-	}
-	return false
-}
-
 func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *config.ConfigWeb) map[string]interface{} {
-	continueURL := web.Login.RouteOnLogin
-	queryContinue := c.QueryParam("continue")
-	if queryContinue != "" && stringInList(queryContinue, web.Login.AllowedContinueUrls) {
-		continueURL = queryContinue
-	}
+	continueURL := web.Login.Settings.ResolveContinueURL(c.QueryParam("continue"))
 
 	app := common.Json{
 		"company": meta.Company,
 		"footer":  meta.Footer,
 		"csrf":    c.Get("csrf"),
 		"login": common.Json{
-			"createAccount": web.Login.CreateAccountEnabled,
+			"createAccount": web.Login.Settings.CreateAccountEnabled,
 			"continue":      continueURL,
 		},
 		"requirements": web.Requirements,
@@ -57,6 +44,7 @@ func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *conf
 			"sitekey": web.RecaptchaV2.SiteKey,
 			"theme":   web.RecaptchaV2.Theme,
 		},
+		"oidc": buildOIDCContext(web.Login.OIDC),
 	}
 
 	for k, v := range meta.Bucket {
@@ -64,4 +52,17 @@ func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *conf
 	}
 
 	return app
+}
+
+func buildOIDCContext(oidc []*config.ConfigOIDCProvider) []common.Json {
+	ret := []common.Json{}
+	for _, config := range oidc {
+		oidcConfig := common.Json{
+			"id":   config.ID,
+			"name": config.Name,
+			"icon": config.Icon,
+		}
+		ret = append(ret, oidcConfig)
+	}
+	return ret
 }

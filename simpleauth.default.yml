@@ -22,9 +22,10 @@ web:
         usernamemaxlength: 20
 
     login:
-        createaccountenabled: true # If allowed to create account
-        routeonlogin: '#/manage' # Where to route to post-login (either login or create)
-        allowedcontinueurls: [] # Urls, in addition to local pages, allowed post-login via ?continue query param
+        settings:
+            createaccountenabled: true # If allowed to create account
+            routeonlogin: '/#/manage' # Where to route to post-login (either login or create)
+            allowedcontinueurls: [] # Urls, in addition to local pages, allowed post-login via ?continue query param
         cookie:
             jwt:
                 # Key for jwt-signing
@@ -40,6 +41,8 @@ web:
         gateway:
             enabled: false
             logoutpath: "/logout"
+            targets: []
+        oidc: []
 
     # Enable or disable recaptchav2
     recaptchav2:

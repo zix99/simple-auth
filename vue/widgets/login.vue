@@ -4,7 +4,7 @@
       <div class="message-body">{{error}}</div>
     </article>
 
-    <LoadingBanner v-if="loading">
+    <LoadingBanner :promise="signinPromise">
       Signing in...
     </LoadingBanner>
 
@@ -73,6 +73,7 @@ export default {
       totp: '',
       state: 'login',
       loading: false,
+      signinPromise: null,
     };
   },
   methods: {
@@ -89,12 +90,10 @@ export default {
         password: this.password,
         totp: this.totp,
       };
-      axios.post('api/ui/login', postData)
+      this.signinPromise = axios.post('api/ui/login', postData)
         .then(() => {
           this.$emit('loggedIn');
-        }).catch((err) => {
-          this.error = err.message;
-        }).then(() => {
+        }).finally(() => {
           this.loading = false;
         });
     },

@@ -12,13 +12,13 @@
         {{block "head" .}}{{end}}
     </head>
     <body>
-        <section class="section">
+        <section class="section" id="main">
             <div class="container">
                 <a href="/"><h1 class="title">{{ .company }}</h1></a>
                 {{template "content" .}}
             </div>
         </section>
-        <footer class="footer">
+        <footer class="footer" id="footer">
             <div class="content has-text-centered">
                 <p>
                     {{ .footer }} Simple-Auth &copy; 2020

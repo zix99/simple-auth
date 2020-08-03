@@ -28,6 +28,27 @@ In Stand-Alone mode, you run *simple-auth* completely in isolation.  Users can s
 
 TODO
 
+## Login Providers
+
+### Google
+
+To enable google login, you need to set up an OIDC provider as documented [here](https://developers.google.com/identity/protocols/oauth2/web-server)
+
+Then add a bit of configuration as an OIDC login-provider:
+
+```yaml
+web:
+  login:
+    oidc:
+    - id: google
+      name: 'Google'
+      icon: 'fa-google'
+      clientid: 'xxx'
+      clientsecret: 'yyy'
+      authurl: 'https://accounts.google.com/o/oauth2/v2/auth'
+      tokenurl: 'https://oauth2.googleapis.com/token'
+```
+
 # Customization
 
 Since *simple-auth* is a whitelabeled solution, it supports some level of customization via custom styles and template modifications.
@@ -63,8 +84,6 @@ docker build .
 ## Feature Wishlist
 
 ### V0
-- Username valid regex/characters
-- Account management
 - Forgot password
 - UX Tweaking, autofocus, tab, enter
 - Documentation
@@ -72,11 +91,14 @@ docker build .
 ### V1
 - OIDC Login Flow
 - Google Auth
+  - Better error pages
+  - Refactor session to be passable and generic
+  - Support JWT signature checking
 - TOTP
-- Disable logins
-- CLI tool: resetpass, invalidate user, etc
+- CLI tool: adduser, passwd, deactivate, activate
 - Prometheus
 - Embed all resources into single exe?
+- Docker / docker-compose gateway example
 
 # License
 

@@ -19,18 +19,21 @@ func (env *environment) routeAccount(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Logged in with unknown account"))
 	}
 
-	username, _ := env.db.FindSimpleAuthUsername(account)
-
-	return c.JSON(http.StatusOK, common.Json{
+	responseAuth := common.Json{}
+	response := common.Json{
 		"id":      account.UUID,
 		"created": account.CreatedAt,
 		"email":   account.Email,
-		"auth": common.Json{
-			"simple": common.Json{
-				"username": username,
-			},
-		},
-	})
+		"auth":    responseAuth,
+	}
+
+	if username, err := env.db.FindSimpleAuthUsername(account); err == nil {
+		responseAuth["simple"] = common.Json{
+			"username": username,
+		}
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
 
 func (env *environment) routeAccountAudit(c echo.Context) error {

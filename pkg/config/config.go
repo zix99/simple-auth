@@ -18,6 +18,7 @@ type ConfigSimpleAuthenticator struct {
 	SharedSecret string // If non-empty, will be required as a Bearer token in the Authorization header. If empty, anyone can use this endpoint (if enabled)
 }
 
+// Authenticators are how someone external to SA can authenticate with it
 type ConfigAuthencatorSet struct {
 	Token  ConfigTokenAuthenticator
 	Simple ConfigSimpleAuthenticator
@@ -63,27 +64,30 @@ type ConfigLoginCookie struct {
 	HTTPOnly   bool
 }
 
-type ConfigLoginOIDC struct {
-	Enabled bool
-	Clients map[string]struct { // ClientID Key
-		Name        string
-		Author      string
-		ClientID    string
-		RedirectURI []string
-	}
+type ConfigOIDCProvider struct {
+	ID           string
+	Name         string // Display name
+	Icon         string
+	ClientID     string
+	ClientSecret string
+	AuthURL      string // URL to redirect the user to for auth
+	TokenURL     string // URL to trade code for token
+}
+
+type ConfigLoginSettings struct {
+	CreateAccountEnabled bool
+	RouteOnLogin         string
+	AllowedContinueUrls  []string
 }
 
 type ConfigLogin struct {
+	Settings ConfigLoginSettings
 	// SameDomain authentication uses a cookie set to a domain (and presumably shared with your site).  Easiest to implement in a full-trust environment
 	Cookie ConfigLoginCookie
 	// Gateway
 	Gateway ConfigLoginGateway
 	// OIDC (OAuth 2) flow that allows an external site to securely login and verify the user
-	OIDC ConfigLoginOIDC
-	// Login Rules
-	CreateAccountEnabled bool
-	RouteOnLogin         string
-	AllowedContinueUrls  []string
+	OIDC []*ConfigOIDCProvider
 }
 
 type ConfigMetadata struct {
@@ -102,6 +106,7 @@ type ConfigWebTLS struct {
 
 type ConfigWeb struct {
 	Host         string
+	BaseURL      string // If empty, will attempt to be derivied
 	TLS          ConfigWebTLS
 	Requirements ConfigWebRequirements
 	RecaptchaV2  ConfigRecaptchaV2

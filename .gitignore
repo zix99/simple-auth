@@ -3,6 +3,7 @@ simpleauth.yml
 simpleauth.db
 dist/
 simple-auth-server
+static/
 
 # Logs
 logs

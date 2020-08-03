@@ -4,6 +4,7 @@ import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/api/auth"
+	"simple-auth/pkg/routes/api/providers"
 	"simple-auth/pkg/routes/api/ui"
 	saMiddleware "simple-auth/pkg/routes/middleware"
 
@@ -78,6 +79,15 @@ func simpleAuthServer(config *config.Config) error {
 
 	// Attach UI/access router
 	ui.NewController(env.db, &config.Metadata, &config.Web, &config.Email).Mount(e.Group("/api/ui"))
+
+	// OIDC Controllers
+	{
+		oidcGroup := e.Group("/oidc")
+		for _, oidc := range config.Web.Login.OIDC {
+			oidcController := providers.NewOIDCController(config.Web.GetBaseURL()+"/oidc", oidc.ID, &config.Web.Login.Settings, oidc, &config.Web.Login.Cookie, env.db)
+			oidcController.Mount(oidcGroup)
+		}
+	}
 
 	// Start
 	logrus.Infof("Starting server on http://%v", config.Web.Host)

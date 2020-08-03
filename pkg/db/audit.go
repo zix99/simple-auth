@@ -29,6 +29,7 @@ const (
 	AuditModuleUI      = "ui"
 	AuditModuleSimple  = "auth:simple"
 	AuditModuleToken   = "auth:token"
+	AuditModuleOIDC    = "login:oidc"
 )
 
 type AccountAuditRecord struct {
@@ -55,7 +56,7 @@ func (s *sadb) CreateAuditRecord(account *Account, module AuditModule, level Aud
 
 func (s *sadb) GetAuditTrailForAccount(account *Account, offset, count int) ([]AccountAuditRecord, error) {
 	var auditRecords []AccountAuditRecord
-	err := s.db.Model(account).Offset(offset).Limit(count).Related(&auditRecords).Error
+	err := s.db.Model(account).Order("created_at desc").Offset(offset).Limit(count).Related(&auditRecords).Error
 	if err != nil {
 		return nil, err
 	}

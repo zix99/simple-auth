@@ -12,8 +12,8 @@
       </thead>
       <tbody>
         <tr v-for="record in this.records" :key="record.ts">
-          <td>{{formatDate(record.ts)}}</td>
-          <td>{{record.level}}</td>
+          <td><ShortDate :date="record.ts" /></td>
+          <td :class="levelToClass(record.level)">{{record.level}}</td>
           <td>{{record.module}}</td>
           <td>{{record.message}}</td>
         </tr>
@@ -28,12 +28,13 @@
 
 <script>
 import axios from 'axios';
-import dayjs from 'dayjs';
 import LoadingBanner from '../components/loadingBanner.vue';
+import ShortDate from '../components/shortdate.vue';
 
 export default {
   components: {
     LoadingBanner,
+    ShortDate,
   },
   data() {
     return {
@@ -55,9 +56,6 @@ export default {
     },
   },
   methods: {
-    formatDate(s) {
-      return dayjs(s).format('lll');
-    },
     nextPage() {
       this.offset += this.limit;
     },
@@ -70,6 +68,16 @@ export default {
         .then((resp) => {
           this.records = resp.data.records;
         });
+    },
+    levelToClass(lvl) {
+      const level = lvl.toLowerCase();
+      if (level === 'alert') {
+        return 'is-danger';
+      }
+      if (level === 'warn') {
+        return 'is-warning';
+      }
+      return 'is-info';
     },
   },
 };

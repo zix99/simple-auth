@@ -58,9 +58,9 @@ func simpleAuthServer(config *config.Config) error {
 	}
 
 	// Gateway
-	if config.Web.Login.Gateway.Enabled {
-		logrus.Infof("Enabling authentication gateway: %v", config.Web.Login.Gateway.Targets)
-		e.Use(saMiddleware.AuthenticationGateway(&config.Web.Login.Gateway, &config.Web.Login.Cookie))
+	if config.Web.Gateway.Enabled {
+		logrus.Infof("Enabling authentication gateway: %v", config.Web.Gateway.Targets)
+		e.Use(saMiddleware.AuthenticationGateway(&config.Web.Gateway, &config.Web.Login.Cookie))
 	}
 
 	// Static app router

@@ -5,7 +5,7 @@
         <h2 class="subtitle" v-if="!appdata.login.continue">{{appdata.company}} Account Management</h2>
         <div v-if="appdata.login.continue">
           <h2 class="subtitle">{{appdata.company}} Login</h2>
-          <p>After logging in, you will be redirected to:<br /><strong>{{appdata.login.continue}}</strong></p>
+          <p v-if="isRemoteContinue">After logging in, you will be redirected to:<br /><strong>{{appdata.login.continue}}</strong></p>
         </div>
 
         <div class="has-text-left">
@@ -46,6 +46,11 @@ export default {
         // Is logged in!
         this.$router.push('/login-redirect');
       }).catch(() => {});
+  },
+  computed: {
+    isRemoteContinue() {
+      return this.appdata.login.continue && this.appdata.login.continue.startsWith('http');
+    },
   },
 };
 </script>

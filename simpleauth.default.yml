@@ -38,11 +38,12 @@ web:
             expiresminutes: 1440
             secureonly: false
             httponly: true
-        gateway:
-            enabled: false
-            logoutpath: "/logout"
-            targets: []
         oidc: []
+
+    gateway:
+        enabled: false
+        logoutpath: "/logout"
+        targets: []
 
     # Enable or disable recaptchav2
     recaptchav2:

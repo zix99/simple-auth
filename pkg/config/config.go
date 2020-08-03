@@ -53,6 +53,7 @@ type ConfigLoginGateway struct {
 	LogoutPath string            // Path for the logout url (to override & skip proxying)
 	Rewrite    map[string]string // Rewrite URLs upon proxying eg "/old"->"/new" or "/api/*"->"/$1"
 	Headers    map[string]string // Override additional headers (excluding host header)
+	NoCache    bool              // If true, will attempt to disable caching to gateway target
 }
 
 type ConfigLoginCookie struct {
@@ -84,8 +85,6 @@ type ConfigLogin struct {
 	Settings ConfigLoginSettings
 	// SameDomain authentication uses a cookie set to a domain (and presumably shared with your site).  Easiest to implement in a full-trust environment
 	Cookie ConfigLoginCookie
-	// Gateway
-	Gateway ConfigLoginGateway
 	// OIDC (OAuth 2) flow that allows an external site to securely login and verify the user
 	OIDC []*ConfigOIDCProvider
 }
@@ -111,6 +110,7 @@ type ConfigWeb struct {
 	Requirements ConfigWebRequirements
 	RecaptchaV2  ConfigRecaptchaV2
 	Login        ConfigLogin
+	Gateway      ConfigLoginGateway
 	Prometheus   bool // If true, will enable /metrics endpoint
 }
 

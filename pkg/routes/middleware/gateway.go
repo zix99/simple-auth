@@ -67,6 +67,12 @@ func AuthenticationGateway(gateway *config.ConfigLoginGateway, cookieConfig *con
 				req.Host = gateway.Host
 			}
 
+			// Try to bust the cache
+			resp := c.Response()
+			if gateway.NoCache {
+				resp.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+			}
+
 			// Proxy
 			ret := balancer(next)(c)
 			realTarget := c.Get(targetKey).(*middleware.ProxyTarget)

@@ -95,7 +95,7 @@ docker build .
   - Refactor session to be passable and generic
   - Support JWT signature checking
 - TOTP
-- CLI tool: adduser, passwd, deactivate, activate
+- CLI tool: deactivate, activate
 - Prometheus
 - Embed all resources into single exe?
 - Docker / docker-compose gateway example

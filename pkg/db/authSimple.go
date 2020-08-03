@@ -13,6 +13,7 @@ type AccountAuthSimple interface {
 	FindAndVerifySimpleAuth(username, password string) (*Account, error)
 	FindAccountForSimpleAuth(username string) (*Account, error)
 	FindSimpleAuthUsername(account *Account) (string, error)
+	UpdatePasswordForUsername(username string, newPassword string) error
 }
 
 type accountAuthSimple struct {
@@ -54,6 +55,20 @@ func (s *sadb) CreateAccountAuthSimple(belongsTo *Account, username, password st
 	}
 
 	return s.db.Create(auth).Error
+}
+
+func (s *sadb) UpdatePasswordForUsername(username string, newPassword string) error {
+	auth, _, err := s.resolveSimpleAuthForUser(username)
+	if err != nil {
+		return err
+	}
+
+	hashed, err := bcrypt.GenerateFromPassword([]byte(newPassword), 0)
+	if err != nil {
+		return err
+	}
+
+	return s.db.Model(auth).Update(accountAuthSimple{PasswordBcrypt: string(hashed)}).Error
 }
 
 func (s *sadb) resolveSimpleAuthForUser(username string) (*accountAuthSimple, *Account, error) {

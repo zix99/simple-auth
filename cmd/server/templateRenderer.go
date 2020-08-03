@@ -6,7 +6,7 @@ import (
 	"io"
 	"simple-auth/pkg/lib/multitemplate"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 var helpers = template.FuncMap{

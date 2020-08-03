@@ -8,8 +8,8 @@ import (
 	"simple-auth/pkg/routes/api/ui"
 	saMiddleware "simple-auth/pkg/routes/middleware"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/acme/autocert"
 )

@@ -11,7 +11,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type createAccountRequest struct {

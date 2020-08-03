@@ -7,8 +7,8 @@ import (
 	"simple-auth/pkg/routes/middleware"
 	"time"
 
-	"github.com/labstack/echo"
-	echoMiddleware "github.com/labstack/echo/middleware"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v4"
 )
 
 type environment struct {

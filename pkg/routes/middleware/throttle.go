@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // NewThrottleGroup will throttle a request per-ip.  Of course, this won't work

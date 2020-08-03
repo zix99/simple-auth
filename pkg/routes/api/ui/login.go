@@ -5,7 +5,7 @@ import (
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 )
 

@@ -25,13 +25,20 @@ const (
 	ContextAccountUUID = "accountUUID"
 )
 
-func parseSigningKey(method, key string) (interface{}, error) {
+func parseSigningKey(method, key string, verifying bool) (interface{}, error) {
 	lm := strings.ToUpper(method)
 	if strings.HasPrefix(lm, "HS") {
 		return []byte(key), nil
 	}
 	if strings.HasPrefix(lm, "RS") {
-		return jwt.ParseRSAPrivateKeyFromPEM([]byte(key))
+		key, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(key))
+		if err != nil {
+			return nil, err
+		}
+		if verifying {
+			return &key.PublicKey, nil
+		}
+		return key, nil
 	}
 	return nil, fmt.Errorf("Unable to parse key for %s", method)
 }
@@ -47,7 +54,7 @@ func issueSessionJwt(config *config.ConfigJWT, account *db.Account) (string, err
 		return "", fmt.Errorf("Unknown signing method %s, check your config", config.SigningMethod)
 	}
 
-	decodedKey, err := parseSigningKey(config.SigningMethod, config.SigningKey)
+	decodedKey, err := parseSigningKey(config.SigningMethod, config.SigningKey, false)
 	if err != nil {
 		return "", err
 	}
@@ -102,7 +109,7 @@ func parseContextSession(config *config.ConfigJWT, c echo.Context) (*jwt.Standar
 	}
 
 	token, err := jwt.ParseWithClaims(cookie.Value, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return parseSigningKey(config.SigningMethod, config.SigningKey)
+		return parseSigningKey(config.SigningMethod, config.SigningKey, true)
 	})
 	if err != nil {
 		return nil, errors.New("Unable to parse JWT")
@@ -116,7 +123,7 @@ func parseContextSession(config *config.ConfigJWT, c echo.Context) (*jwt.Standar
 }
 
 func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
-	_, parseErr := parseSigningKey(config.SigningMethod, config.SigningKey)
+	_, parseErr := parseSigningKey(config.SigningMethod, config.SigningKey, false)
 	if config.SigningKey == "" || parseErr != nil {
 		logrus.Warn("No JWT secret specified, refusing to bind user management endpoints")
 		return func(next echo.HandlerFunc) echo.HandlerFunc {

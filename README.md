@@ -89,9 +89,16 @@ docker build .
 - Documentation
 
 #### Bugs
+- Home wording tweaks (login rather than "manage").  Default to /#manage in login (rather than explicit all the time)
+- Prometheus
 - Gateway seems to be caching and not logging-in/out correctly
 - Using a RSA key seems to not allow signing in to account
 - General tests for OIDC and different cases
+- Forgot password (single-use signin)
+- Change password
+- Associate google auth
+- Documentation
+  - Docker / docker-compose gateway example
 
 ### V1
 - OIDC Login Flow
@@ -100,10 +107,9 @@ docker build .
   - Refactor session to be passable and generic
   - Support JWT signature checking
 - TOTP
-- CLI tool: deactivate, activate
-- Prometheus
+- CLI tool: deactivate, activate, singleuse
+  - Bundle in dockerfile
 - Embed all resources into single exe?
-- Docker / docker-compose gateway example
 
 # License
 

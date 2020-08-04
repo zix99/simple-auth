@@ -41,3 +41,13 @@ func TestMissingOIDCAccount(t *testing.T) {
 	assert.Nil(t, find)
 	assert.Error(t, err)
 }
+
+func TestTwoProviderLookup(t *testing.T) {
+	account, _ := sadb.CreateAccount("2-" + oidcEmail)
+	assert.NoError(t, sadb.CreateOIDCForAccount(account, "p1", "abcdq"))
+	assert.NoError(t, sadb.CreateOIDCForAccount(account, "p2", "abcdn"))
+
+	providers, err := sadb.FindOIDCForAccount(account)
+	assert.NoError(t, err)
+	assert.Len(t, providers, 2)
+}

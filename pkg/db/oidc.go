@@ -9,6 +9,7 @@ import (
 type AccountOIDC interface {
 	FindAccountForOIDC(provider, subject string) (*Account, error)
 	CreateOIDCForAccount(account *Account, provider, subject string) error
+	FindOIDCForAccount(account *Account) ([]OIDCDescriptor, error)
 }
 
 type accountOIDC struct {
@@ -32,6 +33,28 @@ func (s *sadb) FindAccountForOIDC(provider, subject string) (*Account, error) {
 	s.CreateAuditRecord(&account, AuditModuleOIDC, AuditLevelInfo, "OIDC lookup succeeded for %s", provider)
 
 	return &account, nil
+}
+
+type OIDCDescriptor struct {
+	Provider string
+	Subject  string
+}
+
+func (s *sadb) FindOIDCForAccount(account *Account) ([]OIDCDescriptor, error) {
+	var providers []*accountOIDC
+	err := s.db.Model(account).Related(&providers).Error
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]OIDCDescriptor, len(providers))
+	for i, provider := range providers {
+		ret[i] = OIDCDescriptor{
+			Provider: provider.Provider,
+			Subject:  provider.Subject,
+		}
+	}
+	return ret, nil
 }
 
 func (s *sadb) CreateOIDCForAccount(account *Account, provider, subject string) error {

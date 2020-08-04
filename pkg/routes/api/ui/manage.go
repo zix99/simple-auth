@@ -33,6 +33,20 @@ func (env *environment) routeAccount(c echo.Context) error {
 		}
 	}
 
+	if providers, err := env.db.FindOIDCForAccount(account); err == nil {
+		oidcProviders := make([]common.Json, len(providers))
+		for i, oidc := range providers {
+			providerConfig := env.config.Login.OIDCByProvider(oidc.Provider)
+			oidcProviders[i] = common.Json{
+				"provider": oidc.Provider,
+				"subject":  oidc.Subject,
+				"icon":     providerConfig.Icon,
+				"name":     providerConfig.Name,
+			}
+		}
+		responseAuth["oidc"] = oidcProviders
+	}
+
 	return c.JSON(http.StatusOK, response)
 }
 

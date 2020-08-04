@@ -89,7 +89,6 @@ docker build .
 - Documentation
 
 #### Bugs
-- Using a RSA key seems to not allow signing in to account
 - General tests for OIDC and different cases
 - Forgot password (single-use signin)
 - Change password

@@ -152,7 +152,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	{
 		account, _ := env.db.FindAccountForOIDC(env.id, claims.Subject)
 		if account != nil {
-			middleware.CreateSession(c, env.cookieConfig, account)
+			middleware.CreateSession(c, env.cookieConfig, account, middleware.SessionSourceOIDC)
 			return c.Redirect(http.StatusTemporaryRedirect, continueURL)
 		}
 	}
@@ -167,7 +167,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 		if err2 != nil {
 			return c.JSON(http.StatusInternalServerError, common.JsonError(err2))
 		}
-		middleware.CreateSession(c, env.cookieConfig, account)
+		middleware.CreateSession(c, env.cookieConfig, account, middleware.SessionSourceOIDC)
 		return c.Redirect(http.StatusTemporaryRedirect, continueURL)
 	}
 

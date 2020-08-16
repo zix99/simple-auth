@@ -77,3 +77,16 @@ func TestCreateDupeUsername(t *testing.T) {
 	err := sadb.CreateAccountAuthSimple(authSimpleAccount, authSimpleUsername, authSimplePassword)
 	assert.Error(t, err)
 }
+
+func TestUpdatePassword(t *testing.T) {
+	const changePassUsername = "change-pass-uname"
+	account, _ := sadb.CreateAccount("change-pass@asdf.com")
+	assert.NotNil(t, account)
+	sadb.CreateAccountAuthSimple(account, changePassUsername, authSimplePassword)
+
+	sadb.UpdatePasswordForUsername(changePassUsername, "new-password")
+
+	verifiedAccount, err := sadb.FindAndVerifySimpleAuth(changePassUsername, "new-password")
+	assert.NoError(t, err)
+	assert.Equal(t, account.UUID, verifiedAccount.UUID)
+}

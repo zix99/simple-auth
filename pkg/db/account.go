@@ -11,6 +11,7 @@ import (
 type AccountStore interface {
 	CreateAccount(email string) (*Account, error)
 	FindAccount(uuid string) (*Account, error)
+	FindAccountByEmail(email string) (*Account, error)
 }
 
 // Account represents a user
@@ -42,8 +43,23 @@ func (s *sadb) CreateAccount(email string) (*Account, error) {
 }
 
 func (s *sadb) FindAccount(uuid string) (*Account, error) {
+	if uuid == "" {
+		return nil, errors.New("Missing UUID")
+	}
 	var account Account
 	err := s.db.Where(&Account{UUID: uuid}).First(&account).Error
+	if err != nil {
+		return nil, err
+	}
+	return &account, err
+}
+
+func (s *sadb) FindAccountByEmail(email string) (*Account, error) {
+	if email == "" {
+		return nil, errors.New("Missing email")
+	}
+	var account Account
+	err := s.db.Where(&Account{Email: email}).First(&account).Error
 	if err != nil {
 		return nil, err
 	}

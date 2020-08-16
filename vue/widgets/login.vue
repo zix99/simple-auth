@@ -34,7 +34,7 @@
           <button class="button is-link" @click="submitClick" :disabled="loading">Login</button>
         </div>
       </div>
-      <a href="#" @click.prevent="forgotPassword">Forgot Password?</a>
+      <router-link v-if="allowForgotPassword" to="forgot-password">Forgot Password?</router-link>
     </div>
 
     <div v-if="state === 'totp'">
@@ -64,6 +64,9 @@ import LoadingBanner from '../components/loadingBanner.vue';
 export default {
   components: {
     LoadingBanner,
+  },
+  props: {
+    allowForgotPassword: null,
   },
   data() {
     return {

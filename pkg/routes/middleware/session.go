@@ -25,6 +25,19 @@ const (
 	ContextAccountUUID = "accountUUID"
 )
 
+type SessionSource string
+
+const (
+	SessionSourceOIDC    SessionSource = "oidc"
+	SessionSourceLogin                 = "login"
+	SessionSourceOneTime               = "onetime"
+)
+
+type SimpleAuthClaims struct {
+	jwt.StandardClaims
+	Source SessionSource `json:"src,omitempty"`
+}
+
 func parseSigningKey(method, key string, verifying bool) (interface{}, error) {
 	lm := strings.ToUpper(method)
 	if strings.HasPrefix(lm, "HS") {
@@ -43,7 +56,7 @@ func parseSigningKey(method, key string, verifying bool) (interface{}, error) {
 	return nil, fmt.Errorf("Unable to parse key for %s", method)
 }
 
-func issueSessionJwt(config *config.ConfigJWT, account *db.Account) (string, error) {
+func issueSessionJwt(config *config.ConfigJWT, account *db.Account, source SessionSource) (string, error) {
 	if len(config.SigningKey) < 8 {
 		logrus.Warn("No JWT secret set, or secret too short.  User not able to login")
 		return "", errors.New("Server needs secret")
@@ -59,17 +72,20 @@ func issueSessionJwt(config *config.ConfigJWT, account *db.Account) (string, err
 		return "", err
 	}
 
-	token := jwt.NewWithClaims(signingMethod, jwt.StandardClaims{
-		Issuer:    config.Issuer,
-		Subject:   account.UUID,
-		Audience:  "simple-auth",
-		ExpiresAt: time.Now().Add(time.Duration(config.ExpiresMinutes) * time.Minute).Unix(),
+	token := jwt.NewWithClaims(signingMethod, SimpleAuthClaims{
+		StandardClaims: jwt.StandardClaims{
+			Issuer:    config.Issuer,
+			Subject:   account.UUID,
+			Audience:  "simple-auth",
+			ExpiresAt: time.Now().Add(time.Duration(config.ExpiresMinutes) * time.Minute).Unix(),
+		},
+		Source: source,
 	})
 	return token.SignedString(decodedKey)
 }
 
-func CreateSession(c echo.Context, config *config.ConfigLoginCookie, account *db.Account) error {
-	signedToken, err := issueSessionJwt(&config.JWT, account)
+func CreateSession(c echo.Context, config *config.ConfigLoginCookie, account *db.Account, source SessionSource) error {
+	signedToken, err := issueSessionJwt(&config.JWT, account, source)
 	if err != nil {
 		logrus.Warn(err)
 		return err
@@ -102,20 +118,20 @@ func ClearSession(c echo.Context, config *config.ConfigLoginCookie) {
 	})
 }
 
-func parseContextSession(config *config.ConfigJWT, c echo.Context) (*jwt.StandardClaims, error) {
+func parseContextSession(config *config.ConfigJWT, c echo.Context) (*SimpleAuthClaims, error) {
 	cookie, err := c.Cookie(authCookieName)
 	if err != nil || cookie == nil {
 		return nil, errors.New("Auth cookie not set")
 	}
 
-	token, err := jwt.ParseWithClaims(cookie.Value, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(cookie.Value, &SimpleAuthClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return parseSigningKey(config.SigningMethod, config.SigningKey, true)
 	})
 	if err != nil {
 		return nil, errors.New("Unable to parse JWT")
 	}
 
-	if claims, ok := token.Claims.(*jwt.StandardClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*SimpleAuthClaims); ok && token.Valid {
 		return claims, nil
 	}
 

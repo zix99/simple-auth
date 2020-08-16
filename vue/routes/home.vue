@@ -9,7 +9,7 @@
         </div>
 
         <div class="has-text-left">
-          <Login @loggedIn="$router.push('/login-redirect')" />
+          <Login @loggedIn="$router.push('/login-redirect')" :allowForgotPassword="appdata.login.forgotPassword" />
         </div>
         <div>
           <div v-for="oidc in appdata.oidc" :key="oidc.id" class="my-2">

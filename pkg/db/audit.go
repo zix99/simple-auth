@@ -30,6 +30,7 @@ const (
 	AuditModuleSimple  = "auth:simple"
 	AuditModuleToken   = "auth:token"
 	AuditModuleOIDC    = "login:oidc"
+	AuditModuleOneTime = "auth:onetime"
 )
 
 type AccountAuditRecord struct {

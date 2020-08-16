@@ -35,8 +35,9 @@ func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *conf
 		"footer":  meta.Footer,
 		"csrf":    c.Get("csrf"),
 		"login": common.Json{
-			"createAccount": web.Login.Settings.CreateAccountEnabled,
-			"continue":      continueURL,
+			"createAccount":  web.Login.Settings.CreateAccountEnabled,
+			"forgotPassword": web.Login.OneTime.AllowForgotPassword && web.Login.OneTime.Enabled,
+			"continue":       continueURL,
 		},
 		"requirements": web.Requirements,
 		"recaptchav2": common.Json{

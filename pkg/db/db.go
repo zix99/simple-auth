@@ -15,6 +15,7 @@ type SADB interface {
 	AccountStore
 	AccountAudit
 	AccountOIDC
+	AccountAuthOneTime
 	EnableLogging(enable bool)
 	IsAlive() bool
 }
@@ -34,6 +35,7 @@ func New(driver string, args string) SADB {
 	db.AutoMigrate(&accountAuthSimple{})
 	db.AutoMigrate(&accountAuthSessionToken{})
 	db.AutoMigrate(&accountAuthVerificationToken{})
+	db.AutoMigrate(&accountAuthOneTime{})
 
 	db.AutoMigrate(&accountOIDC{})
 	db.Model(&accountOIDC{}).AddUniqueIndex("idx_provider_subject", "provider", "subject")

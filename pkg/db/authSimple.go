@@ -32,6 +32,9 @@ func (s *accountAuthSimple) verifyPassword(against string) bool {
 
 // CreateAccountAuthSimple creates a new account simple auth with a crypted password
 func (s *sadb) CreateAccountAuthSimple(belongsTo *Account, username, password string) error {
+	if belongsTo == nil {
+		return errors.New("Invalid account")
+	}
 	if !belongsTo.Active {
 		return errors.New("Unable to associate with deactivated account")
 	}

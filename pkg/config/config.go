@@ -79,6 +79,13 @@ type ConfigLoginSettings struct {
 	CreateAccountEnabled bool
 	RouteOnLogin         string
 	AllowedContinueUrls  []string
+	ThrottleDuration     string // Parsed as Duration, represents a delay from any major action (Helps mitigate brute-force attacks)
+}
+
+type OneTimeConfig struct {
+	Enabled             bool
+	AllowForgotPassword bool   // Separate from enabled, will allow issuing one-time via email
+	TokenDuration       string // Parsed as duration
 }
 
 type ConfigLogin struct {
@@ -87,6 +94,8 @@ type ConfigLogin struct {
 	Cookie ConfigLoginCookie
 	// OIDC (OAuth 2) flow that allows an external site to securely login and verify the user
 	OIDC []*ConfigOIDCProvider
+	// Configuration for one-time password (eg. forgotten password)
+	OneTime OneTimeConfig
 }
 
 type ConfigMetadata struct {

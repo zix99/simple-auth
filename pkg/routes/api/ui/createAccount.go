@@ -56,14 +56,13 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 	go email.SendWelcomeEmail(env.email, req.Email, &email.WelcomeEmailData{
 		EmailData: email.EmailData{
 			Company: env.meta.Company,
+			BaseURL: env.config.GetBaseURL(),
 		},
-		AccountID: account.UUID,
-		Name:      req.Username,
-		WebHost:   "http://" + env.config.Host,
+		Name: req.Username,
 	})
 
 	// log the user in to a session
-	err3 := middleware.CreateSession(c, &env.config.Login.Cookie, account)
+	err3 := middleware.CreateSession(c, &env.config.Login.Cookie, account, middleware.SessionSourceLogin)
 	if err3 != nil {
 		logrus.Warnf("Unable to create session post-login, ignoring: %v", err3)
 	}

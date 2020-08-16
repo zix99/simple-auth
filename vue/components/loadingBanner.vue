@@ -38,6 +38,7 @@ export default {
         this.loading = false;
       } else {
         this.error = null;
+        this.promise.pending = true;
 
         // Delay showing the loader so it's less likely to blink in/out so quickly
         const timer = setTimeout(() => {
@@ -48,6 +49,7 @@ export default {
             this.error = err.message;
           })
           .then(() => {
+            this.promise.pending = false;
             this.loading = false;
             clearTimeout(timer);
           });

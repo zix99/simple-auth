@@ -4,4 +4,6 @@ Subject: New Account at {{ .Model.Company }}
 
 Thank you {{ .Model.Name }} for signing up for an account at {{ .Model.Company }}.
 
-You can manage your account here: {{ .Model.WebHost }}
+You can manage your account here: {{ .Model.BaseURL }}
+
+- {{ .Model.Company }} ({{ .Model.BaseURL }})

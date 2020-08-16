@@ -47,7 +47,9 @@ func (s *recaptchaV2Validator) Validate(code string) error {
 	respData := struct {
 		Success bool `json:"success"`
 	}{}
-	json.Unmarshal(respBody, &respData)
+	if err := json.Unmarshal(respBody, &respData); err != nil {
+		return err
+	}
 
 	if !respData.Success {
 		logrus.Info("Captcha not valid")

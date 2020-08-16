@@ -26,6 +26,7 @@ web:
             createaccountenabled: true # If allowed to create account
             routeonlogin: null # Where to route to post-login (either login or create)
             allowedcontinueurls: [] # Urls, in addition to local pages, allowed post-login via ?continue query param
+            throttleduration: 1s
         cookie:
             jwt:
                 # Key for jwt-signing
@@ -39,6 +40,10 @@ web:
             secureonly: false
             httponly: true
         oidc: []
+        onetime:
+            enabled: true
+            allowforgotpassword: true # If allowed to issue forgot-password email.  Required email config
+            tokenduration: 1h
 
     gateway:
         enabled: false
@@ -49,10 +54,15 @@ web:
     recaptchav2:
         enabled: false
         sitekey: null
+        secret: null
         theme: 'light'
 email:
     enabled: false
     host: ''
+    identity: null
+    username: null
+    password: null
+    from: null
 authenticators:
     token:
         enabled: true

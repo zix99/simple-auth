@@ -84,17 +84,16 @@ docker build .
 ## Feature Wishlist
 
 ### V0
-- Forgot password
-- UX Tweaking, autofocus, tab, enter
-- Documentation
-
-#### Bugs
-- General tests for OIDC and different cases
 - Forgot password (single-use signin)
 - Change password
-- Associate google auth
+- TOTP
+- Account requirements (Blocks signin/usage until resolved)
+  - Verification email
+  - Temp ban
+- UX Tweaking, autofocus, tab, enter
 - Documentation
   - Docker / docker-compose gateway example
+- General tests for OIDC and different cases
 
 ### V1
 - OIDC Login Flow
@@ -102,7 +101,6 @@ docker build .
   - Better error pages
   - Refactor session to be passable and generic
   - Support JWT signature checking
-- TOTP
 - CLI tool: deactivate, activate, singleuse
   - Bundle in dockerfile
 - Embed all resources into single exe?

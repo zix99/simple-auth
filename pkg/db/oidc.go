@@ -12,6 +12,7 @@ type AccountOIDC interface {
 	FindOIDCForAccount(account *Account) ([]OIDCDescriptor, error)
 }
 
+// NOTE: extra index created in db.go
 type accountOIDC struct {
 	gorm.Model
 	AccountID uint   `gorm:"index;not null"`

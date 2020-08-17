@@ -94,6 +94,7 @@ docker build .
 - Documentation
   - Docker / docker-compose gateway example
 - General tests for OIDC and different cases
+- Request ID + Logging (correlation ID)
 
 ### V1
 - OIDC Login Flow

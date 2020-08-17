@@ -49,34 +49,12 @@
         </p>
       </div>
 
-      <div class="field">
-        <label class="label">Password</label>
-        <div class="control has-icons-left has-icons-right">
-          <input class="input" type="password" placeholder="Password" v-model="password1" />
-          <span class="icon is-small is-left">
-            <i class="fas fa-lock" />
-          </span>
-        </div>
-        <p class="help is-danger" v-if="!validPassword">
-          Expected password to be between {{appdata.requirements.PasswordMinLength}} and {{appdata.requirements.PasswordMaxLength}} long,
-          and a score greater than 2 (Currently {{strength.score}})
-        </p>
-        <p class="help" v-if="strength.feedback">
-          {{strength.feedback.warning}}
-          <ul>
-            <li v-for="suggestion in strength.feedback.suggestions" :key="suggestion">{{suggestion}}</li>
-          </ul>
-        </p>
-      </div>
-      <div class="field">
-        <div class="control has-icons-left has-icons-right">
-          <input class="input" type="password" placeholder="Re-Enter Password" v-model="password2" />
-          <span class="icon is-small is-left">
-            <i class="fas fa-lock" />
-          </span>
-        </div>
-        <p class="help is-danger" v-if="!passwordMatch">Password does not match</p>
-      </div>
+      <ValidatedPasswordInput
+        :minlength="appdata.requirements.PasswordMinLength"
+        :maxlength="appdata.requirements.PasswordMaxLength"
+        v-model="password"
+        @valid="validPassword = $event"
+        />
 
       <RecaptchaV2 v-if="appdata.recaptchav2.enabled" :sitekey="appdata.recaptchav2.sitekey" :theme="appdata.recaptchav2.theme" ref="recaptchav2" />
 
@@ -107,10 +85,10 @@
 
 <script>
 import validator from 'validator';
-import zxcvbn from 'zxcvbn';
 import axios from 'axios';
 import CenterCard from '../components/centerCard.vue';
 import RecaptchaV2 from '../components/recaptchav2.vue';
+import ValidatedPasswordInput from '../components/validatedPasswordInput.vue';
 
 export default {
   props: {
@@ -139,11 +117,10 @@ export default {
       // input
       email: '',
       username: '',
-      password1: '',
-      password2: '',
+      password: '',
+      validPassword: false,
 
       // responsive
-      strength: {},
       loading: false,
       error: null,
       createdAccountId: null,
@@ -152,6 +129,7 @@ export default {
   components: {
     CenterCard,
     RecaptchaV2,
+    ValidatedPasswordInput,
   },
   mounted() {
     this.$refs.email.focus();
@@ -168,19 +146,6 @@ export default {
       if (!this.appdata.requirements.UsernameRegex) return true;
       return this.username.match(this.appdata.requirements.UsernameRegex);
     },
-    passwordMatch() {
-      return this.password1 === this.password2;
-    },
-    validPassword() {
-      return this.password1.length >= this.appdata.requirements.PasswordMinLength
-        && this.password1.length <= this.appdata.requirements.PasswordMaxLength
-        && this.strength.score >= 2;
-    },
-  },
-  watch: {
-    password1() {
-      this.strength = zxcvbn(this.password1);
-    },
   },
   methods: {
     submitClick() {
@@ -189,7 +154,7 @@ export default {
 
       const postData = {
         username: this.username,
-        password: this.password1,
+        password: this.password,
         email: this.email,
       };
 

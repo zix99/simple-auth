@@ -6,14 +6,14 @@ import (
 	"simple-auth/pkg/routes/middleware"
 	"strconv"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/labstack/echo/v4"
 )
 
 func (env *environment) routeAccount(c echo.Context) error {
+	logger := middleware.GetLogger(c)
 	accountUUID := c.Get(middleware.ContextAccountUUID).(string)
-	logrus.Infof("Get account for %s", accountUUID)
+
+	logger.Infof("Get account for %s", accountUUID)
 	account, err := env.db.FindAccount(accountUUID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Logged in with unknown account"))
@@ -52,7 +52,9 @@ func (env *environment) routeAccount(c echo.Context) error {
 
 func (env *environment) routeAccountAudit(c echo.Context) error {
 	accountUUID := c.Get(middleware.ContextAccountUUID).(string)
-	logrus.Infof("Get account audit for %s", accountUUID)
+	logger := middleware.GetLogger(c)
+
+	logger.Infof("Get account audit for %s", accountUUID)
 
 	account, err := env.db.FindAccount(accountUUID)
 	if err != nil {

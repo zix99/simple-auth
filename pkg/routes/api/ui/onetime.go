@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 )
 
 type oneTimePostRequest struct {
@@ -17,28 +16,30 @@ type oneTimePostRequest struct {
 }
 
 func (env *environment) routeOneTimePost(c echo.Context) error {
+	logger := middleware.GetLogger(c)
+
 	var req oneTimePostRequest
 	if err := c.Bind(&req); err != nil {
 		return common.HttpErrorf(c, http.StatusBadRequest, "Bind error: %s", err)
 	}
 
-	logrus.Infof("Issuing one-time token to email %s...", req.Email)
+	logger.Infof("Issuing one-time token to email %s...", req.Email)
 
 	account, err := env.db.FindAccountByEmail(req.Email)
 	if err != nil {
-		logrus.Warn("No account found for password reset")
+		logger.Warn("No account found for password reset")
 		return c.JSON(http.StatusOK, common.Json{"status": true}) // A mis-direct, to prevent scanning for tokens
 	}
 
 	duration, err := time.ParseDuration(env.config.Login.OneTime.TokenDuration)
 	if err != nil {
-		logrus.Warn(err)
+		logger.Warn(err)
 		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Invalid token duration. Config error"))
 	}
 
 	token, err := env.db.CreateAccountOneTimeToken(account, duration)
 	if err != nil {
-		logrus.Warn(err)
+		logger.Warn(err)
 		return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Error issuing token"))
 	}
 
@@ -52,7 +53,7 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 		ResetLink:     baseURL + "/api/ui/onetime?token=" + token,
 	})
 	if err != nil {
-		logrus.Warn(err)
+		logger.Warn(err)
 		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Unable to send email"))
 	}
 
@@ -60,22 +61,24 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 }
 
 func (env *environment) routeOneTimeAuth(c echo.Context) error {
+	logger := middleware.GetLogger(c)
+
 	token := strings.TrimSpace(c.QueryParam("token"))
 	if token == "" {
 		return common.HttpErrorf(c, http.StatusBadRequest, "Missing token")
 	}
 
-	logrus.Infof("Attemping to one-time signin for token %s...", token)
+	logger.Infof("Attemping to one-time signin for token %s...", token)
 
 	account, err := env.db.AssertOneTimeToken(token)
 	if err != nil {
-		logrus.Warn(err)
+		logger.Warn(err)
 		return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Unable to validate token"))
 	}
 
 	err = middleware.CreateSession(c, &env.config.Login.Cookie, account, middleware.SessionSourceOneTime)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Something went wrong creating session"))
 	}
 

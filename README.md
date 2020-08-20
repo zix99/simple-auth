@@ -91,8 +91,14 @@ docker build .
   - Verification email
   - Temp ban
 - UX Tweaking, autofocus, tab, enter
+  - Don't submit create-user if recaptcha fails
+- Docker
+  - Example compose
+  - DB in a shared folder (with one-step setup). 
+  - Generated secret for first time run?
 - Documentation
   - Docker / docker-compose gateway example
+  - OIDC Examples
 - General tests for OIDC and different cases
 - Request ID + Logging (correlation ID)
 
@@ -102,9 +108,15 @@ docker build .
   - Better error pages
   - Refactor session to be passable and generic
   - Support JWT signature checking
+- Support other oidc/oauth2 schemes (eg facebook, microsoft, github..)
 - CLI tool: deactivate, activate, singleuse
   - Bundle in dockerfile
 - Embed all resources into single exe?
+
+### V2
+- Admin dashboard / Overview page
+- Priviledged users, signup dashboard
+- Invite system
 
 # License
 

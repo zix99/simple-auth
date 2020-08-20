@@ -48,6 +48,7 @@ func simpleAuthServer(config *config.Config) error {
 	e := echo.New()
 	e.Debug = !config.Production
 
+	e.Use(saMiddleware.NewCorrelationMiddleware(false, true))
 	e.Use(saMiddleware.NewLoggerMiddleware())
 	e.Use(middleware.Recover())
 

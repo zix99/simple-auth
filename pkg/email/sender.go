@@ -2,6 +2,7 @@ package email
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/smtp"
 	"simple-auth/pkg/config"
@@ -27,7 +28,7 @@ func extractHostname(host string) string {
 func sendEmail(cfg *config.ConfigEmail, to string, templateName string, data IEmailData) error {
 	if !cfg.Enabled {
 		logrus.Infof("Skipping sending email %s to %s, disabled", templateName, to)
-		return nil // No error, just not enabled
+		return errors.New("Email disabled")
 	}
 
 	logrus.Infof("Sending %s email to %s...", templateName, to)

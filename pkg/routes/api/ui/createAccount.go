@@ -9,8 +9,6 @@ import (
 	"simple-auth/pkg/routes/middleware"
 	"unicode/utf8"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,6 +20,8 @@ type createAccountRequest struct {
 }
 
 func (env *environment) routeCreateAccount(c echo.Context) error {
+	logger := middleware.GetLogger(c)
+
 	req := createAccountRequest{}
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(400, common.JsonError(errors.New("Unable to deserialize request")))
@@ -64,7 +64,7 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 	// log the user in to a session
 	err3 := middleware.CreateSession(c, &env.config.Login.Cookie, account, middleware.SessionSourceLogin)
 	if err3 != nil {
-		logrus.Warnf("Unable to create session post-login, ignoring: %v", err3)
+		logger.Warnf("Unable to create session post-login, ignoring: %v", err3)
 	}
 
 	return c.JSON(201, common.Json{

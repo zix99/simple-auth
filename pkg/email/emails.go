@@ -23,14 +23,14 @@ type WelcomeEmailData struct {
 	Name string
 }
 
+func SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData) error {
+	return sendEmail(cfg, to, "welcome", data)
+}
+
 type ForgotPasswordData struct {
 	EmailData
 	ResetLink     string
 	ResetDuration string
-}
-
-func SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData) error {
-	return sendEmail(cfg, to, "welcome", data)
 }
 
 func SendForgotPasswordEmail(cfg *config.ConfigEmail, to string, data *ForgotPasswordData) error {

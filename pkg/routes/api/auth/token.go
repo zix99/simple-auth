@@ -4,6 +4,7 @@ import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
+	"simple-auth/pkg/routes/middleware"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -70,6 +71,8 @@ func (env *TokenAuthController) routeIssueSessionToken(c echo.Context) error {
 }
 
 func (env *TokenAuthController) routeIssueVerificationToken(c echo.Context) error {
+	logger := middleware.GetLogger(c)
+
 	req := struct {
 		Username string `json:"username" form:"username"`
 		Token    string `json:"token" form:"token"`
@@ -80,11 +83,11 @@ func (env *TokenAuthController) routeIssueVerificationToken(c echo.Context) erro
 
 	vToken, err := env.db.CreateVerificationToken(req.Username, req.Token)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		return c.JSON(401, common.JsonErrorf("Unable to create verification token"))
 	}
 
-	logrus.Infof("Issuing verification token for %s", req.Username)
+	logger.Infof("Issuing verification token for %s", req.Username)
 	return c.JSON(200, responseToken{
 		Token: vToken,
 	})

@@ -6,7 +6,6 @@ import (
 	"simple-auth/pkg/routes/middleware"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 )
 
 type loginRequest struct {
@@ -15,23 +14,24 @@ type loginRequest struct {
 }
 
 func (env *environment) routeLogin(c echo.Context) error {
+	logger := middleware.GetLogger(c)
 	req := loginRequest{}
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, common.JsonErrorf("Unable to deserialize request"))
 	}
 
-	logrus.Infof("Attempting login for '%s'...", req.Username)
+	logger.Infof("Attempting login for '%s'...", req.Username)
 
 	account, err := env.db.FindAndVerifySimpleAuth(req.Username, req.Password)
 	if err != nil {
-		logrus.Infof("Login for user '%s' rejected", req.Username)
+		logger.Infof("Login for user '%s' rejected", req.Username)
 		return c.JSON(http.StatusUnauthorized, common.JsonError(err))
 	}
-	logrus.Infof("Login for user '%s' accepted", req.Username)
+	logger.Infof("Login for user '%s' accepted", req.Username)
 
 	err = middleware.CreateSession(c, &env.config.Login.Cookie, account, middleware.SessionSourceLogin)
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Something went wrong signing JWT"))
 	}
 

@@ -18,7 +18,7 @@ func HttpError(c echo.Context, code int, err error) error {
 
 func HttpErrorf(c echo.Context, code int, err string, args ...interface{}) error {
 	msg := fmt.Sprintf(err, args...)
-	logrus.Warn(msg)
+	logrus.Warn(err)
 	return c.JSON(code, JsonErrorf(msg))
 }
 

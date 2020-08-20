@@ -92,6 +92,8 @@ func (env *OIDCController) routeAuthRedirect(c echo.Context) error {
 }
 
 func (env *OIDCController) routeAuthCallback(c echo.Context) error {
+	logger := middleware.GetLogger(c)
+
 	state := c.QueryParam("state")
 	code := c.QueryParam("code")
 
@@ -101,11 +103,11 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 
 	stateCookie, err := c.Cookie(oidcStateCookieName)
 	if err != nil {
-		logrus.Warn("Unable to find state cookie. Forgery?")
+		logger.Warn("Unable to find state cookie. Forgery?")
 		return c.JSON(http.StatusBadRequest, common.JsonError(err))
 	}
 	if stateCookie.Value != state {
-		logrus.Warn("State cookie mismatch. Forgery?")
+		logger.Warn("State cookie mismatch. Forgery?")
 		return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Invalid state"))
 	}
 
@@ -123,7 +125,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	// Trade in the token
 	token, err := env.tradeCodeForToken(code)
 	if err != nil {
-		logrus.Warnf("Error trading in OIDC code for token: %s", err)
+		logger.Warnf("Error trading in OIDC code for token: %s", err)
 		return c.JSON(http.StatusUnauthorized, common.JsonError(err))
 	}
 
@@ -135,7 +137,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	}
 	parsedToken, _ := jwt.ParseWithClaims(token, &oidcClaims{}, nil)
 	if parsedToken == nil {
-		logrus.Warnf("Error parsing claims")
+		logger.Warnf("Error parsing claims")
 		return c.JSON(http.StatusBadRequest, common.JsonErrorf("Error parsing claims"))
 	}
 	claims := parsedToken.Claims.(*oidcClaims)

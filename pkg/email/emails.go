@@ -23,8 +23,8 @@ type WelcomeEmailData struct {
 	Name string
 }
 
-func SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData) error {
-	return sendEmail(cfg, to, "welcome", data)
+func (s *EmailService) SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData) error {
+	return s.sendEmail(cfg, to, "welcome", data)
 }
 
 type ForgotPasswordData struct {
@@ -33,6 +33,6 @@ type ForgotPasswordData struct {
 	ResetDuration string
 }
 
-func SendForgotPasswordEmail(cfg *config.ConfigEmail, to string, data *ForgotPasswordData) error {
-	return sendEmail(cfg, to, "forgotPassword", data)
+func (s *EmailService) SendForgotPasswordEmail(cfg *config.ConfigEmail, to string, data *ForgotPasswordData) error {
+	return s.sendEmail(cfg, to, "forgotPassword", data)
 }

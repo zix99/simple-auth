@@ -44,7 +44,7 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 	}
 
 	baseURL := env.config.GetBaseURL()
-	err = email.SendForgotPasswordEmail(env.email, req.Email, &email.ForgotPasswordData{
+	err = email.New(logger).SendForgotPasswordEmail(env.email, req.Email, &email.ForgotPasswordData{
 		EmailData: email.EmailData{
 			Company: env.meta.Company,
 			BaseURL: baseURL,

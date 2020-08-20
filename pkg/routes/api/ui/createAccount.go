@@ -53,7 +53,7 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 	}
 
 	// trigger email
-	go email.SendWelcomeEmail(env.email, req.Email, &email.WelcomeEmailData{
+	go email.New(logger).SendWelcomeEmail(env.email, req.Email, &email.WelcomeEmailData{
 		EmailData: email.EmailData{
 			Company: env.meta.Company,
 			BaseURL: env.config.GetBaseURL(),

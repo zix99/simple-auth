@@ -1,9 +1,9 @@
 # Custom
 simpleauth.yml
 simpleauth.db
-dist/
+/dist/
 simple-auth-server
-static/
+/static/
 
 # Logs
 logs

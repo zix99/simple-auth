@@ -2,6 +2,7 @@ package db_test
 
 import (
 	"simple-auth/pkg/db"
+	"simple-auth/pkg/lib/totp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -60,7 +61,7 @@ func TestFindByUsernameFail(t *testing.T) {
 }
 
 func TestAssertLoginSuccess(t *testing.T) {
-	account, err := sadb.AssertSimpleAuth(authSimpleUsername, authSimplePassword)
+	account, err := sadb.AssertSimpleAuth(authSimpleUsername, authSimplePassword, nil)
 	assert.NotNil(t, account)
 	assert.NoError(t, err)
 	assert.Equal(t, authSimpleEmail, account.Email)
@@ -68,7 +69,7 @@ func TestAssertLoginSuccess(t *testing.T) {
 }
 
 func TestAssertLoginFail(t *testing.T) {
-	account, err := sadb.AssertSimpleAuth(authSimpleUsername, "made-up")
+	account, err := sadb.AssertSimpleAuth(authSimpleUsername, "made-up", nil)
 	assert.Nil(t, account)
 	assert.Error(t, err)
 }
@@ -86,7 +87,44 @@ func TestUpdatePassword(t *testing.T) {
 
 	sadb.UpdatePasswordForUsername(changePassUsername, "new-password")
 
-	verifiedAccount, err := sadb.AssertSimpleAuth(changePassUsername, "new-password")
+	verifiedAccount, err := sadb.AssertSimpleAuth(changePassUsername, "new-password", nil)
 	assert.NoError(t, err)
 	assert.Equal(t, account.UUID, verifiedAccount.UUID)
+}
+
+func TestSimpleAuthTOTP(t *testing.T) {
+	account, _ := sadb.CreateAccount("totp-account@asdf.com")
+	assert.NotNil(t, account)
+
+	// Simple setup
+	assert.NoError(t, sadb.CreateAccountAuthSimple(account, "totp", "totp-pass"))
+	{
+		account, err := sadb.AssertSimpleAuth("totp", "totp-pass", nil)
+		assert.NotNil(t, account)
+		assert.NoError(t, err)
+	}
+	{
+		totpCode := "123"
+		account, err := sadb.AssertSimpleAuth("totp", "totp-pass", &totpCode)
+		assert.NotNil(t, account)
+		assert.NoError(t, err)
+	}
+
+	// Set up totp
+	otp, err := totp.NewTOTP(8, "test", "totp")
+	assert.NoError(t, err)
+
+	assert.NoError(t, sadb.ActivateAuthSimpleTOTP(account, otp.String()))
+
+	{
+		account, err := sadb.AssertSimpleAuth("totp", "totp-pass", nil)
+		assert.Error(t, err)
+		assert.Nil(t, account)
+	}
+	{
+		totpCode := otp.GetTOTP()
+		account, err := sadb.AssertSimpleAuth("totp", "totp-pass", &totpCode)
+		assert.NotNil(t, account)
+		assert.NoError(t, err)
+	}
 }

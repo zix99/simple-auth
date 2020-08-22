@@ -38,7 +38,7 @@ type accountAuthVerificationToken struct {
 // AssertCreateSessionToken checks the username, and password
 // and upon acceptance, issues a session token
 func (s *sadb) AssertCreateSessionToken(username, password string, expires time.Duration) (string, error) {
-	account, err := s.AssertSimpleAuth(username, password)
+	account, err := s.AssertSimpleAuth(username, password, nil)
 	if err != nil {
 		return "", err
 	}

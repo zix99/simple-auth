@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"simple-auth/pkg/lib/totp"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -9,11 +10,18 @@ import (
 )
 
 type AccountAuthSimple interface {
+	// Safe function
+	AssertSimpleAuth(username, password string, totpCode *string) (*Account, error)
+
+	// Unsafe functions
 	CreateAccountAuthSimple(belongsTo *Account, username, password string) error
-	AssertSimpleAuth(username, password string) (*Account, error)
 	FindAccountForSimpleAuth(username string) (*Account, error)
 	FindSimpleAuthUsername(account *Account) (string, error)
 	UpdatePasswordForUsername(username string, newPassword string) error
+
+	// TOTP
+	ActivateAuthSimpleTOTP(account *Account, totpURL string) error
+	DisableAuthSimpleTOTP(account *Account) error
 }
 
 type accountAuthSimple struct {
@@ -21,7 +29,7 @@ type accountAuthSimple struct {
 	AccountID      uint   `gorm:"index;not null"`
 	Username       string `gorm:"type:varchar(256);unique_index;not null"`
 	PasswordBcrypt string `gorm:"not null"`
-	TOTPSpec       string
+	TOTPSpec       *string
 }
 
 var ErrorAccountInactive = errors.New("Inactive Account")
@@ -120,7 +128,7 @@ func (s *sadb) FindAccountForSimpleAuth(username string) (*Account, error) {
 	return account, err
 }
 
-func (s *sadb) AssertSimpleAuth(username, password string) (*Account, error) {
+func (s *sadb) AssertSimpleAuth(username, password string, totpCode *string) (*Account, error) {
 	if username == "" || password == "" {
 		return nil, errors.New("Invalid arg")
 	}
@@ -130,12 +138,69 @@ func (s *sadb) AssertSimpleAuth(username, password string) (*Account, error) {
 		return nil, err
 	}
 
+	// Password
 	if !auth.verifyPassword(password) {
 		s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelWarn, "Login failed")
 		return nil, UserVerificationFailed
 	}
 
+	// TOTP
+	if auth.TOTPSpec != nil {
+		if totpCode == nil || *totpCode == "" {
+			return nil, errors.New("Requires TOTP")
+		}
+
+		otp, err := totp.ParseTOTP(*auth.TOTPSpec)
+		if err != nil {
+			return nil, err
+		}
+		if !otp.Validate(*totpCode, 1) {
+			return nil, errors.New("TOTP Failed")
+		}
+	}
+
+	// Success
 	s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelInfo, "Login Successful")
 
 	return account, nil
+}
+
+func (s *sadb) resolveSimpleAuthForAccount(account *Account) (*accountAuthSimple, error) {
+	if account == nil {
+		return nil, errors.New("Nil account")
+	}
+	if !account.Active {
+		return nil, ErrorAccountInactive
+	}
+
+	var auth accountAuthSimple
+	if err := s.db.Model(account).Related(&auth).Error; err != nil {
+		return nil, err
+	}
+
+	return &auth, nil
+}
+
+func (s *sadb) ActivateAuthSimpleTOTP(account *Account, totpURL string) error {
+	simpleAuth, err := s.resolveSimpleAuthForAccount(account)
+	if err != nil {
+		return err
+	}
+
+	s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelInfo, "Activated TOTP")
+
+	return s.db.Model(&simpleAuth).Update(accountAuthSimple{TOTPSpec: &totpURL}).Error
+}
+
+func (s *sadb) DisableAuthSimpleTOTP(account *Account) error {
+	simpleAuth, err := s.resolveSimpleAuthForAccount(account)
+	if err != nil {
+		return err
+	}
+
+	s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelInfo, "Disabled TOTP")
+
+	simpleAuth.TOTPSpec = nil
+
+	return s.db.Model(&simpleAuth).Update("TOTPSpec", nil).Error
 }

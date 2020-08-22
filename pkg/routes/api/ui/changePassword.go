@@ -51,7 +51,7 @@ func (env *environment) routeChangePassword(c echo.Context) error {
 	}
 
 	if claims.Source != middleware.SessionSourceOneTime {
-		if _, err := env.db.AssertSimpleAuth(username, req.OldPassword); err != nil {
+		if _, err := env.db.AssertSimpleAuth(username, req.OldPassword, nil); err != nil {
 			return common.HttpErrorf(c, http.StatusUnauthorized, "Not allowed to update password")
 		}
 	}

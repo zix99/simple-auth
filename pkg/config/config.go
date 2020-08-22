@@ -76,10 +76,11 @@ type ConfigOIDCProvider struct {
 }
 
 type ConfigLoginSettings struct {
-	CreateAccountEnabled bool
-	RouteOnLogin         string
-	AllowedContinueUrls  []string
-	ThrottleDuration     string // Parsed as Duration, represents a delay from any major action (Helps mitigate brute-force attacks)
+	CreateAccountEnabled    bool
+	EmailValidationRequired bool
+	RouteOnLogin            string
+	AllowedContinueUrls     []string
+	ThrottleDuration        string // Parsed as Duration, represents a delay from any major action (Helps mitigate brute-force attacks)
 }
 
 type OneTimeConfig struct {
@@ -123,13 +124,17 @@ type ConfigWeb struct {
 	Prometheus   bool // If true, will enable /metrics endpoint
 }
 
-type ConfigEmail struct {
-	Enabled  bool
+type ConfigEmailSMTP struct {
 	Host     string
 	Identity string
 	Username string
 	Password string
 	From     string
+}
+
+type ConfigEmail struct {
+	Enabled bool
+	SMTP    ConfigEmailSMTP
 }
 
 type Config struct {

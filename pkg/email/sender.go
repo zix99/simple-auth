@@ -2,7 +2,6 @@ package email
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"net/smtp"
 	"simple-auth/pkg/config"
@@ -23,12 +22,7 @@ func extractHostname(host string) string {
 	return host[:idx]
 }
 
-func (s *EmailService) sendEmail(cfg *config.ConfigEmail, to string, templateName string, data IEmailData) error {
-	if !cfg.Enabled {
-		s.logger.Infof("Skipping sending email %s to %s, disabled", templateName, to)
-		return errors.New("Email disabled")
-	}
-
+func (s *EmailService) sendEmail(cfg *config.ConfigEmailSMTP, to string, templateName string, data IEmailData) error {
 	s.logger.Infof("Sending %s email to %s...", templateName, to)
 	auth := smtp.PlainAuth(cfg.Identity, cfg.Username, cfg.Password, extractHostname(cfg.Host))
 

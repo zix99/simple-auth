@@ -24,6 +24,7 @@ web:
     login:
         settings:
             createaccountenabled: true # If allowed to create account
+            emailvalidationrequired: false
             routeonlogin: null # Where to route to post-login (either login or create)
             allowedcontinueurls: [] # Urls, in addition to local pages, allowed post-login via ?continue query param
             throttleduration: 1s
@@ -58,11 +59,12 @@ web:
         theme: 'light'
 email:
     enabled: false
-    host: ''
-    identity: null
-    username: null
-    password: null
-    from: null
+    smtp:
+        host: ''
+        identity: null
+        username: null
+        password: null
+        from: null
 authenticators:
     token:
         enabled: true

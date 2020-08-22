@@ -1,6 +1,7 @@
 package email
 
 import (
+	"errors"
 	"simple-auth/pkg/config"
 )
 
@@ -24,7 +25,11 @@ type WelcomeEmailData struct {
 }
 
 func (s *EmailService) SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData) error {
-	return s.sendEmail(cfg, to, "welcome", data)
+	if !cfg.Enabled {
+		s.logger.Infof("Skipping sending welcome to %s, disabled", to)
+		return errors.New("Email disabled")
+	}
+	return s.sendEmail(&cfg.SMTP, to, "welcome", data)
 }
 
 type ForgotPasswordData struct {
@@ -34,5 +39,9 @@ type ForgotPasswordData struct {
 }
 
 func (s *EmailService) SendForgotPasswordEmail(cfg *config.ConfigEmail, to string, data *ForgotPasswordData) error {
-	return s.sendEmail(cfg, to, "forgotPassword", data)
+	if !cfg.Enabled {
+		s.logger.Infof("Skipping sending email forgot-password to %s, disabled", to)
+		return errors.New("Email disabled")
+	}
+	return s.sendEmail(&cfg.SMTP, to, "forgotPassword", data)
 }

@@ -10,7 +10,7 @@ import (
 
 type AccountAuthSimple interface {
 	CreateAccountAuthSimple(belongsTo *Account, username, password string) error
-	FindAndVerifySimpleAuth(username, password string) (*Account, error)
+	AssertSimpleAuth(username, password string) (*Account, error)
 	FindAccountForSimpleAuth(username string) (*Account, error)
 	FindSimpleAuthUsername(account *Account) (string, error)
 	UpdatePasswordForUsername(username string, newPassword string) error
@@ -21,6 +21,7 @@ type accountAuthSimple struct {
 	AccountID      uint   `gorm:"index;not null"`
 	Username       string `gorm:"type:varchar(256);unique_index;not null"`
 	PasswordBcrypt string `gorm:"not null"`
+	TOTPSpec       string
 }
 
 var ErrorAccountInactive = errors.New("Inactive Account")
@@ -119,7 +120,7 @@ func (s *sadb) FindAccountForSimpleAuth(username string) (*Account, error) {
 	return account, err
 }
 
-func (s *sadb) FindAndVerifySimpleAuth(username, password string) (*Account, error) {
+func (s *sadb) AssertSimpleAuth(username, password string) (*Account, error) {
 	if username == "" || password == "" {
 		return nil, errors.New("Invalid arg")
 	}

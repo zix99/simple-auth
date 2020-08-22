@@ -56,7 +56,7 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 		return c.JSON(400, common.JsonError(err))
 	}
 
-	account, err := env.db.FindAndVerifySimpleAuth(req.Username, req.Password)
+	account, err := env.db.AssertSimpleAuth(req.Username, req.Password)
 	if err != nil {
 		return common.HttpError(c, http.StatusForbidden, err)
 	}

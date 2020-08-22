@@ -22,7 +22,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 
 	logger.Infof("Attempting login for '%s'...", req.Username)
 
-	account, err := env.db.FindAndVerifySimpleAuth(req.Username, req.Password)
+	account, err := env.db.AssertSimpleAuth(req.Username, req.Password)
 	if err != nil {
 		logger.Infof("Login for user '%s' rejected", req.Username)
 		return c.JSON(http.StatusUnauthorized, common.JsonError(err))

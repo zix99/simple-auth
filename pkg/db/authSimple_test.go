@@ -60,7 +60,7 @@ func TestFindByUsernameFail(t *testing.T) {
 }
 
 func TestAssertLoginSuccess(t *testing.T) {
-	account, err := sadb.FindAndVerifySimpleAuth(authSimpleUsername, authSimplePassword)
+	account, err := sadb.AssertSimpleAuth(authSimpleUsername, authSimplePassword)
 	assert.NotNil(t, account)
 	assert.NoError(t, err)
 	assert.Equal(t, authSimpleEmail, account.Email)
@@ -68,7 +68,7 @@ func TestAssertLoginSuccess(t *testing.T) {
 }
 
 func TestAssertLoginFail(t *testing.T) {
-	account, err := sadb.FindAndVerifySimpleAuth(authSimpleUsername, "made-up")
+	account, err := sadb.AssertSimpleAuth(authSimpleUsername, "made-up")
 	assert.Nil(t, account)
 	assert.Error(t, err)
 }
@@ -86,7 +86,7 @@ func TestUpdatePassword(t *testing.T) {
 
 	sadb.UpdatePasswordForUsername(changePassUsername, "new-password")
 
-	verifiedAccount, err := sadb.FindAndVerifySimpleAuth(changePassUsername, "new-password")
+	verifiedAccount, err := sadb.AssertSimpleAuth(changePassUsername, "new-password")
 	assert.NoError(t, err)
 	assert.Equal(t, account.UUID, verifiedAccount.UUID)
 }

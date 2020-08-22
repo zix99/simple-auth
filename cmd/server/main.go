@@ -97,6 +97,9 @@ func simpleAuthServer(config *config.Config) error {
 		}
 	}
 
+	// Well known routes
+	e.GET("/onetime", redirectHandler("/api/ui/onetime"))
+
 	// Start
 	logrus.Infof("Starting server on http://%v", config.Web.Host)
 	if config.Web.TLS.Enabled {

@@ -14,6 +14,9 @@
             <tr>
               <th>Username</th><td>{{account.auth.simple.username}}</td>
             </tr>
+            <tr>
+              <th>Password</th><td><button class="button is-warning is-light" @click="$refs.modalPass.open()">Change Password</button></td>
+            </tr>
           </tbody>
         </table>
       </Card>
@@ -33,6 +36,10 @@
         <LogoutButton />
       </div>
     </div>
+
+    <Modal ref="modalPass" title="Update Password">
+      <ChangePassword @submitted="$refs.modalPass.close()" />
+    </Modal>
   </div>
 </template>
 
@@ -40,13 +47,17 @@
 import axios from 'axios';
 import Card from '../components/card.vue';
 import LoadingBanner from '../components/loadingBanner.vue';
+import Modal from '../components/modal.vue';
 import LogoutButton from './logoutButton.vue';
+import ChangePassword from './changePassword.vue';
 
 export default {
   components: {
     Card,
+    Modal,
     LoadingBanner,
     LogoutButton,
+    ChangePassword,
   },
   data() {
     return {

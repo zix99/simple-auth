@@ -48,6 +48,6 @@ func funcOneTime(c *cli.Context) error {
 	}
 
 	fmt.Printf("Token: %s\n", token)
-	fmt.Printf("URL:   %s\n", config.Web.GetBaseURL()+"/api/ui/onetime?token="+token)
+	fmt.Printf("URL:   %s\n", config.Web.GetBaseURL()+"/onetime?token="+token)
 	return nil
 }

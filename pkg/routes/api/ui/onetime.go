@@ -50,7 +50,7 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 			BaseURL: baseURL,
 		},
 		ResetDuration: env.config.Login.OneTime.TokenDuration,
-		ResetLink:     baseURL + "/api/ui/onetime?token=" + token,
+		ResetLink:     baseURL + "/onetime?token=" + token,
 	})
 	if err != nil {
 		logger.Warn(err)

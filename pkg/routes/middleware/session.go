@@ -161,3 +161,8 @@ func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
 		}
 	}
 }
+
+func GetSessionClaims(c echo.Context) (*SimpleAuthClaims, bool) {
+	ret, ok := c.Get(ContextClaims).(*SimpleAuthClaims)
+	return ret, ok
+}

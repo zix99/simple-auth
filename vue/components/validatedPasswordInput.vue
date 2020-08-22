@@ -1,7 +1,7 @@
 <template>
   <div class="mb-3">
     <div class="field">
-      <label class="label">Password</label>
+      <label class="label">{{title}}</label>
       <div class="control has-icons-left has-icons-right">
         <input class="input" type="password" placeholder="Password" v-model="password1" />
         <span class="icon is-small is-left">
@@ -40,12 +40,13 @@ export default {
     maxlength: { default: 999 },
     minstrength: { default: 2 },
     value: null,
+    title: { default: 'Password' },
   },
   data() {
     return {
       password1: '',
       password2: '',
-      strength: {},
+      strength: { score: 0 },
     };
   },
   computed: {

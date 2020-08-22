@@ -57,11 +57,13 @@ func (s *sadb) CreateAccountAuthSimple(belongsTo *Account, username, password st
 		PasswordBcrypt: string(hashed),
 	}
 
+	s.CreateAuditRecord(belongsTo, AuditModuleSimple, AuditLevelInfo, "Associated username: %s", username)
+
 	return s.db.Create(auth).Error
 }
 
 func (s *sadb) UpdatePasswordForUsername(username string, newPassword string) error {
-	auth, _, err := s.resolveSimpleAuthForUser(username)
+	auth, account, err := s.resolveSimpleAuthForUser(username)
 	if err != nil {
 		return err
 	}
@@ -70,6 +72,8 @@ func (s *sadb) UpdatePasswordForUsername(username string, newPassword string) er
 	if err != nil {
 		return err
 	}
+
+	s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelInfo, "Password updated")
 
 	return s.db.Model(auth).Update(accountAuthSimple{PasswordBcrypt: string(hashed)}).Error
 }

@@ -44,6 +44,8 @@ func (env *environment) Mount(group *echo.Group) {
 	loggedIn := middleware.LoggedInMiddleware(&env.config.Login.Cookie.JWT)
 	group.GET("/account", env.routeAccount, loggedIn)
 	group.GET("/account/audit", env.routeAccountAudit, loggedIn)
+	group.POST("/account/password", env.routeChangePassword, loggedIn)
+	group.GET("/account/password", env.routeChangePasswordRequirements, loggedIn)
 
 	if env.config.Login.OneTime.Enabled {
 		group.GET("/onetime", env.routeOneTimeAuth, throttleMiddleware)

@@ -83,10 +83,13 @@ docker build .
 
 ## Feature Wishlist
 
+### Bugs
+- CSRF token validation seems to break when using onetime tokens
+
 ### V0
-- Forgot password (single-use signin)
-- Change password
 - TOTP
+- Nginx multi-host gateway (User headers to allow nginx to have SA redirect downstream?)
+  - https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-subrequest-authentication/
 - Account requirements (Blocks signin/usage until resolved)
   - Verification email
   - Temp ban
@@ -100,7 +103,6 @@ docker build .
   - Docker / docker-compose gateway example
   - OIDC Examples
 - General tests for OIDC and different cases
-- Request ID + Logging (correlation ID)
 
 ### V1
 - OIDC Login Flow

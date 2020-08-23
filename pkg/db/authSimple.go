@@ -20,8 +20,7 @@ type AccountAuthSimple interface {
 	UpdatePasswordForUsername(username string, newPassword string) error
 
 	// TOTP
-	ActivateAuthSimpleTOTP(account *Account, totpURL string) error
-	DisableAuthSimpleTOTP(account *Account) error
+	SetAuthSimpleTOTP(account *Account, totpURL *string) error
 }
 
 type accountAuthSimple struct {
@@ -155,6 +154,7 @@ func (s *sadb) AssertSimpleAuth(username, password string, totpCode *string) (*A
 			return nil, err
 		}
 		if !otp.Validate(*totpCode, 1) {
+			s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelWarn, "TOTP Rejected")
 			return nil, errors.New("TOTP Failed")
 		}
 	}
@@ -181,26 +181,19 @@ func (s *sadb) resolveSimpleAuthForAccount(account *Account) (*accountAuthSimple
 	return &auth, nil
 }
 
-func (s *sadb) ActivateAuthSimpleTOTP(account *Account, totpURL string) error {
+func (s *sadb) SetAuthSimpleTOTP(account *Account, totpURL *string) error {
 	simpleAuth, err := s.resolveSimpleAuthForAccount(account)
 	if err != nil {
 		return err
+	}
+
+	// Disable
+	if totpURL == nil {
+		s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelInfo, "Disabled TOTP")
+		return s.db.Model(&simpleAuth).Update("TOTPSpec", nil).Error
 	}
 
 	s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelInfo, "Activated TOTP")
 
-	return s.db.Model(&simpleAuth).Update(accountAuthSimple{TOTPSpec: &totpURL}).Error
-}
-
-func (s *sadb) DisableAuthSimpleTOTP(account *Account) error {
-	simpleAuth, err := s.resolveSimpleAuthForAccount(account)
-	if err != nil {
-		return err
-	}
-
-	s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelInfo, "Disabled TOTP")
-
-	simpleAuth.TOTPSpec = nil
-
-	return s.db.Model(&simpleAuth).Update("TOTPSpec", nil).Error
+	return s.db.Model(&simpleAuth).Update(accountAuthSimple{TOTPSpec: totpURL}).Error
 }

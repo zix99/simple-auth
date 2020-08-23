@@ -114,7 +114,8 @@ func TestSimpleAuthTOTP(t *testing.T) {
 	otp, err := totp.NewTOTP(8, "test", "totp")
 	assert.NoError(t, err)
 
-	assert.NoError(t, sadb.ActivateAuthSimpleTOTP(account, otp.String()))
+	otpURL := otp.String()
+	assert.NoError(t, sadb.SetAuthSimpleTOTP(account, &otpURL))
 
 	{
 		account, err := sadb.AssertSimpleAuth("totp", "totp-pass", nil)

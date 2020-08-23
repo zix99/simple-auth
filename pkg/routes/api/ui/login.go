@@ -9,8 +9,9 @@ import (
 )
 
 type loginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Username string  `json:"username" binding:"required"`
+	Password string  `json:"password" binding:"required"`
+	Totp     *string `json:"totp"`
 }
 
 func (env *environment) routeLogin(c echo.Context) error {
@@ -22,7 +23,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 
 	logger.Infof("Attempting login for '%s'...", req.Username)
 
-	account, err := env.db.AssertSimpleAuth(req.Username, req.Password, nil)
+	account, err := env.db.AssertSimpleAuth(req.Username, req.Password, req.Totp)
 	if err != nil {
 		logger.Infof("Login for user '%s' rejected", req.Username)
 		return c.JSON(http.StatusUnauthorized, common.JsonError(err))

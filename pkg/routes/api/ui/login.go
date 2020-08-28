@@ -25,7 +25,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 
 	account, err := env.db.AssertSimpleAuth(req.Username, req.Password, req.Totp)
 	if err != nil {
-		logger.Infof("Login for user '%s' rejected", req.Username)
+		logger.Infof("Login for user '%s' rejected: %v", req.Username, err)
 		return c.JSON(http.StatusUnauthorized, common.JsonError(err))
 	}
 	logger.Infof("Login for user '%s' accepted", req.Username)

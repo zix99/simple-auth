@@ -3,6 +3,7 @@ package ui
 import (
 	"errors"
 	"regexp"
+	"simple-auth/pkg/db"
 	"simple-auth/pkg/email"
 	"simple-auth/pkg/routes/api/ui/recaptcha"
 	"simple-auth/pkg/routes/common"
@@ -60,6 +61,21 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 		},
 		Name: req.Username,
 	})
+
+	// Activation
+	if env.config.Login.Settings.EmailValidationRequired {
+		stip := db.NewTokenStipulation()
+		env.db.AddStipulation(account, stip)
+
+		baseURL := env.config.GetBaseURL()
+		go email.New(logger).SendVerificationEmail(env.email, req.Email, &email.VerificationData{
+			EmailData: email.EmailData{
+				Company: env.meta.Company,
+				BaseURL: baseURL,
+			},
+			ActivationLink: baseURL + "/activate?token=" + stip.Code,
+		})
+	}
 
 	// log the user in to a session
 	err3 := middleware.CreateSession(c, &env.config.Login.Cookie, account, middleware.SessionSourceLogin)

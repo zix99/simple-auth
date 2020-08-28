@@ -3,8 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"simple-auth/pkg/config"
-	"simple-auth/pkg/db"
 
 	"github.com/urfave/cli/v2"
 )
@@ -32,8 +30,7 @@ func funcPasswd(c *cli.Context) error {
 
 	// Make the modifications
 	fmt.Println("Updating password...")
-	config := config.Load(false)
-	db := db.New(config.Db.Driver, config.Db.URL)
+	db := getDB()
 	err = db.UpdatePasswordForUsername(username, password)
 	if err != nil {
 		return fmt.Errorf("Unable to update password: %w", err)

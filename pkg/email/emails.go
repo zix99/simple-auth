@@ -45,3 +45,16 @@ func (s *EmailService) SendForgotPasswordEmail(cfg *config.ConfigEmail, to strin
 	}
 	return s.sendEmail(&cfg.SMTP, to, "forgotPassword", data)
 }
+
+type VerificationData struct {
+	EmailData
+	ActivationLink string
+}
+
+func (s *EmailService) SendVerificationEmail(cfg *config.ConfigEmail, to string, data *VerificationData) error {
+	if !cfg.Enabled {
+		s.logger.Infof("Skipping verification email to %s, disabled", to)
+		return errors.New("Email disabled")
+	}
+	return s.sendEmail(&cfg.SMTP, to, "verification", data)
+}

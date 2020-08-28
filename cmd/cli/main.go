@@ -18,6 +18,7 @@ func cliMain(args ...string) error {
 			cmdAddUser,
 			cmdPasswd,
 			cmdOneTime,
+			cmdStipulation,
 		},
 		Copyright: `simple-auth  Copyright (C) 2020 Chris LaPointe
 		This program comes with ABSOLUTELY NO WARRANTY.

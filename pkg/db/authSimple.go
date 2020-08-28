@@ -143,6 +143,11 @@ func (s *sadb) AssertSimpleAuth(username, password string, totpCode *string) (*A
 		return nil, UserVerificationFailed
 	}
 
+	// Stipulations
+	if s.AccountHasUnsatisfiedStipulations(account) {
+		return nil, errors.New("Account contains unsatisfied stipulations")
+	}
+
 	// TOTP
 	if auth.TOTPSpec != nil {
 		if totpCode == nil || *totpCode == "" {

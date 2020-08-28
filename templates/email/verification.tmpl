@@ -1,0 +1,11 @@
+From: {{ .From }}
+To: {{ .To }}
+Subject: Verify Email for {{ .Model.Company }}
+
+Please click the following link to verify your email address at {{ .Model.Company }}
+
+If this wasn't you, please ignore this email
+
+{{ .Model.VerificationLink }}
+
+- {{ .Model.Company }} ({{ .Model.BaseURL }})

@@ -87,12 +87,13 @@ docker build .
 - CSRF token validation seems to break when using onetime tokens
 
 ### V0
-- TOTP
-- Nginx multi-host gateway (User headers to allow nginx to have SA redirect downstream?)
-  - https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-subrequest-authentication/
 - Account requirements (Blocks signin/usage until resolved)
   - Verification email
-  - Temp ban
+- VFS
+  - Box up static contents
+  - https://dev.to/koddr/the-easiest-way-to-embed-static-files-into-a-binary-file-in-your-golang-app-no-external-dependencies-43pc
+- includes declaration on config for nested config
+- TOTP
 - UX Tweaking, autofocus, tab, enter
   - Don't submit create-user if recaptcha fails
 - Docker
@@ -102,9 +103,12 @@ docker build .
 - Documentation
   - Docker / docker-compose gateway example
   - OIDC Examples
-- General tests for OIDC and different cases
+- Better error codes and error messaging
 
 ### V1
+- Nginx multi-host gateway (User headers to allow nginx to have SA redirect downstream?)
+  - https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-subrequest-authentication/
+- General tests for OIDC and different cases
 - OIDC Login Flow
 - Google Auth
   - Better error pages

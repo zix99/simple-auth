@@ -90,9 +90,8 @@ docker build .
 - Account requirements (Blocks signin/usage until resolved)
   - Verification email
 - VFS
-  - Box up static contents
-  - https://dev.to/koddr/the-easiest-way-to-embed-static-files-into-a-binary-file-in-your-golang-app-no-external-dependencies-43pc
-- includes declaration on config for nested config
+  - Embed config
+  - includes declaration on config for nested config
 - TOTP
 - UX Tweaking, autofocus, tab, enter
   - Don't submit create-user if recaptcha fails

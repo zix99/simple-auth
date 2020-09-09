@@ -3,8 +3,9 @@ package multitemplate
 import (
 	"html/template"
 	"io"
-	"os"
+	"io/ioutil"
 	"path/filepath"
+	"simple-auth/pkg/box"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -29,7 +30,7 @@ type TemplateSet struct {
 func getFileLastUpdate(files ...string) time.Time {
 	var maxTime time.Time
 	for _, fname := range files {
-		if info, err := os.Stat(fname); err == nil {
+		if info, err := box.Stat(fname); err == nil {
 			if info.ModTime().After(maxTime) {
 				maxTime = info.ModTime()
 			}
@@ -40,7 +41,19 @@ func getFileLastUpdate(files ...string) time.Time {
 
 func (s *TemplateSet) compileTemplate(files ...string) (*template.Template, error) {
 	basename := filepath.Base(files[0])
-	return template.New(basename).Funcs(s.helpers).ParseFiles(files...)
+	builder := template.New(basename).Funcs(s.helpers)
+	for _, fn := range files {
+		r, err := box.Read(fn)
+		if err != nil {
+			return nil, err
+		}
+		b, err := ioutil.ReadAll(r)
+		if err != nil {
+			return nil, err
+		}
+		builder.Parse(string(b))
+	}
+	return builder, nil
 }
 
 func (s *TemplateSet) Render(w io.Writer, name string, data interface{}) error {

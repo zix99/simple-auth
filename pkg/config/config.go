@@ -144,4 +144,6 @@ type Config struct {
 	Email          ConfigEmail          // SMTP/Email sending config
 	Authenticators ConfigAuthencatorSet // Describes API Authenticators
 	Production     bool                 // Production changes how logs are generated and tighter security checks
+	Verbose        bool                 // Turns on additional logging
+	StaticFromDisk bool                 // Checks the disk for static files
 }

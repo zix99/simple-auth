@@ -18,13 +18,40 @@ steps:
     image: node:12-slim
     commands:
       - npm run build
-  - name: Server
+
+  - name: Server Generate
     image: golang:1.14
+    volumes:
+    - name: go-cache
+      path: /go
+    commands:
+      - go generate ./...
+    when:
+      branch: ['master']
+
+  - name: Server Test
+    image: golang:1.14
+    volumes:
+    - name: go-cache
+      path: /go
     commands:
       - go test -race ./...
       - go vet $(go list ./... | grep -v "vendor")
-      - go build -o simple-auth-server simple-auth/cmd/server
+  - name: Server Build
+    image: golang:1.14
+    volumes:
+    - name: go-cache
+      path: /go
+    commands:
+      - go build -tags box -o simple-auth-server simple-auth/cmd/server
+  - name: CLI Build
+    image: golang:1.14
+    volumes:
+    - name: go-cache
+      path: /go
+    commands:
       - go build -o simple-auth-cli simple-auth/cmd/cli
+
   - name: Docker Build
     image: docker:19
     volumes:
@@ -39,3 +66,6 @@ volumes:
   - name: docker-socket
     host:
       path: /var/run/docker.sock
+  - name: go-cache
+    host:
+      path: /var/ci/cache/simple-auth-go

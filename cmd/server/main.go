@@ -1,6 +1,8 @@
 package main
 
 import (
+	"simple-auth/pkg/box"
+	"simple-auth/pkg/box/echobox"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/api/auth"
@@ -39,6 +41,9 @@ func simpleAuthServer(config *config.Config) error {
 		logrus.Warn("No web.login.cookie.jwt.signingkey is set, user will not be able to login")
 	}
 
+	box.Global.Verbose = config.Verbose
+	box.Global.CheckDisk = config.StaticFromDisk
+
 	// Dependencies
 	env := &environment{
 		db: db.New(config.Db.Driver, config.Db.URL),
@@ -66,8 +71,8 @@ func simpleAuthServer(config *config.Config) error {
 
 	// Static app router
 	e.Renderer = newTemplateRenderer(!config.Production)
-	e.Static("/static", "./static")
-	e.Static("/dist", "./dist")
+	e.GET("/static/*", echobox.Static("./static"))
+	e.GET("/dist/*", echobox.Static("./dist"))
 
 	// Health
 	e.GET("/health", env.routeHealth)

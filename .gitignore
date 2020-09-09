@@ -4,6 +4,7 @@ simpleauth.db
 /dist/
 simple-auth-server
 /static/
+*.gen.go
 
 # Logs
 logs

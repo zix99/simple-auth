@@ -77,3 +77,5 @@ db:
     driver: "sqlite3"
     url: "simpleauth.db"
 production: false
+verbose: false
+staticfromdisk: false

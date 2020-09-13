@@ -27,6 +27,10 @@ func setFromString(v *reflect.Value, val string) error {
 	case reflect.String:
 		v.Set(reflect.ValueOf(val))
 		return nil
+	case reflect.Slice:
+		av := reflect.Append(*v, reflect.ValueOf(val))
+		v.Set(av)
+		return nil
 	}
 	return fmt.Errorf("Unparseable type of kind %v", v.Kind())
 }

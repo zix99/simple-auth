@@ -17,6 +17,7 @@ type testArgs struct {
 	unexported int
 	Bool       bool
 	Sub        testNestedArgs
+	Slice      []string
 }
 
 func TestSimpleParsing(t *testing.T) {
@@ -40,4 +41,12 @@ func TestBadArgFormat(t *testing.T) {
 	var obj testArgs
 	err := LoadArgs(&obj, "--unexported 5")
 	assert.Error(t, err)
+}
+
+func TestParseSlice(t *testing.T) {
+	var obj testArgs
+	err := LoadArgs(&obj, strings.Split("--slice=a --slice=bc", " ")...)
+	assert.NoError(t, err)
+
+	assert.Equal(t, []string{"a", "bc"}, obj.Slice)
 }

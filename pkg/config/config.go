@@ -137,7 +137,9 @@ type ConfigEmail struct {
 	SMTP    ConfigEmailSMTP
 }
 
+// Config represents the root configuration
 type Config struct {
+	Include        []string
 	Metadata       ConfigMetadata
 	Db             ConfigDatabase
 	Web            ConfigWeb            // Configure how the user interacts with the web

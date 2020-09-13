@@ -30,7 +30,7 @@ type EmbedBox struct {
 }
 
 type Box interface {
-	Read(filename string) (io.ReadSeeker, error)
+	Read(filename string) (ReadSeekCloser, error)
 	Stat(filename string) (os.FileInfo, error)
 }
 
@@ -38,6 +38,7 @@ func NewBox() *EmbedBox {
 	return &EmbedBox{
 		files:     make(map[string]*EmbedFile),
 		CheckDisk: true,
+		Verbose:   false,
 	}
 }
 
@@ -85,10 +86,10 @@ func (s *EmbedBox) AddBytes(filename string, b []byte) {
 	}
 }
 
-func (s *EmbedBox) Read(filename string) (io.ReadSeeker, error) {
+func (s *EmbedBox) ReadEx(filename string, alwaysCheckDisk bool) (ReadSeekCloser, error) {
 	filename = path.Clean(filename)
 
-	if s.CheckDisk {
+	if s.CheckDisk || alwaysCheckDisk {
 		if f, err := os.Open(filename); err == nil {
 			if s.Verbose {
 				logrus.Infof("Opened file %s from disk", filename)
@@ -101,7 +102,7 @@ func (s *EmbedBox) Read(filename string) (io.ReadSeeker, error) {
 		if s.Verbose {
 			logrus.Infof("Opened file %s from box", filename)
 		}
-		return f.Read(), nil
+		return readSeekCloser{f.Read()}, nil
 	}
 
 	if s.Verbose {
@@ -109,6 +110,10 @@ func (s *EmbedBox) Read(filename string) (io.ReadSeeker, error) {
 	}
 
 	return nil, errors.New("File not found")
+}
+
+func (s *EmbedBox) Read(filename string) (ReadSeekCloser, error) {
+	return s.ReadEx(filename, false)
 }
 
 func (s *EmbedBox) Stat(filename string) (os.FileInfo, error) {

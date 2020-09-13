@@ -89,9 +89,6 @@ docker build .
 ### V0
 - Account requirements (Blocks signin/usage until resolved)
   - Verification email
-- VFS
-  - Embed config
-  - includes declaration on config for nested config
 - TOTP
 - UX Tweaking, autofocus, tab, enter
   - Don't submit create-user if recaptcha fails
@@ -105,6 +102,7 @@ docker build .
 - Better error codes and error messaging
 
 ### V1
+- Upgrade to GORMv2
 - Nginx multi-host gateway (User headers to allow nginx to have SA redirect downstream?)
   - https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-subrequest-authentication/
 - General tests for OIDC and different cases

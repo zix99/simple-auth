@@ -1,13 +1,12 @@
 package box
 
 import (
-	"io"
 	"os"
 )
 
 var Global = NewBox()
 
-func Read(filename string) (io.ReadSeeker, error) {
+func Read(filename string) (ReadSeekCloser, error) {
 	return Global.Read(filename)
 }
 

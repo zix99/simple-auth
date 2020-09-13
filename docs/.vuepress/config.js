@@ -9,6 +9,7 @@ module.exports = {
     ],
     sidebar: [
       '/',
+      '/quickstart',
       {
         title: 'Login Providers',
         path: '/login',

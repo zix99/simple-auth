@@ -2,10 +2,6 @@
 FROM alpine:latest
 WORKDIR /opt/simple-auth
 
-COPY static static
-COPY templates templates
-COPY simpleauth.default.yml .
-COPY dist dist
 COPY simple-auth-server .
 
 ENV SA_PRODUCTION=true

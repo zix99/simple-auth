@@ -162,7 +162,7 @@ export default {
         postData.recaptchav2 = this.$refs.recaptchav2.getResponse();
       }
 
-      axios.post('/api/ui/account', postData)
+      axios.post('api/ui/account', postData)
         .then((resp) => {
           if (resp.status !== 201) throw new Error('Error creating account');
           this.createdAccountId = resp.data.id;

@@ -18,10 +18,15 @@ type ConfigSimpleAuthenticator struct {
 	SharedSecret string // If non-empty, will be required as a Bearer token in the Authorization header. If empty, anyone can use this endpoint (if enabled)
 }
 
+type ConfigVouchAuthenticator struct {
+	Enabled bool
+}
+
 // Authenticators are how someone external to SA can authenticate with it
 type ConfigAuthencatorSet struct {
 	Token  ConfigTokenAuthenticator
 	Simple ConfigSimpleAuthenticator
+	Vouch  ConfigVouchAuthenticator
 }
 
 type ConfigWebRequirements struct {

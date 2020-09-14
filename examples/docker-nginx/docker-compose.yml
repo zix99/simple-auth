@@ -1,0 +1,22 @@
+version: '3.3'
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx.Dockerfile # nginx that uses `nginx.conf` file
+    ports: 
+      - "8082:80"
+    environment:
+      NGINX_PORT: 80
+  simpleauth:
+    build: ../../
+    environment:
+      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: ra9etioahtjkj2345
+      SA_VERBOSE: 'true'
+      SA_WEB_LOGIN_SETTINGS_ROUTEONLOGIN: "/"
+      SA_WEB_LOGIN_SETTINGS_CREATEACCOUNTENABLED: 'false'
+    volumes:
+      - sadb:/var/lib/simple-auth
+
+volumes:
+  sadb: {}

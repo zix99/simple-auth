@@ -41,7 +41,7 @@ export default {
     appdata: null,
   },
   created() {
-    axios.get('/api/ui/account')
+    axios.get('api/ui/account')
       .then(() => {
         // Is logged in!
         this.$router.push('/login-redirect');

@@ -66,7 +66,7 @@ export default {
     };
   },
   created() {
-    this.loadingPromise = axios.get('/api/ui/account')
+    this.loadingPromise = axios.get('api/ui/account')
       .then((resp) => {
         this.account = resp.data;
       }).catch(() => {

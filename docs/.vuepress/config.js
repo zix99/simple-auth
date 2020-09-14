@@ -19,6 +19,13 @@ module.exports = {
         ],
       },
       '/config',
+      {
+        title: 'Cookbooks',
+        path: '/cookbooks',
+        children: [
+          '/cookbooks/nginx-auth-request',
+        ],
+      },
     ]
   },
 }

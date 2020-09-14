@@ -72,7 +72,7 @@ func collectFiles(boxpath string, compressEnabled bool) (*TemplateEmbedBox, erro
 	realPath := filepath.Join(relativePath, boxpath)
 
 	err := filepath.Walk(realPath, func(wpath string, info os.FileInfo, err error) error {
-		if info.IsDir() {
+		if info == nil || info.IsDir() {
 			return nil // Skip
 		}
 

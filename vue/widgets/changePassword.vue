@@ -47,7 +47,7 @@ export default {
     };
   },
   mounted() {
-    axios.get('/api/ui/account/password')
+    axios.get('api/ui/account/password')
       .then((resp) => {
         this.requireOldPassword = resp.data.requireOldPassword;
       });
@@ -58,7 +58,7 @@ export default {
         oldpassword: this.oldpassword,
         newpassword: this.password,
       };
-      this.loadingPromise = axios.post('/api/ui/account/password', data)
+      this.loadingPromise = axios.post('api/ui/account/password', data)
         .then(() => {
           this.success = true;
           setTimeout(() => this.$emit('submitted'), 1500);

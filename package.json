@@ -8,7 +8,8 @@
     "dev": "webpack --watch -d",
     "lint": "eslint --ext js,vue vue/",
     "docs:dev": "npx vuepress@1.5.3 dev docs",
-    "docs": "npx vuepress@1.5.3 build docs"
+    "docs": "npx vuepress@1.5.3 build docs",
+    "clean": "rm -rf node_modules/ dist/ docs/.vuepress/dist/"
   },
   "repository": {
     "type": "git",

@@ -78,6 +78,8 @@ authenticators:
     simple:
         enabled: true
         sharedsecret: "your-super-secret-token"
+    vouch:
+        enabled: true
 db:
     driver: "sqlite3"
     url: "simpleauth.db"

@@ -64,7 +64,7 @@ export default {
       if (this.offset < 0) this.offset = 0;
     },
     fetchData() {
-      this.loadingPromise = axios.get('/api/ui/account/audit', { params: { offset: this.offset, limit: this.limit } })
+      this.loadingPromise = axios.get('api/ui/account/audit', { params: { offset: this.offset, limit: this.limit } })
         .then((resp) => {
           this.records = resp.data.records;
         });

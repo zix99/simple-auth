@@ -89,6 +89,10 @@ func simpleAuthServer(config *config.Config) error {
 		route := e.Group("/api/v1/auth/simple")
 		auth.NewSimpleAuthController(env.db, &config.Authenticators.Simple).Mount(route)
 	}
+	if config.Authenticators.Vouch.Enabled {
+		route := e.Group("/api/v1/auth/vouch")
+		auth.NewVouchAuthController(env.db, &config.Authenticators.Vouch, &config.Web.Login.Cookie.JWT).Mount(route)
+	}
 
 	// Attach UI/access router
 	ui.NewController(env.db, &config.Metadata, &config.Web, &config.Email).Mount(e.Group("/api/ui"))

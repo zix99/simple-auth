@@ -22,17 +22,21 @@ func funcAddUser(c *cli.Context) error {
 
 	email := c.Args().Get(0)
 	username := c.Args().Get(1)
+	password := c.Args().Get(2)
 
 	if email == "" || username == "" {
-		return errors.New("Please specify <email> <username>")
+		return errors.New("Please specify <email> <username> [password]")
 	}
 
 	fmt.Printf("Email:    %s\n", email)
 	fmt.Printf("Username: %s\n", username)
 
-	password, err := readPasswordTwice()
-	if err != nil {
-		return err
+	if password == "" {
+		readPass, err := readPasswordTwice()
+		if err != nil {
+			return err
+		}
+		password = readPass
 	}
 
 	fmt.Println("Creating account...")

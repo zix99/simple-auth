@@ -28,10 +28,10 @@ web:
 
     login:
         settings:
-            createaccountenabled: true # If allowed to create account
-            emailvalidationrequired: false
-            routeonlogin: null # Where to route to post-login (either login or create)
-            allowedcontinueurls: [] # Urls, in addition to local pages, allowed post-login via ?continue query param
+            createaccountenabled: true      # If allowed to create account
+            emailvalidationrequired: false  # If email validation is required before login
+            routeonlogin: null              # Where to route to post-login (either login or create)
+            allowedcontinueurls: []         # Urls, in addition to local pages, allowed post-login via ?continue query param
             throttleduration: 1s
         cookie:
             jwt:
@@ -59,9 +59,9 @@ web:
     # Enable or disable recaptchav2
     recaptchav2:
         enabled: false
-        sitekey: null
-        secret: null
-        theme: 'light'
+        sitekey: null    # site key from google
+        secret: null     # Secret key from google
+        theme: 'light'   # light or dark
 email:
     enabled: false
     smtp:

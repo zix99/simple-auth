@@ -94,8 +94,6 @@ docker build .
   - Don't submit create-user if recaptcha fails
 - Docker
   - Example compose
-  - DB in a shared folder (with one-step setup). 
-  - Generated secret for first time run?
 - Documentation
   - Docker / docker-compose gateway example
   - OIDC Examples
@@ -103,8 +101,6 @@ docker build .
 
 ### V1
 - Upgrade to GORMv2
-- Nginx multi-host gateway (User headers to allow nginx to have SA redirect downstream?)
-  - https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-subrequest-authentication/
 - General tests for OIDC and different cases
 - OIDC Login Flow
 - Google Auth
@@ -114,7 +110,6 @@ docker build .
 - Support other oidc/oauth2 schemes (eg facebook, microsoft, github..)
 - CLI tool: deactivate, activate, singleuse
   - Bundle in dockerfile
-- Embed all resources into single exe?
 
 ### V2
 - Admin dashboard / Overview page

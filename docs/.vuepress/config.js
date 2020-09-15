@@ -4,12 +4,19 @@ module.exports = {
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/guide/' },
       { text: 'Github', link: 'https://google.com' }
     ],
     sidebar: [
-      '/',
-      '/quickstart',
+      {
+        title: 'Simple Auth',
+        path: '/',
+        children: [
+          '/quickstart',
+          '/config',
+          '/customization',
+          '/cli',
+        ],
+      },
       {
         title: 'Login Providers',
         path: '/login',
@@ -18,7 +25,6 @@ module.exports = {
           '/login/oidc',
         ],
       },
-      '/config',
       {
         title: 'Cookbooks',
         path: '/cookbooks',

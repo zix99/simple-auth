@@ -43,6 +43,7 @@ func AuthenticationGateway(gateway *config.ConfigLoginGateway, cookieConfig *con
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			log := GetLogger(c)
 			claims, err := parseContextSession(&cookieConfig.JWT, c)
 			if err != nil {
 				// Not logged in, pass-through to self
@@ -60,7 +61,7 @@ func AuthenticationGateway(gateway *config.ConfigLoginGateway, cookieConfig *con
 			// Headers
 			req.Header.Set(GatewayAccountHeader, claims.Subject)
 			for k, v := range gateway.Headers {
-				logrus.Infof("Override header %s = %s", k, v)
+				log.Debugf("Override header %s = %s", k, v)
 				req.Header.Set(k, v)
 			}
 			if gateway.Host != "" {
@@ -76,7 +77,7 @@ func AuthenticationGateway(gateway *config.ConfigLoginGateway, cookieConfig *con
 			// Proxy
 			ret := balancer(next)(c)
 			realTarget := c.Get(targetKey).(*middleware.ProxyTarget)
-			logrus.Infof("PROXY %s %s -> %s", req.Method, req.RequestURI, realTarget.URL.String())
+			log.Infof("PROXY %s %s -> %s", req.Method, req.RequestURI, realTarget.URL.String())
 			return ret
 		}
 	}

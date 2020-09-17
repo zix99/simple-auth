@@ -30,6 +30,7 @@ module.exports = {
         path: '/cookbooks',
         children: [
           '/cookbooks/nginx-auth-request',
+          '/cookbooks/gateway',
         ],
       },
     ]

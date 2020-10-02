@@ -149,7 +149,6 @@ export default {
   },
   methods: {
     submitClick() {
-      this.loading = true;
       this.error = null;
 
       const postData = {
@@ -160,8 +159,13 @@ export default {
 
       if (this.appdata.recaptchav2.enabled) {
         postData.recaptchav2 = this.$refs.recaptchav2.getResponse();
+        if (!postData.recaptchav2) {
+          this.error = 'Please accept RECAPTCHA';
+          return;
+        }
       }
 
+      this.loading = true;
       axios.post('api/ui/account', postData)
         .then((resp) => {
           if (resp.status !== 201) throw new Error('Error creating account');

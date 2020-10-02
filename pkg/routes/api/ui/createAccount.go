@@ -2,15 +2,21 @@ package ui
 
 import (
 	"errors"
+	"net/http"
 	"regexp"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/email"
 	"simple-auth/pkg/routes/api/ui/recaptcha"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/saerrors"
 	"unicode/utf8"
 
 	"github.com/labstack/echo/v4"
+)
+
+const (
+	InvalidRecaptcha saerrors.ErrorCode = "invalid-recaptcha"
 )
 
 type createAccountRequest struct {
@@ -25,32 +31,32 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 
 	req := createAccountRequest{}
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(400, common.JsonError(errors.New("Unable to deserialize request")))
+		return common.HttpBadRequest(c, err)
 	}
 
 	if err := env.validateUsername(req.Username); err != nil {
-		return c.JSON(400, common.JsonError(err))
+		return common.HttpBadRequest(c, err)
 	}
 	if err := env.validatePassword(req.Password); err != nil {
-		return c.JSON(400, common.JsonError(err))
+		return common.HttpBadRequest(c, err)
 	}
 	if err := env.validateEmail(req.Email); err != nil {
-		return c.JSON(400, common.JsonError(err))
+		return common.HttpBadRequest(c, err)
 	}
 
 	// Validate recaptcha if needed
 	if err := env.validateRecaptchaV2(req.RecaptchaV2); err != nil {
-		return c.JSON(400, common.JsonError(err))
+		return common.HttpError(c, http.StatusBadRequest, InvalidRecaptcha.Wrap(err))
 	}
 
 	account, err := env.db.CreateAccount(req.Email)
 	if err != nil {
-		return c.JSON(400, common.JsonError(err))
+		return common.HttpBadRequest(c, err)
 	}
 
 	err2 := env.db.CreateAccountAuthSimple(account, req.Username, req.Password)
 	if err2 != nil {
-		return c.JSON(500, common.JsonError(err2))
+		return common.HttpError(c, http.StatusInternalServerError, err2)
 	}
 
 	// trigger email

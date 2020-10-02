@@ -18,7 +18,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 	logger := middleware.GetLogger(c)
 	req := loginRequest{}
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, common.JsonErrorf("Unable to deserialize request"))
+		return common.HttpBadRequest(c, err)
 	}
 
 	logger.Infof("Attempting login for '%s'...", req.Username)
@@ -26,14 +26,13 @@ func (env *environment) routeLogin(c echo.Context) error {
 	account, err := env.db.AssertSimpleAuth(req.Username, req.Password, req.Totp)
 	if err != nil {
 		logger.Infof("Login for user '%s' rejected: %v", req.Username, err)
-		return c.JSON(http.StatusUnauthorized, common.JsonError(err))
+		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 	logger.Infof("Login for user '%s' accepted", req.Username)
 
 	err = middleware.CreateSession(c, &env.config.Login.Cookie, account, middleware.SessionSourceLogin)
 	if err != nil {
-		logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Something went wrong signing JWT"))
+		return common.HttpError(c, http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, common.Json{

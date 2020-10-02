@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
-	"simple-auth/pkg/routes/common"
 	"strings"
 	"time"
 
@@ -144,7 +143,7 @@ func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
 		logrus.Warn("No JWT secret specified, refusing to bind user management endpoints")
 		return func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				return c.JSON(http.StatusMethodNotAllowed, common.JsonErrorf("Server not configured to allow session API calls"))
+				return c.JSON(http.StatusMethodNotAllowed, jsonErrorf("Server not configured to allow session API calls"))
 			}
 		}
 	}
@@ -153,7 +152,7 @@ func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			claims, err := parseContextSession(config, c)
 			if err != nil {
-				return c.JSON(http.StatusUnauthorized, common.JsonError(err))
+				return c.JSON(http.StatusUnauthorized, jsonErrorf(err.Error()))
 			}
 			c.Set(ContextClaims, claims)
 			c.Set(ContextAccountUUID, claims.Subject)
@@ -165,4 +164,11 @@ func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
 func GetSessionClaims(c echo.Context) (*SimpleAuthClaims, bool) {
 	ret, ok := c.Get(ContextClaims).(*SimpleAuthClaims)
 	return ret, ok
+}
+
+func jsonErrorf(s string, args ...interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"error":   true,
+		"message": fmt.Sprintf(s, args...),
+	}
 }

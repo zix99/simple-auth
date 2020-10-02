@@ -17,6 +17,7 @@
 export default {
   props: {
     promise: null,
+    codes: { default: {} },
   },
   data() {
     return {
@@ -46,7 +47,7 @@ export default {
         }, 100);
         this.promise
           .catch((err) => {
-            this.error = err.message;
+            this.error = this.extractErrorMessage(err);
           })
           .then(() => {
             this.promise.pending = false;
@@ -54,6 +55,16 @@ export default {
             clearTimeout(timer);
           });
       }
+    },
+    extractErrorMessage(err) {
+      if (err.response && err.response.data && err.response.data.error === true) {
+        const errdata = err.response.data;
+        if (errdata.reason && this.codes[errdata.reason]) {
+          return this.codes[errdata.reason];
+        }
+        return errdata.message;
+      }
+      return err.message;
     },
   },
 };

@@ -4,7 +4,7 @@
       <div class="message-body">{{error}}</div>
     </article>
 
-    <LoadingBanner :promise="signinPromise">
+    <LoadingBanner :promise="signinPromise" :codes="errorCodes">
       Signing in...
     </LoadingBanner>
 
@@ -77,6 +77,11 @@ export default {
       state: 'login',
       loading: false,
       signinPromise: null,
+      errorCodes: {
+        'invalid-credentials': 'Your username or password is invalid',
+        'unsatisfied-stipulations': 'Your account has a hold on it',
+        inactive: 'Your account is marked as inactive. Please contact an administrator if this is a mistake',
+      },
     };
   },
   mounted() {

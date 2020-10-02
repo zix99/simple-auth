@@ -16,7 +16,7 @@ func (env *environment) routeAccount(c echo.Context) error {
 	logger.Infof("Get account for %s", accountUUID)
 	account, err := env.db.FindAccount(accountUUID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Logged in with unknown account"))
+		return common.HttpErrorf(c, http.StatusInternalServerError, "Logged in with unknown account")
 	}
 
 	responseAuth := common.Json{}
@@ -58,7 +58,7 @@ func (env *environment) routeAccountAudit(c echo.Context) error {
 
 	account, err := env.db.FindAccount(accountUUID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, common.JsonErrorf("Logged in with unknown account"))
+		return common.HttpErrorf(c, http.StatusInternalServerError, "Logged in with unknown account")
 	}
 
 	offset, _ := strconv.Atoi(c.QueryParam("offset"))

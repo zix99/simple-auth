@@ -1,6 +1,6 @@
 <template>
   <div>
-    <LoadingBanner :promise="loadingPromise">Updating password...</LoadingBanner>
+    <LoadingBanner :promise="loadingPromise" :codes="errorCodes">Updating password...</LoadingBanner>
     <Message v-if="success" type="is-success">Password updated!</Message>
     <div v-if="!success">
       <div class="field" v-if="requireOldPassword">
@@ -44,6 +44,11 @@ export default {
       validPassword: false,
       password: '',
       oldpassword: '',
+
+      errorCodes: {
+        'invalid-credentials': 'Your old password is invalid',
+        'unsatisfied-stipulations': 'Your account has an unsatisfied stipulation on it',
+      },
     };
   },
   mounted() {

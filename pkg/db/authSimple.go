@@ -3,11 +3,24 @@ package db
 import (
 	"errors"
 	"simple-auth/pkg/lib/totp"
+	"simple-auth/pkg/saerrors"
 	"strings"
 
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
+
+const (
+	SAInvalidCredentials      saerrors.ErrorCode = "invalid-credentials"
+	SAUserVerificationFailed  saerrors.ErrorCode = "user-verification-failed"
+	SAInvalidAccount          saerrors.ErrorCode = "invalid-account"
+	SAInactiveAccount         saerrors.ErrorCode = "inactive"
+	SAUnsatisfiedStipulations saerrors.ErrorCode = "unsatisfied-stipulations"
+	SATOTPMissing             saerrors.ErrorCode = "totp-missing"
+	SATOTPFailed              saerrors.ErrorCode = "totp-failed"
+)
+
+const InternalError saerrors.ErrorCode = "internal-error"
 
 type AccountAuthSimple interface {
 	// Safe function
@@ -30,8 +43,6 @@ type accountAuthSimple struct {
 	PasswordBcrypt string `gorm:"not null"`
 	TOTPSpec       *string
 }
-
-var ErrorAccountInactive = errors.New("Inactive Account")
 
 // verifyPassword checks a password against the bcrypt entry
 func (s *accountAuthSimple) verifyPassword(against string) bool {
@@ -88,22 +99,22 @@ func (s *sadb) UpdatePasswordForUsername(username string, newPassword string) er
 
 func (s *sadb) resolveSimpleAuthForUser(username string) (*accountAuthSimple, *Account, error) {
 	if username == "" {
-		return nil, nil, errors.New("Invalid username")
+		return nil, nil, SAInvalidCredentials.Newf("Missing username")
 	}
 	username = strings.ToLower(username)
 
 	var simpleAuth accountAuthSimple
 	if err := s.db.Where(&accountAuthSimple{Username: username}).First(&simpleAuth).Error; err != nil {
-		return nil, nil, err
+		return nil, nil, SAInvalidCredentials.Wrap(err)
 	}
 
 	var account Account
 	if err := s.db.Model(&simpleAuth).Related(&account).Error; err != nil {
-		return nil, nil, err
+		return nil, nil, InternalError.Wrap(err)
 	}
 
 	if !account.Active {
-		return nil, nil, ErrorAccountInactive
+		return nil, nil, SAInactiveAccount.New()
 	}
 
 	return &simpleAuth, &account, nil
@@ -129,38 +140,38 @@ func (s *sadb) FindAccountForSimpleAuth(username string) (*Account, error) {
 
 func (s *sadb) AssertSimpleAuth(username, password string, totpCode *string) (*Account, error) {
 	if username == "" || password == "" {
-		return nil, errors.New("Invalid arg")
+		return nil, SAInvalidCredentials.Newf("Invalid username/password")
 	}
 
 	auth, account, err := s.resolveSimpleAuthForUser(username)
 	if err != nil {
-		return nil, err
+		return nil, SAInvalidCredentials.Wrap(err)
 	}
 
 	// Password
 	if !auth.verifyPassword(password) {
 		s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelWarn, "Login failed")
-		return nil, UserVerificationFailed
+		return nil, SAInvalidCredentials.New()
 	}
 
 	// Stipulations
 	if s.AccountHasUnsatisfiedStipulations(account) {
-		return nil, errors.New("Account contains unsatisfied stipulations")
+		return nil, SAUnsatisfiedStipulations.New()
 	}
 
 	// TOTP
 	if auth.TOTPSpec != nil {
 		if totpCode == nil || *totpCode == "" {
-			return nil, errors.New("Requires TOTP")
+			return nil, SATOTPMissing.New()
 		}
 
 		otp, err := totp.ParseTOTP(*auth.TOTPSpec)
 		if err != nil {
-			return nil, err
+			return nil, SATOTPFailed.Wrap(err)
 		}
 		if !otp.Validate(*totpCode, 1) {
 			s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelWarn, "TOTP Rejected")
-			return nil, errors.New("TOTP Failed")
+			return nil, SATOTPFailed.New()
 		}
 	}
 
@@ -172,10 +183,10 @@ func (s *sadb) AssertSimpleAuth(username, password string, totpCode *string) (*A
 
 func (s *sadb) resolveSimpleAuthForAccount(account *Account) (*accountAuthSimple, error) {
 	if account == nil {
-		return nil, errors.New("Nil account")
+		return nil, SAInvalidAccount.New()
 	}
 	if !account.Active {
-		return nil, ErrorAccountInactive
+		return nil, SAInactiveAccount.New()
 	}
 
 	var auth accountAuthSimple

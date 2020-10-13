@@ -3,24 +3,11 @@ package db
 import (
 	"errors"
 	"simple-auth/pkg/lib/totp"
-	"simple-auth/pkg/saerrors"
 	"strings"
 
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
-
-const (
-	SAInvalidCredentials      saerrors.ErrorCode = "invalid-credentials"
-	SAUserVerificationFailed  saerrors.ErrorCode = "user-verification-failed"
-	SAInvalidAccount          saerrors.ErrorCode = "invalid-account"
-	SAInactiveAccount         saerrors.ErrorCode = "inactive"
-	SAUnsatisfiedStipulations saerrors.ErrorCode = "unsatisfied-stipulations"
-	SATOTPMissing             saerrors.ErrorCode = "totp-missing"
-	SATOTPFailed              saerrors.ErrorCode = "totp-failed"
-)
-
-const InternalError saerrors.ErrorCode = "internal-error"
 
 type AccountAuthSimple interface {
 	// Safe function
@@ -52,17 +39,17 @@ func (s *accountAuthSimple) verifyPassword(against string) bool {
 // CreateAccountAuthSimple creates a new account simple auth with a crypted password
 func (s *sadb) CreateAccountAuthSimple(belongsTo *Account, username, password string) error {
 	if belongsTo == nil {
-		return errors.New("Invalid account")
+		return InvalidAccount.New()
 	}
 	if !belongsTo.Active {
-		return errors.New("Unable to associate with deactivated account")
+		return InactiveAccount.Newf("Unable to associate with deactivated account")
 	}
 
 	username = strings.TrimSpace(strings.ToLower(username))
 	password = strings.TrimSpace(password)
 
 	if username == "" || password == "" {
-		return errors.New("Invalid username or password")
+		return SAInvalidCredentials.New()
 	}
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), 0)
@@ -89,12 +76,16 @@ func (s *sadb) UpdatePasswordForUsername(username string, newPassword string) er
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(newPassword), 0)
 	if err != nil {
-		return err
+		return InternalError.Wrap(err)
 	}
 
 	s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelInfo, "Password updated")
 
-	return s.db.Model(auth).Update(accountAuthSimple{PasswordBcrypt: string(hashed)}).Error
+	err = s.db.Model(auth).Update(accountAuthSimple{PasswordBcrypt: string(hashed)}).Error
+	if err != nil {
+		return InternalError.Wrap(err)
+	}
+	return nil
 }
 
 func (s *sadb) resolveSimpleAuthForUser(username string) (*accountAuthSimple, *Account, error) {
@@ -114,7 +105,7 @@ func (s *sadb) resolveSimpleAuthForUser(username string) (*accountAuthSimple, *A
 	}
 
 	if !account.Active {
-		return nil, nil, SAInactiveAccount.New()
+		return nil, nil, InactiveAccount.New()
 	}
 
 	return &simpleAuth, &account, nil
@@ -183,10 +174,10 @@ func (s *sadb) AssertSimpleAuth(username, password string, totpCode *string) (*A
 
 func (s *sadb) resolveSimpleAuthForAccount(account *Account) (*accountAuthSimple, error) {
 	if account == nil {
-		return nil, SAInvalidAccount.New()
+		return nil, InvalidAccount.New()
 	}
 	if !account.Active {
-		return nil, SAInactiveAccount.New()
+		return nil, InactiveAccount.New()
 	}
 
 	var auth accountAuthSimple

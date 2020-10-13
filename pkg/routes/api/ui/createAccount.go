@@ -9,14 +9,9 @@ import (
 	"simple-auth/pkg/routes/api/ui/recaptcha"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
-	"simple-auth/pkg/saerrors"
 	"unicode/utf8"
 
 	"github.com/labstack/echo/v4"
-)
-
-const (
-	InvalidRecaptcha saerrors.ErrorCode = "invalid-recaptcha"
 )
 
 type createAccountRequest struct {
@@ -46,7 +41,7 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 
 	// Validate recaptcha if needed
 	if err := env.validateRecaptchaV2(req.RecaptchaV2); err != nil {
-		return common.HttpError(c, http.StatusBadRequest, InvalidRecaptcha.Wrap(err))
+		return common.HttpError(c, http.StatusBadRequest, errorInvalidRecaptcha.Wrap(err))
 	}
 
 	account, err := env.db.CreateAccount(req.Email)

@@ -2,7 +2,6 @@ package common
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"simple-auth/pkg/routes/middleware"
 	"simple-auth/pkg/saerrors"
@@ -29,11 +28,15 @@ func HttpOK(c echo.Context) error {
 }
 
 func HttpBadRequest(c echo.Context, err error) error {
-	return HttpError(c, http.StatusBadRequest, ErrBadRequest.Wrap(err))
+	return HttpError(c, http.StatusBadRequest, ErrBadRequest.Compose(err))
 }
 
 func HttpInternalError(c echo.Context, err error) error {
 	return HttpError(c, http.StatusInternalServerError, ErrInternal.Wrap(err))
+}
+
+func HttpInternalErrorf(c echo.Context, err string) error {
+	return HttpError(c, http.StatusInternalServerError, ErrInternal.Newf(err))
 }
 
 func HttpError(c echo.Context, code int, err error) error {
@@ -44,11 +47,6 @@ func HttpError(c echo.Context, code int, err error) error {
 	return httpErrorCoded(c, code, "no-code", err.Error())
 }
 
-func HttpErrorf(c echo.Context, code int, err string, args ...interface{}) error {
-	msg := fmt.Sprintf(err, args...)
-	return httpErrorCoded(c, code, string(saerrors.Undefined), msg)
-}
-
 func httpErrorCoded(c echo.Context, code int, reason, err string) error {
 	log := middleware.GetLogger(c)
 	log.Warnf("%d [%s]: %s", code, reason, err)
@@ -57,17 +55,4 @@ func httpErrorCoded(c echo.Context, code int, reason, err string) error {
 		Message: err,
 		Reason:  reason,
 	})
-}
-
-// Deprecate
-func JsonError(err error) ErrorResponse {
-	return JsonErrorf(err.Error())
-}
-
-// Deprecate
-func JsonErrorf(s string, args ...interface{}) ErrorResponse {
-	return ErrorResponse{
-		Error:   true,
-		Message: fmt.Sprintf(s, args...),
-	}
 }

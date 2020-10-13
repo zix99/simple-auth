@@ -1,10 +1,12 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
+	"simple-auth/pkg/saerrors"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -15,6 +17,10 @@ import (
 Simple authenticator will simply provide an endpoint that will either return a 200 or a 401
 depending on whether the username/password has been validated
 */
+
+const (
+	invalidAuthorizationToken saerrors.ErrorCode = "invalid-auth-token"
+)
 
 type SimpleAuthController struct {
 	db     db.SADB
@@ -37,14 +43,14 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 	if env.config.SharedSecret != "" {
 		authHeader := c.Request().Header.Get(echo.HeaderAuthorization)
 		if authHeader == "" {
-			return c.JSON(http.StatusBadRequest, common.JsonErrorf("Authorization header required"))
+			return common.HttpBadRequest(c, errors.New("Authorization header required"))
 		}
 		authParts := strings.Split(authHeader, " ")
 		if len(authParts) != 2 || authParts[0] != "Bearer" {
-			return c.JSON(http.StatusBadRequest, common.JsonErrorf("Expected 'Bearer' on authHeader"))
+			return common.HttpBadRequest(c, errors.New("Expected 'Bearer' on authHeader"))
 		}
 		if authParts[1] != env.config.SharedSecret {
-			return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Invalid authorization token"))
+			return common.HttpError(c, http.StatusUnauthorized, invalidAuthorizationToken.New())
 		}
 	}
 
@@ -53,7 +59,7 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 		Password string `json:"password" form:"password"`
 	}{}
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(400, common.JsonError(err))
+		return common.HttpBadRequest(c, err)
 	}
 
 	account, err := env.db.AssertSimpleAuth(req.Username, req.Password, nil)

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"net/http"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
@@ -56,13 +57,13 @@ func (env *TokenAuthController) routeIssueSessionToken(c echo.Context) error {
 		Password string `json:"password" form:"password"`
 	}{}
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(400, common.JsonError(err))
+		return common.HttpBadRequest(c, err)
 	}
 
 	expireDuration := time.Duration(env.config.SessionExpiresMinutes) * time.Minute
 	token, err := env.db.AssertCreateSessionToken(req.Username, req.Password, expireDuration)
 	if err != nil {
-		return c.JSON(401, common.JsonErrorf("Unable to create session token"))
+		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 
 	return c.JSON(200, responseToken{
@@ -78,13 +79,12 @@ func (env *TokenAuthController) routeIssueVerificationToken(c echo.Context) erro
 		Token    string `json:"token" form:"token"`
 	}{}
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(400, common.JsonError(err))
+		return common.HttpBadRequest(c, err)
 	}
 
 	vToken, err := env.db.CreateVerificationToken(req.Username, req.Token)
 	if err != nil {
-		logger.Error(err)
-		return c.JSON(401, common.JsonErrorf("Unable to create verification token"))
+		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 
 	logger.Infof("Issuing verification token for %s", req.Username)
@@ -99,12 +99,12 @@ func (env *TokenAuthController) routeVerifyToken(c echo.Context) error {
 		Token    string `json:"token" form:"token"`
 	}{}
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(400, common.JsonError(err))
+		return common.HttpBadRequest(c, err)
 	}
 
 	account, err := env.db.AssertVerificationToken(req.Username, req.Token)
 	if err != nil {
-		return c.JSON(401, common.JsonErrorf("Verification token not found"))
+		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 	return c.JSON(200, common.Json{
 		"username":   req.Username,

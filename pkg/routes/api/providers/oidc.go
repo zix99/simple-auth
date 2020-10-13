@@ -10,6 +10,7 @@ import (
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/saerrors"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -21,6 +22,13 @@ import (
 const (
 	oidcStateCookieName = "oidcState"
 	continueCookieName  = "continue"
+)
+
+const (
+	errorOIDCInvalidCode             saerrors.ErrorCode = "oidc-invalid-code"
+	errorOIDCInvalidState            saerrors.ErrorCode = "oidc-invalid-state"
+	errorOIDCTradeCode               saerrors.ErrorCode = "oidc-code-error"
+	errorOIDCAccountCreationDisabled saerrors.ErrorCode = "oidc-account-creation-disabled"
 )
 
 type OIDCController struct {
@@ -67,7 +75,7 @@ func (env *OIDCController) routeAuthRedirect(c echo.Context) error {
 	// Parse and redirect to OIDC provider
 	redirectURL, err := url.Parse(env.oidcConfig.AuthURL)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Invalid auth URL in config"))
+		return common.HttpInternalErrorf(c, "Auth URL has been missconfigured")
 	}
 
 	state := uuid.New().String()
@@ -98,17 +106,15 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	code := c.QueryParam("code")
 
 	if code == "" {
-		return c.JSON(http.StatusBadRequest, common.JsonErrorf("Invalid code"))
+		return common.HttpError(c, http.StatusBadRequest, errorOIDCInvalidCode.New())
 	}
 
 	stateCookie, err := c.Cookie(oidcStateCookieName)
 	if err != nil {
-		logger.Warn("Unable to find state cookie. Forgery?")
-		return c.JSON(http.StatusBadRequest, common.JsonError(err))
+		return common.HttpError(c, http.StatusBadRequest, errorOIDCInvalidState.Newf("Unable to find state cookie. Forgery?"))
 	}
 	if stateCookie.Value != state {
-		logger.Warn("State cookie mismatch. Forgery?")
-		return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Invalid state"))
+		return common.HttpError(c, http.StatusUnauthorized, errorOIDCInvalidState.Newf("Invalid state cookie. Forgery?"))
 	}
 
 	// Clear the state cookie
@@ -126,7 +132,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	token, err := env.tradeCodeForToken(code)
 	if err != nil {
 		logger.Warnf("Error trading in OIDC code for token: %s", err)
-		return c.JSON(http.StatusUnauthorized, common.JsonError(err))
+		return common.HttpError(c, http.StatusUnauthorized, errorOIDCTradeCode.Compose(err))
 	}
 
 	// And parse the token
@@ -137,8 +143,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	}
 	parsedToken, _ := jwt.ParseWithClaims(token, &oidcClaims{}, nil)
 	if parsedToken == nil {
-		logger.Warnf("Error parsing claims")
-		return c.JSON(http.StatusBadRequest, common.JsonErrorf("Error parsing claims"))
+		return common.HttpError(c, http.StatusBadRequest, errorOIDCTradeCode.Newf("Error parsing claims"))
 	}
 	claims := parsedToken.Claims.(*oidcClaims)
 
@@ -163,17 +168,17 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	if env.loginConfig.CreateAccountEnabled {
 		account, err := env.db.CreateAccount(claims.Email)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, common.JsonError(err))
+			return common.HttpInternalError(c, err)
 		}
 		err2 := env.db.CreateOIDCForAccount(account, env.id, claims.Subject)
 		if err2 != nil {
-			return c.JSON(http.StatusInternalServerError, common.JsonError(err2))
+			return common.HttpInternalError(c, err2)
 		}
 		middleware.CreateSession(c, env.cookieConfig, account, middleware.SessionSourceOIDC)
 		return c.Redirect(http.StatusTemporaryRedirect, continueURL)
 	}
 
-	return c.JSON(http.StatusForbidden, common.JsonErrorf("Unable to create new OIDC for user. Account creation disabled."))
+	return common.HttpError(c, http.StatusForbidden, errorOIDCAccountCreationDisabled.Newf("Unable to create new OIDC for user. Account creation disabled."))
 }
 
 func (env *OIDCController) tradeCodeForToken(code string) (string, error) {
@@ -197,7 +202,9 @@ func (env *OIDCController) tradeCodeForToken(code string) (string, error) {
 
 	// Parse it
 	var contents map[string]string
-	json.Unmarshal(body, &contents)
+	if err := json.Unmarshal(body, &contents); err != nil {
+		return "", err
+	}
 
 	if contents["id_token"] == "" {
 		return "", errors.New("Invalid id_token")

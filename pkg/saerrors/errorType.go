@@ -67,6 +67,14 @@ func (s ErrorCode) Wrap(err error) error {
 	}
 }
 
+// Compose an error (rather than wrap it, become that error)
+func (s ErrorCode) Compose(err error) error {
+	return &codedError{
+		code:    s,
+		message: err.Error(),
+	}
+}
+
 // Wrapf takes an error, and wraps it with an additional message
 func (s ErrorCode) Wrapf(err error, msg string, args ...interface{}) error {
 	return &codedError{

@@ -16,7 +16,7 @@ type changePasswordRequest struct {
 func (env *environment) routeChangePasswordRequirements(c echo.Context) error {
 	claims, ok := middleware.GetSessionClaims(c)
 	if !ok {
-		return common.HttpErrorf(c, http.StatusInternalServerError, "Claims not present. No session?")
+		return common.HttpInternalErrorf(c, "Claims not present. No session?")
 	}
 
 	return c.JSON(http.StatusOK, common.Json{
@@ -25,29 +25,26 @@ func (env *environment) routeChangePasswordRequirements(c echo.Context) error {
 }
 
 func (env *environment) routeChangePassword(c echo.Context) error {
-	logger := middleware.GetLogger(c)
-
 	claims, ok := c.Get(middleware.ContextClaims).(*middleware.SimpleAuthClaims)
 	if !ok {
-		return common.HttpErrorf(c, http.StatusUnauthorized, "Invalid claims")
+		return common.HttpError(c, http.StatusUnauthorized, errorInvalidClaims.New())
 	}
 
 	var req changePasswordRequest
 	if err := c.Bind(&req); err != nil {
-		return common.HttpError(c, http.StatusBadRequest, err)
+		return common.HttpBadRequest(c, err)
 	}
 
 	accountUUID := c.Get(middleware.ContextAccountUUID).(string)
 	account, err := env.db.FindAccount(accountUUID)
 	if err != nil {
-		logger.Error(err)
-		return common.HttpErrorf(c, http.StatusInternalServerError, "Unable to look up account")
+		return common.HttpError(c, http.StatusInternalServerError, errorInvalidAccount.Wrapf(err, "Unable to look up account"))
+
 	}
 
 	username, err := env.db.FindSimpleAuthUsername(account)
 	if err != nil {
-		logger.Error(err)
-		return common.HttpErrorf(c, http.StatusInternalServerError, "Username not associated with account")
+		return common.HttpError(c, http.StatusInternalServerError, errorInvalidAccount.Wrapf(err, "Username not associated with account"))
 	}
 
 	if claims.Source != middleware.SessionSourceOneTime {
@@ -57,8 +54,7 @@ func (env *environment) routeChangePassword(c echo.Context) error {
 	}
 
 	if err := env.db.UpdatePasswordForUsername(username, req.NewPassword); err != nil {
-		logger.Error(err)
-		return common.HttpErrorf(c, http.StatusInternalServerError, "Unable to update password for user")
+		return common.HttpError(c, http.StatusInternalServerError, errorInvalidAccount.Wrapf(err, "Unable to update password for user"))
 	}
 
 	return common.HttpOK(c)

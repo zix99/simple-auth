@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"errors"
 	"net/http"
 	"simple-auth/pkg/email"
 	"simple-auth/pkg/routes/common"
@@ -20,7 +21,7 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 
 	var req oneTimePostRequest
 	if err := c.Bind(&req); err != nil {
-		return common.HttpErrorf(c, http.StatusBadRequest, "Bind error: %s", err)
+		return common.HttpBadRequest(c, err)
 	}
 
 	logger.Infof("Issuing one-time token to email %s...", req.Email)
@@ -33,14 +34,12 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 
 	duration, err := time.ParseDuration(env.config.Login.OneTime.TokenDuration)
 	if err != nil {
-		logger.Warn(err)
-		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Invalid token duration. Config error"))
+		return common.HttpInternalErrorf(c, "Invalid token duration. Config error")
 	}
 
 	token, err := env.db.CreateAccountOneTimeToken(account, duration)
 	if err != nil {
-		logger.Warn(err)
-		return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Error issuing token"))
+		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 
 	baseURL := env.config.GetBaseURL()
@@ -53,8 +52,7 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 		ResetLink:     baseURL + "/onetime?token=" + token,
 	})
 	if err != nil {
-		logger.Warn(err)
-		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Unable to send email"))
+		return common.HttpInternalError(c, errorEmailSend.Compose(err))
 	}
 
 	return c.JSON(http.StatusOK, common.Json{"status": true})
@@ -65,21 +63,19 @@ func (env *environment) routeOneTimeAuth(c echo.Context) error {
 
 	token := strings.TrimSpace(c.QueryParam("token"))
 	if token == "" {
-		return common.HttpErrorf(c, http.StatusBadRequest, "Missing token")
+		return common.HttpBadRequest(c, errors.New("Missing token"))
 	}
 
 	logger.Infof("Attemping to one-time signin for token %s...", token)
 
 	account, err := env.db.AssertOneTimeToken(token)
 	if err != nil {
-		logger.Warn(err)
-		return c.JSON(http.StatusUnauthorized, common.JsonErrorf("Unable to validate token"))
+		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 
 	err = middleware.CreateSession(c, &env.config.Login.Cookie, account, middleware.SessionSourceOneTime)
 	if err != nil {
-		logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, common.JsonErrorf("Something went wrong creating session"))
+		return common.HttpInternalError(c, err)
 	}
 
 	return c.Redirect(http.StatusTemporaryRedirect, "/")

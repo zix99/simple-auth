@@ -81,40 +81,6 @@ OR with docker
 docker build .
 ```
 
-## Feature Wishlist
-
-### Bugs
-- CSRF token validation seems to break when using onetime tokens
-
-### V0
-- Account requirements (Blocks signin/usage until resolved)
-  - Verification email
-- TOTP
-- UX Tweaking, autofocus, tab, enter
-  - Don't submit create-user if recaptcha fails
-- Docker
-  - Example compose
-- Documentation
-  - Docker / docker-compose gateway example
-  - OIDC Examples
-- Better error codes and error messaging
-
-### V1
-- Upgrade to GORMv2
-- General tests for OIDC and different cases
-- OIDC Login Flow
-- Google Auth
-  - Better error pages
-  - Refactor session to be passable and generic
-  - Support JWT signature checking
-- Support other oidc/oauth2 schemes (eg facebook, microsoft, github..)
-- CLI tool: deactivate, activate, singleuse
-  - Bundle in dockerfile
-
-### V2
-- Admin dashboard / Overview page
-- Priviledged users, signup dashboard
-- Invite system
 
 # License
 

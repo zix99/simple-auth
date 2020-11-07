@@ -20,7 +20,9 @@ type AccountAuthSimple interface {
 	UpdatePasswordForUsername(username string, newPassword string) error
 
 	// TOTP
+	HasTOTPEnabled(account *Account) bool
 	SetAuthSimpleTOTP(account *Account, totpURL *string) error
+	ValidateTOTP(account *Account, totpCode string) bool
 }
 
 type accountAuthSimple struct {
@@ -203,4 +205,33 @@ func (s *sadb) SetAuthSimpleTOTP(account *Account, totpURL *string) error {
 	s.CreateAuditRecord(account, AuditModuleSimple, AuditLevelInfo, "Activated TOTP")
 
 	return s.db.Model(&simpleAuth).Update(accountAuthSimple{TOTPSpec: totpURL}).Error
+}
+
+func (s *sadb) HasTOTPEnabled(account *Account) bool {
+	simpleAuth, err := s.resolveSimpleAuthForAccount(account)
+	if err != nil {
+		return false
+	}
+	return simpleAuth.TOTPSpec != nil
+}
+
+func (s *sadb) ValidateTOTP(account *Account, code string) bool {
+	auth, err := s.resolveSimpleAuthForAccount(account)
+	if err != nil {
+		return false
+	}
+
+	if auth.TOTPSpec == nil {
+		return true
+	}
+
+	if code == "" {
+		return false
+	}
+
+	otp, err := totp.ParseTOTP(*auth.TOTPSpec)
+	if err != nil {
+		return false
+	}
+	return otp.Validate(code, 1) // FIXME: Drift
 }

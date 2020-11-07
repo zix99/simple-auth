@@ -25,7 +25,7 @@ func (env *environment) routeChangePasswordRequirements(c echo.Context) error {
 }
 
 func (env *environment) routeChangePassword(c echo.Context) error {
-	claims, ok := c.Get(middleware.ContextClaims).(*middleware.SimpleAuthClaims)
+	claims, ok := middleware.GetSessionClaims(c)
 	if !ok {
 		return common.HttpError(c, http.StatusUnauthorized, errorInvalidClaims.New())
 	}

@@ -3,25 +3,34 @@
     <div class="column is-half">
       <div class="box has-text-centered">
         <h2 class="subtitle" v-if="!appdata.login.continue">{{appdata.company}} Account Management</h2>
+
         <div v-if="appdata.login.continue">
           <h2 class="subtitle">{{appdata.company}} Login</h2>
           <p v-if="isRemoteContinue">After logging in, you will be redirected to:<br /><strong>{{appdata.login.continue}}</strong></p>
         </div>
 
         <div class="has-text-left">
-          <Login @loggedIn="$router.push('/login-redirect')" :allowForgotPassword="appdata.login.forgotPassword" />
+          <Login
+            @loggedIn="$router.push('/login-redirect')"
+            @state="showAltLogin=false"
+            :allowForgotPassword="appdata.login.forgotPassword"
+            />
         </div>
-        <div>
-          <div v-for="oidc in appdata.oidc" :key="oidc.id" class="my-2">
-            <OIDCButton :id="oidc.id" :icon="oidc.icon" class="is-info" :continue="appdata.login.continue">Continue with {{oidc.name}}</OIDCButton>
+
+        <div v-if="showAltLogin">
+          <div>
+            <div v-for="oidc in appdata.oidc" :key="oidc.id" class="my-2">
+              <OIDCButton :id="oidc.id" :icon="oidc.icon" class="is-info" :continue="appdata.login.continue">Continue with {{oidc.name}}</OIDCButton>
+            </div>
+          </div>
+          <div v-if="appdata.login.createAccount">
+            <p class="is-size-4">or</p>
+            <div class="my-2">
+              <router-link to="/create" class="button is-primary">Create Account</router-link>
+            </div>
           </div>
         </div>
-        <div v-if="appdata.login.createAccount">
-          <p class="is-size-4">or</p>
-          <div class="my-2">
-            <router-link to="/create" class="button is-primary">Create Account</router-link>
-          </div>
-        </div>
+
       </div>
     </div>
   </div>
@@ -39,6 +48,11 @@ export default {
   },
   props: {
     appdata: null,
+  },
+  data() {
+    return {
+      showAltLogin: true,
+    };
   },
   created() {
     axios.get('api/ui/account')

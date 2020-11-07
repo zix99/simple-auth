@@ -94,6 +94,13 @@ type OneTimeConfig struct {
 	TokenDuration       string // Parsed as duration
 }
 
+type TwoFactorConfig struct {
+	Enabled   bool
+	KeyLength int
+	Issuer    string
+	Drift     int
+}
+
 type ConfigLogin struct {
 	Settings ConfigLoginSettings
 	// SameDomain authentication uses a cookie set to a domain (and presumably shared with your site).  Easiest to implement in a full-trust environment
@@ -102,6 +109,8 @@ type ConfigLogin struct {
 	OIDC []*ConfigOIDCProvider
 	// Configuration for one-time password (eg. forgotten password)
 	OneTime OneTimeConfig
+	// 2FA/TOTP Configuration
+	TwoFactor TwoFactorConfig
 }
 
 type ConfigMetadata struct {

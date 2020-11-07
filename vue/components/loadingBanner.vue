@@ -17,7 +17,7 @@
 export default {
   props: {
     promise: null,
-    codes: { default: {} },
+    codes: { default: () => ({}) },
   },
   data() {
     return {

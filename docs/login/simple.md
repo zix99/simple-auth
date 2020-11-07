@@ -55,6 +55,14 @@ web:
 
 Two-factor authentication (2FA) prompts the user for a code from a device, in addition to a password, to allow them to login.
 
-::: warning
-TOTP is not yet complete
-:::
+TOTP presents the user with both the QR Code and the secret. Most popular apps should function fine (eg. Authy, or Google Authenticator)
+
+```yaml
+web:
+    login:
+        twofactor:
+            enabled: false
+            keylength: 12          # Length of the secret, in bytes
+            drift: 2               # How many adjacent codes are checked when validating
+            issuer: "simple-auth"  # Who is the "issuer" of the code
+```

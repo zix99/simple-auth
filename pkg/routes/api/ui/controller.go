@@ -53,6 +53,13 @@ func (env *environment) Mount(group *echo.Group) {
 			group.POST("/onetime", env.routeOneTimePost, common.CoalesceMiddleware(throttleMiddleware, recaptchaMiddleware)...)
 		}
 	}
+
+	if env.config.Login.TwoFactor.Enabled {
+		group.GET("/2fa", env.routeSetup2FA, loggedIn)
+		group.GET("/2fa/qrcode", env.route2FAQRCodeImage, loggedIn)
+		group.POST("/2fa", env.routeConfirm2FA, loggedIn)
+		group.DELETE("/2fa", env.routeDeactivate2FA, loggedIn)
+	}
 }
 
 func buildRecaptchaMiddleware(config *config.ConfigRecaptchaV2) echo.MiddlewareFunc {

@@ -201,16 +201,16 @@ func (env *OIDCController) tradeCodeForToken(code string) (string, error) {
 	}
 
 	// Parse it
-	var contents map[string]string
+	var contents map[string]interface{}
 	if err := json.Unmarshal(body, &contents); err != nil {
 		return "", err
 	}
 
-	if contents["id_token"] == "" {
+	idToken, _ := contents["id_token"].(string)
+	if idToken == "" {
 		return "", errors.New("Invalid id_token")
 	}
-
-	return contents["id_token"], nil
+	return idToken, nil
 }
 
 func (env *OIDCController) buildRedirectUri() string {

@@ -26,6 +26,13 @@ window.bindRouter = function bindRouter(el, data = {}) {
     ],
   });
   Vue.use(VueRouter);
+
+  Vue.directive('focus', {
+    inserted(ele) {
+      ele.focus();
+    },
+  });
+
   return new Vue({
     el,
     router,

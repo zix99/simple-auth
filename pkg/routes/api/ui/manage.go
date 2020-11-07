@@ -29,7 +29,9 @@ func (env *environment) routeAccount(c echo.Context) error {
 
 	if username, err := env.db.FindSimpleAuthUsername(account); err == nil {
 		responseAuth["simple"] = common.Json{
-			"username": username,
+			"username":         username,
+			"twofactor":        env.db.HasTOTPEnabled(account),
+			"twofactorallowed": env.config.Login.TwoFactor.Enabled,
 		}
 	}
 

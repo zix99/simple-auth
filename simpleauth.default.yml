@@ -50,6 +50,12 @@ web:
             enabled: true
             allowforgotpassword: true # If allowed to issue forgot-password email.  Required email config
             tokenduration: 1h
+        # Two-factor auth 2FA / TOTP
+        twofactor:
+            enabled: false
+            keylength: 12
+            drift: 2
+            issuer: "simple-auth"
 
     gateway:
         enabled: false

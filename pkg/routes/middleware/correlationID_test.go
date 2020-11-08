@@ -21,7 +21,7 @@ func TestCorrelationIDMiddleware(t *testing.T) {
 
 	if assert.NoError(t, h(c)) {
 		assert.Equal(t, 200, rec.Code)
-		assert.NotEmpty(t, rec.HeaderMap.Get("x-correlation-id"))
+		assert.NotEmpty(t, rec.Header().Get("x-correlation-id"))
 	}
 }
 

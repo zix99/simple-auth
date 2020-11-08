@@ -63,7 +63,7 @@ func (env *environment) routeOneTimeAuth(c echo.Context) error {
 
 	token := strings.TrimSpace(c.QueryParam("token"))
 	if token == "" {
-		return common.HttpBadRequest(c, errors.New("Missing token"))
+		return common.HttpBadRequest(c, errors.New("missing token"))
 	}
 
 	logger.Infof("Attemping to one-time signin for token %s...", token)

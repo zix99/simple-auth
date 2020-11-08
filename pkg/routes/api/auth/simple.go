@@ -43,11 +43,11 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 	if env.config.SharedSecret != "" {
 		authHeader := c.Request().Header.Get(echo.HeaderAuthorization)
 		if authHeader == "" {
-			return common.HttpBadRequest(c, errors.New("Authorization header required"))
+			return common.HttpBadRequest(c, errors.New("authorization header required"))
 		}
 		authParts := strings.Split(authHeader, " ")
 		if len(authParts) != 2 || authParts[0] != "Bearer" {
-			return common.HttpBadRequest(c, errors.New("Expected 'Bearer' on authHeader"))
+			return common.HttpBadRequest(c, errors.New("expected 'Bearer' on authHeader"))
 		}
 		if authParts[1] != env.config.SharedSecret {
 			return common.HttpError(c, http.StatusUnauthorized, invalidAuthorizationToken.New())

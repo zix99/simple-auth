@@ -109,7 +109,7 @@ func (s *EmbedBox) ReadEx(filename string, alwaysCheckDisk bool) (ReadSeekCloser
 		logrus.Warnf("File not found %s", filename)
 	}
 
-	return nil, errors.New("File not found")
+	return nil, errors.New("file not found")
 }
 
 func (s *EmbedBox) Read(filename string) (ReadSeekCloser, error) {
@@ -128,5 +128,5 @@ func (s *EmbedBox) Stat(filename string) (os.FileInfo, error) {
 	if f, ok := s.files[filename]; ok {
 		return f, nil
 	}
-	return nil, errors.New("File not found")
+	return nil, errors.New("file not found")
 }

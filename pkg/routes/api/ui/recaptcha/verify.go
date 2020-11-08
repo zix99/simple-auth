@@ -30,7 +30,7 @@ func NewValidatorV2(secret string) Validator {
 
 func (s *recaptchaV2Validator) Validate(code string) error {
 	if code == "" {
-		return errors.New("Invalid recaptcha")
+		return errors.New("invalid recaptcha")
 	}
 
 	logrus.Info("Validating recaptcha code...")
@@ -53,7 +53,7 @@ func (s *recaptchaV2Validator) Validate(code string) error {
 
 	if !respData.Success {
 		logrus.Info("Captcha not valid")
-		return errors.New("Server reports code invalid")
+		return errors.New("server reports code invalid")
 	}
 
 	logrus.Info("Captcha validated")

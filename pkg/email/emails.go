@@ -27,7 +27,7 @@ type WelcomeEmailData struct {
 func (s *EmailService) SendWelcomeEmail(cfg *config.ConfigEmail, to string, data *WelcomeEmailData) error {
 	if !cfg.Enabled {
 		s.logger.Infof("Skipping sending welcome to %s, disabled", to)
-		return errors.New("Email disabled")
+		return errors.New("email disabled")
 	}
 	return s.sendEmail(&cfg.SMTP, to, "welcome", data)
 }
@@ -41,7 +41,7 @@ type ForgotPasswordData struct {
 func (s *EmailService) SendForgotPasswordEmail(cfg *config.ConfigEmail, to string, data *ForgotPasswordData) error {
 	if !cfg.Enabled {
 		s.logger.Infof("Skipping sending email forgot-password to %s, disabled", to)
-		return errors.New("Email disabled")
+		return errors.New("email disabled")
 	}
 	return s.sendEmail(&cfg.SMTP, to, "forgotPassword", data)
 }
@@ -54,7 +54,7 @@ type VerificationData struct {
 func (s *EmailService) SendVerificationEmail(cfg *config.ConfigEmail, to string, data *VerificationData) error {
 	if !cfg.Enabled {
 		s.logger.Infof("Skipping verification email to %s, disabled", to)
-		return errors.New("Email disabled")
+		return errors.New("email disabled")
 	}
 	return s.sendEmail(&cfg.SMTP, to, "verification", data)
 }

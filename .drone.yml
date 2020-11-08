@@ -37,6 +37,7 @@ steps:
     commands:
       - go test -race ./...
       - go vet $(go list ./... | grep -v "vendor")
+      - go run honnef.co/go/tools/cmd/staticcheck ./...
   - name: Server Build
     image: golang:1.14
     volumes:

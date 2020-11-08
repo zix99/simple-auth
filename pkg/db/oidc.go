@@ -60,10 +60,10 @@ func (s *sadb) FindOIDCForAccount(account *Account) ([]OIDCDescriptor, error) {
 
 func (s *sadb) CreateOIDCForAccount(account *Account, provider, subject string) error {
 	if account == nil {
-		return errors.New("Invalid account")
+		return errors.New("invalid account")
 	}
 	if provider == "" || subject == "" {
-		return errors.New("Bad arguments")
+		return errors.New("bad arguments")
 	}
 
 	oidc := &accountOIDC{

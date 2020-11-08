@@ -29,6 +29,7 @@ func TestSecretTransmission(t *testing.T) {
 	assert.NotEmpty(t, secret)
 
 	otp2, err := FromSecret(secret, "", "")
+	assert.NoError(t, err)
 	assert.Equal(t, otp.Secret(), otp2.Secret())
 	assert.Equal(t, otp.GetHOTP(2), otp2.GetHOTP(2))
 }

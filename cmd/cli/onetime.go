@@ -28,7 +28,7 @@ func funcOneTime(c *cli.Context) error {
 	email := c.Args().First()
 	durationArg := c.String("duration")
 	if email == "" {
-		return errors.New("Missing email")
+		return errors.New("missing email")
 	}
 	duration, err := time.ParseDuration(durationArg)
 	if err != nil {
@@ -39,7 +39,7 @@ func funcOneTime(c *cli.Context) error {
 	db := db.New(config.Db.Driver, config.Db.URL)
 	account, err := db.FindAccountByEmail(email)
 	if err != nil {
-		return fmt.Errorf("Unable to find account for %s: %w", email, err)
+		return fmt.Errorf("unable to find account for %s: %w", email, err)
 	}
 
 	token, err := db.CreateAccountOneTimeToken(account, duration)

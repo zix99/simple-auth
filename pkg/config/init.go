@@ -41,7 +41,7 @@ func processIncludes(config *Config, abortOnError bool) error {
 		config.Include = nil
 		for _, fn := range includes {
 			if err := loadYaml(config, fn); err != nil && abortOnError {
-				return fmt.Errorf("Unable to load %s: %v", fn, err)
+				return fmt.Errorf("unable to load %s: %v", fn, err)
 			}
 		}
 	}

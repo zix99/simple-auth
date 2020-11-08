@@ -92,19 +92,19 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 func (env *environment) validateUsername(username string) error {
 	ulen := utf8.RuneCountInString(username)
 	if ulen < env.config.Requirements.UsernameMinLength {
-		return errors.New("Username too short")
+		return errors.New("username too short")
 	}
 	if ulen > env.config.Requirements.UsernameMaxLength {
-		return errors.New("Username too long")
+		return errors.New("username too long")
 	}
 
 	if env.config.Requirements.UsernameRegex != "" {
 		re, err := regexp.Compile(env.config.Requirements.UsernameRegex)
 		if err != nil {
-			return errors.New("Unable to parse valid username regex, ask your server admin to fix this")
+			return errors.New("unable to parse valid username regex, ask your server admin to fix this")
 		}
 		if !re.MatchString(username) {
-			return errors.New("Invalid username characters")
+			return errors.New("invalid username characters")
 		}
 	}
 
@@ -114,10 +114,10 @@ func (env *environment) validateUsername(username string) error {
 func (env *environment) validatePassword(password string) error {
 	plen := utf8.RuneCountInString(password)
 	if plen < env.config.Requirements.PasswordMinLength {
-		return errors.New("Password too short")
+		return errors.New("password too short")
 	}
 	if plen > env.config.Requirements.PasswordMaxLength {
-		return errors.New("Password too long")
+		return errors.New("password too long")
 	}
 	return nil
 }
@@ -125,7 +125,7 @@ func (env *environment) validatePassword(password string) error {
 func (env *environment) validateEmail(email string) error {
 	elen := utf8.RuneCountInString(email)
 	if elen < 5 { // Must be at least: a@b.c
-		return errors.New("Email too short")
+		return errors.New("email too short")
 	}
 	return nil
 }

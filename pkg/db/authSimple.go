@@ -115,12 +115,12 @@ func (s *sadb) resolveSimpleAuthForUser(username string) (*accountAuthSimple, *A
 
 func (s *sadb) FindSimpleAuthUsername(account *Account) (string, error) {
 	if account == nil {
-		return "", errors.New("No account")
+		return "", errors.New("no account")
 	}
 
 	var simpleAuth accountAuthSimple
 	if err := s.db.Model(account).Related(&simpleAuth).Error; err != nil {
-		return "", errors.New("No simple-auth linked")
+		return "", errors.New("no simple-auth linked")
 	}
 
 	return simpleAuth.Username, nil

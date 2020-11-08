@@ -32,7 +32,7 @@ func setFromString(v *reflect.Value, val string) error {
 		v.Set(av)
 		return nil
 	}
-	return fmt.Errorf("Unparseable type of kind %v", v.Kind())
+	return fmt.Errorf("unparseable type of kind %v", v.Kind())
 }
 
 // setDeeply sets a struct object to a value given a named-path
@@ -43,7 +43,7 @@ func setDeeply(obj interface{}, val string, path ...string) error {
 			return strings.ToLower(fName) == s
 		})
 		if !v.CanSet() {
-			return errors.New("Not settable")
+			return errors.New("not settable")
 		}
 	}
 	return setFromString(&v, val)
@@ -51,7 +51,7 @@ func setDeeply(obj interface{}, val string, path ...string) error {
 
 func parseFlag(obj interface{}, flag, val string) error {
 	if len(flag) < 2 {
-		return fmt.Errorf("Invalid flag: %s", flag)
+		return fmt.Errorf("invalid flag: %s", flag)
 	}
 	if flag[:2] == "--" {
 		parts := strings.Split(flag[2:], "-")
@@ -60,7 +60,7 @@ func parseFlag(obj interface{}, flag, val string) error {
 		parts := strings.Split(flag[1:], "-")
 		return setDeeply(obj, "true", parts...)
 	} else {
-		return fmt.Errorf("Invalid flag: %s", flag)
+		return fmt.Errorf("invalid flag: %s", flag)
 	}
 }
 

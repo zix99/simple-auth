@@ -43,7 +43,7 @@ func (env *environment) route2FAQRCodeImage(c echo.Context) error {
 
 	secret := c.QueryParam("secret")
 	if secret == "" {
-		return common.HttpBadRequest(c, errors.New("Missing secret"))
+		return common.HttpBadRequest(c, errors.New("missing secret"))
 	}
 
 	t, err := totp.FromSecret(secret, config.Issuer, claims.Subject)
@@ -88,6 +88,9 @@ func (env *environment) routeConfirm2FA(c echo.Context) error {
 	log.Infof("Setting up TOTP for %s", claims.Subject)
 
 	t, err := totp.FromSecret(req.Secret, env.config.Login.TwoFactor.Issuer, claims.Subject)
+	if err != nil {
+		return common.HttpInternalError(c, err)
+	}
 
 	if !t.Validate(req.Code, env.config.Login.TwoFactor.Drift) {
 		return common.HttpError(c, http.StatusForbidden, twoFactorInvalidCode.New())

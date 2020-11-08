@@ -208,7 +208,7 @@ func (env *OIDCController) tradeCodeForToken(code string) (string, error) {
 
 	idToken, _ := contents["id_token"].(string)
 	if idToken == "" {
-		return "", errors.New("Invalid id_token")
+		return "", errors.New("invalid id_token")
 	}
 	return idToken, nil
 }

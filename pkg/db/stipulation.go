@@ -58,7 +58,7 @@ func (s *sadb) findStipulations(account *Account, t StipulationType) ([]accountS
 
 func (s *sadb) SatisfyStipulation(account *Account, satisfy IStipulation) error {
 	if account == nil || satisfy == nil {
-		return errors.New("Invalid argument")
+		return errors.New("invalid argument")
 	}
 
 	stips, err := s.findStipulations(account, satisfy.Type())
@@ -85,7 +85,7 @@ func (s *sadb) SatisfyStipulation(account *Account, satisfy IStipulation) error 
 
 	s.CreateAuditRecord(account, AuditModuleAccount, AuditLevelWarn, "Unable to validate stipulation %s", satisfy.Type())
 
-	return errors.New("No stipulation satisfied")
+	return errors.New("no stipulation satisfied")
 }
 
 func (s *sadb) AccountHasUnsatisfiedStipulations(account *Account) bool {

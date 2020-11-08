@@ -25,7 +25,7 @@ func funcRemoveAllStipulations(c *cli.Context) error {
 	email := c.Args().First()
 
 	if email == "" {
-		return errors.New("Missing email")
+		return errors.New("missing email")
 	}
 
 	db := getDB()

@@ -28,8 +28,8 @@ type SessionSource string
 
 const (
 	SessionSourceOIDC    SessionSource = "oidc"
-	SessionSourceLogin                 = "login"
-	SessionSourceOneTime               = "onetime"
+	SessionSourceLogin   SessionSource = "login"
+	SessionSourceOneTime SessionSource = "onetime"
 )
 
 type SimpleAuthClaims struct {
@@ -52,18 +52,18 @@ func parseSigningKey(method, key string, verifying bool) (interface{}, error) {
 		}
 		return key, nil
 	}
-	return nil, fmt.Errorf("Unable to parse key for %s", method)
+	return nil, fmt.Errorf("unable to parse key for %s", method)
 }
 
 func issueSessionJwt(config *config.ConfigJWT, account *db.Account, source SessionSource) (string, error) {
 	if len(config.SigningKey) < 8 {
 		logrus.Warn("No JWT secret set, or secret too short.  User not able to login")
-		return "", errors.New("Server needs secret")
+		return "", errors.New("server needs secret")
 	}
 
 	signingMethod := jwt.GetSigningMethod(strings.ToUpper(config.SigningMethod))
 	if signingMethod == nil {
-		return "", fmt.Errorf("Unknown signing method %s, check your config", config.SigningMethod)
+		return "", fmt.Errorf("unknown signing method %s, check your config", config.SigningMethod)
 	}
 
 	decodedKey, err := parseSigningKey(config.SigningMethod, config.SigningKey, false)
@@ -120,21 +120,21 @@ func ClearSession(c echo.Context, config *config.ConfigLoginCookie) {
 func parseContextSession(config *config.ConfigJWT, c echo.Context) (*SimpleAuthClaims, error) {
 	cookie, err := c.Cookie(authCookieName)
 	if err != nil || cookie == nil {
-		return nil, errors.New("Auth cookie not set")
+		return nil, errors.New("auth cookie not set")
 	}
 
 	token, err := jwt.ParseWithClaims(cookie.Value, &SimpleAuthClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return parseSigningKey(config.SigningMethod, config.SigningKey, true)
 	})
 	if err != nil {
-		return nil, errors.New("Unable to parse JWT")
+		return nil, errors.New("unable to parse JWT")
 	}
 
 	if claims, ok := token.Claims.(*SimpleAuthClaims); ok && token.Valid {
 		return claims, nil
 	}
 
-	return nil, errors.New("Token rejected")
+	return nil, errors.New("token rejected")
 }
 
 func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {

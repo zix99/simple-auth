@@ -25,7 +25,7 @@ type Account struct {
 func (s *sadb) CreateAccount(email string) (*Account, error) {
 	email = strings.TrimSpace(strings.ToLower(email))
 	if email == "" {
-		return nil, errors.New("Invalid email")
+		return nil, errors.New("invalid email")
 	}
 
 	account := &Account{
@@ -44,7 +44,7 @@ func (s *sadb) CreateAccount(email string) (*Account, error) {
 
 func (s *sadb) FindAccount(uuid string) (*Account, error) {
 	if uuid == "" {
-		return nil, errors.New("Missing UUID")
+		return nil, errors.New("missing UUID")
 	}
 	var account Account
 	err := s.db.Where(&Account{UUID: uuid}).First(&account).Error
@@ -56,7 +56,7 @@ func (s *sadb) FindAccount(uuid string) (*Account, error) {
 
 func (s *sadb) FindAccountByEmail(email string) (*Account, error) {
 	if email == "" {
-		return nil, errors.New("Missing email")
+		return nil, errors.New("missing email")
 	}
 	var account Account
 	err := s.db.Where(&Account{Email: email}).First(&account).Error

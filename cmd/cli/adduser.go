@@ -25,7 +25,7 @@ func funcAddUser(c *cli.Context) error {
 	password := c.Args().Get(2)
 
 	if email == "" || username == "" {
-		return errors.New("Please specify <email> <username> [password]")
+		return errors.New("please specify <email> <username> [password]")
 	}
 
 	fmt.Printf("Email:    %s\n", email)

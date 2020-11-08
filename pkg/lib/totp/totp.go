@@ -48,13 +48,13 @@ func FromURL(url *url.URL) (*Totp, error) {
 	query := url.Query()
 
 	if query.Get("digits") != "6" {
-		return nil, errors.New("Invalid digits")
+		return nil, errors.New("invalid digits")
 	}
 	if query.Get("period") != "30" {
-		return nil, errors.New("Invalid period")
+		return nil, errors.New("invalid period")
 	}
 	if query.Get("algorithm") != "SHA1" {
-		return nil, errors.New("Unsupported algorithm")
+		return nil, errors.New("unsupported algorithm")
 	}
 
 	key, err := base32.StdEncoding.DecodeString(query.Get("secret"))
@@ -64,7 +64,7 @@ func FromURL(url *url.URL) (*Totp, error) {
 
 	parts := strings.Split(url.Path[1:], ":")
 	if len(parts) != 2 {
-		return nil, errors.New("Invalid subject")
+		return nil, errors.New("invalid subject")
 	}
 
 	return &Totp{

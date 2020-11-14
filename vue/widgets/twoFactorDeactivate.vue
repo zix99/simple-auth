@@ -32,7 +32,7 @@ export default {
       loadingPromise: null,
       code: '',
       errorCodes: {
-        'invalid-code': 'Invalid 2FA Code',
+        'totp-failed': 'Invalid 2FA Code',
       },
     };
   },

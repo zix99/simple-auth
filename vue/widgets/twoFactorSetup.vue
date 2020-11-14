@@ -36,7 +36,7 @@ export default {
       secret: null,
       code: null,
       errorCodes: {
-        'invalid-code': 'Invalid 2FA code. Please try again',
+        'totp-failed': 'Invalid 2FA code. Please try again',
       },
     };
   },

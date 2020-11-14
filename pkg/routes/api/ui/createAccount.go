@@ -49,7 +49,7 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 		return common.HttpBadRequest(c, err)
 	}
 
-	err2 := env.db.CreateAccountAuthSimple(account, req.Username, req.Password)
+	_, err2 := env.db.CreateAuthLocal(account, req.Username, req.Password)
 	if err2 != nil {
 		return common.HttpError(c, http.StatusInternalServerError, err2)
 	}

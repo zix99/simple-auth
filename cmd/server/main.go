@@ -9,6 +9,7 @@ import (
 	"simple-auth/pkg/routes/api/providers"
 	"simple-auth/pkg/routes/api/ui"
 	saMiddleware "simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/services"
 
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
@@ -87,7 +88,7 @@ func simpleAuthServer(config *config.Config) error {
 	}
 	if config.Authenticators.Simple.Enabled {
 		route := e.Group("/api/v1/auth/simple")
-		auth.NewSimpleAuthController(env.db, &config.Authenticators.Simple).Mount(route)
+		auth.NewSimpleAuthController(services.NewLocalLoginService(env.db, &config.Web.Login.TwoFactor), &config.Authenticators.Simple).Mount(route)
 	}
 	if config.Authenticators.Vouch.Enabled {
 		route := e.Group("/api/v1/auth/vouch")

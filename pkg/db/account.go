@@ -14,12 +14,20 @@ type AccountStore interface {
 	FindAccountByEmail(email string) (*Account, error)
 }
 
+type AccountProvider interface {
+	Account() *Account
+}
+
 // Account represents a user
 type Account struct {
 	gorm.Model
 	UUID   string `gorm:"type:varchar(64);unique_index;not null"`
 	Email  string `gorm:"type:varchar(256);unique_index;not null"`
 	Active bool   `gorm:"not null"`
+}
+
+func (s *Account) Account() *Account {
+	return s
 }
 
 func (s *sadb) CreateAccount(email string) (*Account, error) {

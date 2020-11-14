@@ -161,9 +161,25 @@ func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
 	}
 }
 
+func MustGetSessionAccountUUID(c echo.Context) string {
+	ret, ok := c.Get(ContextAccountUUID).(string)
+	if !ok {
+		panic("Required session UUID, bad middleware?")
+	}
+	return ret
+}
+
 func GetSessionClaims(c echo.Context) (*SimpleAuthClaims, bool) {
 	ret, ok := c.Get(ContextClaims).(*SimpleAuthClaims)
 	return ret, ok
+}
+
+func MustGetSessionClaims(c echo.Context) *SimpleAuthClaims {
+	ret, ok := GetSessionClaims(c)
+	if !ok {
+		panic("Requires session claims in context, bad middleware?")
+	}
+	return ret
 }
 
 func jsonErrorf(s string, args ...interface{}) map[string]interface{} {

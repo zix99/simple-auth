@@ -27,10 +27,10 @@ func (env *environment) routeAccount(c echo.Context) error {
 		"auth":    responseAuth,
 	}
 
-	if username, err := env.db.FindSimpleAuthUsername(account); err == nil {
+	if authLocal, err := env.localLoginService.FindAuthLocal(account.UUID); err == nil {
 		responseAuth["simple"] = common.Json{
-			"username":         username,
-			"twofactor":        env.db.HasTOTPEnabled(account),
+			"username":         authLocal.Username(),
+			"twofactor":        authLocal.HasTOTP(),
 			"twofactorallowed": env.config.Login.TwoFactor.Enabled,
 		}
 	}

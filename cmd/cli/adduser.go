@@ -48,7 +48,7 @@ func funcAddUser(c *cli.Context) error {
 	fmt.Printf("Account %s created\n", account.UUID)
 
 	fmt.Println("Creating simple auth...")
-	err = db.CreateAccountAuthSimple(account, username, password)
+	_, err = db.CreateAuthLocal(account, username, password)
 	if err != nil {
 		return err
 	}

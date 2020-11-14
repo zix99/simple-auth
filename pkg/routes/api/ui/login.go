@@ -23,14 +23,14 @@ func (env *environment) routeLogin(c echo.Context) error {
 
 	logger.Infof("Attempting login for '%s'...", req.Username)
 
-	account, err := env.db.AssertSimpleAuth(req.Username, req.Password, req.Totp)
+	authLocal, err := env.localLoginService.AssertLogin(req.Username, req.Password, req.Totp)
 	if err != nil {
 		logger.Infof("Login for user '%s' rejected: %v", req.Username, err)
 		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 	logger.Infof("Login for user '%s' accepted", req.Username)
 
-	err = middleware.CreateSession(c, &env.config.Login.Cookie, account, middleware.SessionSourceLogin)
+	err = middleware.CreateSession(c, &env.config.Login.Cookie, authLocal.Account(), middleware.SessionSourceLogin)
 	if err != nil {
 		return common.HttpError(c, http.StatusInternalServerError, err)
 	}

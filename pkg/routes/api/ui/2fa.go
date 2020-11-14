@@ -8,7 +8,6 @@ import (
 	"simple-auth/pkg/lib/totp/otpimagery"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
-	"simple-auth/pkg/saerrors"
 
 	"github.com/labstack/echo/v4"
 )
@@ -64,10 +63,6 @@ type tfaActivateRequest struct {
 	Code   string `json:"code"`
 }
 
-const (
-	twoFactorInvalidCode saerrors.ErrorCode = "invalid-code"
-)
-
 func (env *environment) routeConfirm2FA(c echo.Context) error {
 	var req tfaActivateRequest
 	if err := c.Bind(&req); err != nil {
@@ -75,30 +70,16 @@ func (env *environment) routeConfirm2FA(c echo.Context) error {
 	}
 
 	log := middleware.GetLogger(c)
-	claims, ok := middleware.GetSessionClaims(c)
-	if !ok {
-		return common.HttpInternalErrorf(c, "No session")
-	}
+	accountUUID := middleware.MustGetSessionAccountUUID(c)
 
-	account, err := env.db.FindAccount(claims.Subject)
+	authLocal, err := env.localLoginService.FindAuthLocal(accountUUID)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}
 
-	log.Infof("Setting up TOTP for %s", claims.Subject)
-
-	t, err := totp.FromSecret(req.Secret, env.config.Login.TwoFactor.Issuer, claims.Subject)
-	if err != nil {
-		return common.HttpInternalError(c, err)
-	}
-
-	if !t.Validate(req.Code, env.config.Login.TwoFactor.Drift) {
-		return common.HttpError(c, http.StatusForbidden, twoFactorInvalidCode.New())
-	}
-
-	tStr := t.String()
-	if err := env.db.SetAuthSimpleTOTP(account, &tStr); err != nil {
-		return common.HttpInternalError(c, err)
+	log.Infof("Setting up TOTP for %s", accountUUID)
+	if err := env.localLoginService.ActivateTOTP(authLocal, req.Secret, req.Code); err != nil {
+		return common.HttpError(c, http.StatusForbidden, err)
 	}
 
 	return common.HttpOK(c)
@@ -108,17 +89,13 @@ func (env *environment) routeDeactivate2FA(c echo.Context) error {
 	code := c.QueryParam("code")
 
 	uuid := c.Get(middleware.ContextAccountUUID).(string)
-	account, err := env.db.FindAccount(uuid)
+	authLocal, err := env.localLoginService.FindAuthLocal(uuid)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}
 
-	if !env.db.ValidateTOTP(account, code) {
-		return common.HttpError(c, http.StatusUnauthorized, twoFactorInvalidCode.New())
-	}
-
-	if err := env.db.SetAuthSimpleTOTP(account, nil); err != nil {
-		return common.HttpInternalError(c, err)
+	if err := env.localLoginService.DeactivateTOTP(authLocal, code); err != nil {
+		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 
 	return common.HttpOK(c)

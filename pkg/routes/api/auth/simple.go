@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 	"simple-auth/pkg/config"
-	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/saerrors"
+	"simple-auth/pkg/services"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -23,14 +23,14 @@ const (
 )
 
 type SimpleAuthController struct {
-	db     db.SADB
-	config *config.ConfigSimpleAuthenticator
+	config     *config.ConfigSimpleAuthenticator
+	localLogin services.LocalLoginService
 }
 
-func NewSimpleAuthController(db db.SADB, config *config.ConfigSimpleAuthenticator) *SimpleAuthController {
+func NewSimpleAuthController(localLoginService services.LocalLoginService, config *config.ConfigSimpleAuthenticator) *SimpleAuthController {
 	return &SimpleAuthController{
-		db,
 		config,
+		localLoginService,
 	}
 }
 
@@ -55,19 +55,20 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 	}
 
 	req := struct {
-		Username string `json:"username" form:"username"`
-		Password string `json:"password" form:"password"`
+		Username string  `json:"username" form:"username"`
+		Password string  `json:"password" form:"password"`
+		TOTP     *string `json:"totp" form:"totp"`
 	}{}
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
 
-	account, err := env.db.AssertSimpleAuth(req.Username, req.Password, nil)
+	authLocal, err := env.localLogin.AssertLogin(req.Username, req.Password, req.TOTP)
 	if err != nil {
 		return common.HttpError(c, http.StatusForbidden, err)
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{
-		"id": account.UUID,
+		"id": authLocal.Account().UUID,
 	})
 }

@@ -31,7 +31,12 @@ func funcPasswd(c *cli.Context) error {
 	// Make the modifications
 	fmt.Println("Updating password...")
 	db := getDB()
-	err = db.UpdatePasswordForUsername(username, password)
+	authLocal, err := db.FindAuthLocalByUsername(username)
+	if err != nil {
+		return fmt.Errorf("unable to find account: %w", err)
+	}
+
+	err = db.UpdateAuthLocalPassword(authLocal, password)
 	if err != nil {
 		return fmt.Errorf("unable to update password: %w", err)
 	}

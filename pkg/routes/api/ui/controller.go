@@ -6,6 +6,7 @@ import (
 	"simple-auth/pkg/routes/api/ui/recaptcha"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/services"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -13,7 +14,9 @@ import (
 )
 
 type environment struct {
-	db     db.SADB
+	db                db.SADB
+	localLoginService services.LocalLoginService
+
 	meta   *config.ConfigMetadata
 	config *config.ConfigWeb
 	email  *config.ConfigEmail
@@ -21,10 +24,11 @@ type environment struct {
 
 func NewController(db db.SADB, meta *config.ConfigMetadata, config *config.ConfigWeb, emailConfig *config.ConfigEmail) common.Controller {
 	return &environment{
-		db:     db,
-		config: config,
-		email:  emailConfig,
-		meta:   meta,
+		db:                db,
+		localLoginService: services.NewLocalLoginService(db, &config.Login.TwoFactor),
+		config:            config,
+		email:             emailConfig,
+		meta:              meta,
 	}
 }
 

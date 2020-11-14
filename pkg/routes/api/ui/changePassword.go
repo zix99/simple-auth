@@ -25,36 +25,27 @@ func (env *environment) routeChangePasswordRequirements(c echo.Context) error {
 }
 
 func (env *environment) routeChangePassword(c echo.Context) error {
-	claims, ok := middleware.GetSessionClaims(c)
-	if !ok {
-		return common.HttpError(c, http.StatusUnauthorized, errorInvalidClaims.New())
-	}
+	claims := middleware.MustGetSessionClaims(c)
 
 	var req changePasswordRequest
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
 
-	accountUUID := c.Get(middleware.ContextAccountUUID).(string)
-	account, err := env.db.FindAccount(accountUUID)
+	authLocal, err := env.localLoginService.FindAuthLocal(claims.Subject)
 	if err != nil {
-		return common.HttpError(c, http.StatusInternalServerError, errorInvalidAccount.Wrapf(err, "Unable to look up account"))
-
+		return common.HttpInternalError(c, err)
 	}
 
-	username, err := env.db.FindSimpleAuthUsername(account)
-	if err != nil {
-		return common.HttpError(c, http.StatusInternalServerError, errorInvalidAccount.Wrapf(err, "Username not associated with account"))
-	}
-
-	if claims.Source != middleware.SessionSourceOneTime {
-		if _, err := env.db.AssertSimpleAuth(username, req.OldPassword, nil); err != nil {
+	if claims.Source == middleware.SessionSourceOneTime {
+		// Change password, but exempt from the oldPassword requirement
+		if err := env.localLoginService.UpdatePasswordUnsafe(authLocal, req.NewPassword); err != nil {
+			return common.HttpInternalError(c, err)
+		}
+	} else {
+		if err := env.localLoginService.UpdatePassword(authLocal, req.OldPassword, req.NewPassword); err != nil {
 			return common.HttpError(c, http.StatusUnauthorized, err)
 		}
-	}
-
-	if err := env.db.UpdatePasswordForUsername(username, req.NewPassword); err != nil {
-		return common.HttpError(c, http.StatusInternalServerError, errorInvalidAccount.Wrapf(err, "Unable to update password for user"))
 	}
 
 	return common.HttpOK(c)

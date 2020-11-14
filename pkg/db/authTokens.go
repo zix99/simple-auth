@@ -36,10 +36,16 @@ type accountAuthVerificationToken struct {
 // AssertCreateSessionToken checks the username, and password
 // and upon acceptance, issues a session token
 func (s *sadb) AssertCreateSessionToken(username, password string, expires time.Duration) (string, error) {
-	account, err := s.AssertSimpleAuth(username, password, nil)
+	authLocal, err := s.FindAuthLocalByUsername(username)
 	if err != nil {
 		return "", err
 	}
+
+	if !authLocal.VerifyPassword(password) {
+		return "", SessionInvalidCredentials.New()
+	}
+
+	account := authLocal.Account()
 
 	// Invalidate all existing tokens
 	err = s.db.Model(&accountAuthSessionToken{}).Where("account_id = ? and not invalidated", account.ID).Update("invalidated", true).Error
@@ -72,10 +78,11 @@ func (s *sadb) InvalidateSession(sessionToken string) error {
 
 // CreateVerificationToken takes a session token and converts it into a short-lived verification token
 func (s *sadb) CreateVerificationToken(username, sessionToken string) (string, error) {
-	account, err := s.FindAccountForSimpleAuth(username)
+	authLocal, err := s.FindAuthLocalByUsername(username)
 	if err != nil {
 		return "", InvalidAccount.Wrapf(err, "Account not found")
 	}
+	account := authLocal.Account()
 
 	var session accountAuthSessionToken
 	logrus.Infof("Looking for %v(%v) and token=%v", username, account, sessionToken)
@@ -110,10 +117,12 @@ func (s *sadb) CreateVerificationToken(username, sessionToken string) (string, e
 }
 
 func (s *sadb) AssertVerificationToken(username, verificationToken string) (*Account, error) {
-	account, err := s.FindAccountForSimpleAuth(username)
+	authLocal, err := s.FindAuthLocalByUsername(username)
 	if err != nil {
 		return nil, err
 	}
+
+	account := authLocal.Account()
 
 	var token accountAuthVerificationToken
 	if err := s.db.Where("account_id = ? AND verification_token = ?", account.ID, verificationToken).First(&token).Error; err != nil {

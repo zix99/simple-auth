@@ -8,7 +8,7 @@ import (
 )
 
 type AccountAudit interface {
-	CreateAuditRecord(account *Account, module AuditModule, level AuditLevel, message string, params ...interface{}) error
+	CreateAuditRecord(account AccountProvider, module AuditModule, level AuditLevel, message string, params ...interface{}) error
 	GetAuditTrailForAccount(account *Account, offset, count int) ([]AccountAuditRecord, error)
 }
 
@@ -27,7 +27,7 @@ const (
 const (
 	AuditModuleAccount = "account"
 	AuditModuleUI      = "ui"
-	AuditModuleSimple  = "auth:simple"
+	AuditModuleLocal   = "auth:simple"
 	AuditModuleToken   = "auth:token"
 	AuditModuleOIDC    = "login:oidc"
 	AuditModuleOneTime = "auth:onetime"
@@ -41,9 +41,9 @@ type AccountAuditRecord struct {
 	Message   string
 }
 
-func (s *sadb) CreateAuditRecord(account *Account, module AuditModule, level AuditLevel, message string, params ...interface{}) error {
+func (s *sadb) CreateAuditRecord(account AccountProvider, module AuditModule, level AuditLevel, message string, params ...interface{}) error {
 	record := &AccountAuditRecord{
-		AccountID: account.ID,
+		AccountID: account.Account().ID,
 		Module:    module,
 		Level:     level,
 		Message:   fmt.Sprintf(message, params...),

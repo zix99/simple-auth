@@ -14,19 +14,16 @@ const (
 	SAOneTimeConsumed     saerrors.ErrorCode = "consumed"
 	SAOneTimeExpired      saerrors.ErrorCode = "expired"
 
-	// authSimple
-	SAInvalidCredentials      saerrors.ErrorCode = "invalid-credentials"
-	SAUserVerificationFailed  saerrors.ErrorCode = "user-verification-failed"
-	SAUnsatisfiedStipulations saerrors.ErrorCode = "unsatisfied-stipulations"
-	SATOTPMissing             saerrors.ErrorCode = "totp-missing"
-	SATOTPFailed              saerrors.ErrorCode = "totp-failed"
+	// authLocal
+	AuthInvalidUsername saerrors.ErrorCode = "invalid-username"
 
 	// authToken
-	SessionNotFound      saerrors.ErrorCode = "session-missing"
-	SessionInvalidated   saerrors.ErrorCode = "session-invalid"
-	SessionExpired       saerrors.ErrorCode = "session-expired"
-	VerificationMissing  saerrors.ErrorCode = "verification-missing"
-	VerificationConsumed saerrors.ErrorCode = "verification-consumed"
-	VerificationExpired  saerrors.ErrorCode = "verification-expired"
-	VerificationInvalid  saerrors.ErrorCode = "verification-invalid"
+	SessionInvalidCredentials saerrors.ErrorCode = "invalid-credentials"
+	SessionNotFound           saerrors.ErrorCode = "session-missing"
+	SessionInvalidated        saerrors.ErrorCode = "session-invalid"
+	SessionExpired            saerrors.ErrorCode = "session-expired"
+	VerificationMissing       saerrors.ErrorCode = "verification-missing"
+	VerificationConsumed      saerrors.ErrorCode = "verification-consumed"
+	VerificationExpired       saerrors.ErrorCode = "verification-expired"
+	VerificationInvalid       saerrors.ErrorCode = "verification-invalid"
 )

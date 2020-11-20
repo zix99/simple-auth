@@ -2,17 +2,17 @@
   <div>
     <article class="message is-danger" v-if="state === States.REJECTED && error">
       <div class="message-body">
-        <i class="fas fa-exclamation-triangle"></i> <slot name="error" :error="error">{{error}}</slot>
+        <fa-icon icon="exclamation-triangle" /> <slot name="error" :error="error">{{error}}</slot>
       </div>
     </article>
     <article class="message is-info" v-if="state === States.LOADING">
       <div class="message-body">
-        <i class="fas fa-circle-notch fa-spin"></i> <slot>Loading...</slot>
+        <fa-icon icon="circle-notch" spin /> <slot>Loading...</slot>
       </div>
     </article>
     <article class="message is-success" v-if="state === States.RESOLVED && this.$slots.success">
       <div class="message-body">
-        <i class="fas fa-check"></i> <slot name="success"></slot>
+        <fa-icon icon="check" /> <slot name="success"></slot>
       </div>
     </article>
   </div>

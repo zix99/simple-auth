@@ -5,7 +5,7 @@
       <div class="control has-icons-left has-icons-right">
         <input class="input" type="password" placeholder="Password" v-model="password1" />
         <span class="icon is-small is-left">
-          <i class="fas fa-lock" />
+          <fa-icon icon="lock" />
         </span>
       </div>
       <p class="help is-danger" v-if="!validPassword">
@@ -23,7 +23,7 @@
       <div class="control has-icons-left has-icons-right">
         <input class="input" type="password" placeholder="Re-Enter Password" v-model="password2" />
         <span class="icon is-small is-left">
-          <i class="fas fa-lock" />
+          <fa-icon icon="lock" />
         </span>
       </div>
       <p class="help is-danger" v-if="!passwordMatch">Password does not match</p>

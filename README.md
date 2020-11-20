@@ -42,7 +42,7 @@ web:
     oidc:
     - id: google
       name: 'Google'
-      icon: 'fa-google'
+      icon: 'google'
       clientid: 'xxx'
       clientsecret: 'yyy'
       authurl: 'https://accounts.google.com/o/oauth2/v2/auth'

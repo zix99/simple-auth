@@ -8,7 +8,7 @@
         <div class="control has-icons-left">
           <input class="input" type="password" placeholder="Password" v-model="oldpassword" />
           <span class="icon is-small is-left">
-            <i class="fas fa-lock" />
+            <fa-icon icon="lock" />
           </span>
         </div>
       </div>

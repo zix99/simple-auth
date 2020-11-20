@@ -21,10 +21,10 @@
             placeholder="Email input"
             v-model="email" />
           <span class="icon is-small is-left">
-            <i class="fas fa-envelope" />
+            <fa-icon icon="envelope" />
           </span>
           <span class="icon is-small is-right" v-if="!validEmail">
-            <i class="fas fa-exclamation-triangle" />
+            <fa-icon icon="exclamation-triangle" />
           </span>
         </div>
         <p class="help is-danger" v-if="!validEmail">Email address invalid</p>
@@ -35,10 +35,10 @@
         <div class="control has-icons-left has-icons-right">
           <input class="input" type="text" placeholder="Text Input" v-model="username">
           <span class="icon is-small is-left">
-            <i class="fas fa-user" />
+            <fa-icon icon="user" />
           </span>
           <span class="icon is-small is-right" v-if="!validUsername">
-            <i class="fas fa-exclamation-triangle" />
+            <fa-icon icon="exclamation-triangle" />
           </span>
         </div>
         <p class="help is-danger" v-if="!validUsername">
@@ -66,17 +66,17 @@
     </div>
 
     <div v-if="loading" class="has-text-centered">
-      <i class="fas fa-circle-notch fa-spin" /> Creating account...
+      <fa-icon icon="circle-notch" spin /> Creating account...
     </div>
 
     <div v-if="createdAccountId">
       <article class="message is-success">
         <div class="message-body">
-          <i class="fas fa-check"></i> Account Successfully Created!
+          <fa-icon icon="check" /> Account Successfully Created!
         </div>
       </article>
       <div>
-        <i class="fas fa-cog fa-spin"></i> Redirecting...
+        <fa-icon icon="cog" spin /> Redirecting...
       </div>
     </div>
 

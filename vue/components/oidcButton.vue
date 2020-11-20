@@ -1,6 +1,6 @@
 <template>
   <button class="button" @click="clicked">
-    <span class="icon"><i class="fab" :class="icon"></i></span>
+    <span class="icon"><fa-icon :icon="['fab', icon]" /></span>
     <span><slot></slot></span>
   </button>
 </template>

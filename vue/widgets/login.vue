@@ -14,7 +14,7 @@
         <div class="control has-icons-left">
           <input class="input" type="text" placeholder="Text Input" v-model="username" @keypress.enter="submitClick" v-focus />
           <span class="icon is-small is-left">
-            <i class="fas fa-user" />
+            <fa-icon icon="user" />
           </span>
         </div>
       </div>
@@ -24,7 +24,7 @@
         <div class="control has-icons-left">
           <input class="input" type="password" placeholder="Password" v-model="password" @keypress.enter="submitClick" />
           <span class="icon is-small is-left">
-            <i class="fas fa-lock" />
+            <fa-icon icon="lock" />
           </span>
         </div>
       </div>
@@ -46,7 +46,7 @@
         <div class="control has-icons-left">
           <input class="input" type="text" placeholder="2FA Token" v-model="totp" @keypress.enter="submitClick" v-focus />
           <span class="icon is-small is-left">
-            <i class="fas fa-key" />
+            <fa-icon icon="key" />
           </span>
         </div>
       </div>

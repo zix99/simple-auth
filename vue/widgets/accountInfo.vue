@@ -33,7 +33,7 @@
         <table class="table">
           <tbody>
             <tr>
-              <th>Provider</th><td><i class="fab" :class="oidc.icon"></i> {{oidc.name}}</td>
+              <th>Provider</th><td><fa-icon :icon="['fab', oidc.icon]" /> {{oidc.name}}</td>
             </tr>
             <tr>
               <th>Subject</th><td>{{oidc.subject}}</td>

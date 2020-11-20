@@ -21,7 +21,7 @@
             placeholder="Email input"
             v-model="email" />
           <span class="icon is-small is-left">
-            <i class="fas fa-envelope" />
+            <fa-icon icon="envelope" />
           </span>
         </div>
       </div>

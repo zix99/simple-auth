@@ -19,6 +19,11 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/zix99/simple-auth#readme",
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-brands-svg-icons": "^5.15.1",
+    "@fortawesome/free-regular-svg-icons": "^5.15.1",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/vue-fontawesome": "^2.0.0",
     "axios": "^0.19.2",
     "bulma": "^0.9.0",
     "dayjs": "^1.8.30",

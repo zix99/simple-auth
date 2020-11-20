@@ -4,6 +4,14 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import localizedPlugin from 'dayjs/plugin/localizedFormat';
 import 'bulma/css/bulma.css';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import {
+  faCircleNotch, faCog, faExclamationTriangle, faCheck, faEnvelope, faUser, faKey, faLock,
+} from '@fortawesome/free-solid-svg-icons';
+import {
+  faFacebook, faGoogle,
+} from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import Home from './routes/home.vue';
 import CreateAccount from './routes/createAccount.vue';
 import LoginRedirect from './routes/loginRedirect.vue';
@@ -14,6 +22,16 @@ import ActivateAccount from './routes/activateAccount.vue';
 
 axios.defaults.headers.common['X-CSRF-TOKEN'] = document.head.querySelector('meta[name="csrf"]').content;
 dayjs.extend(localizedPlugin);
+
+library.add(faExclamationTriangle, faCircleNotch, faCog, faCheck, faEnvelope, faUser, faKey, faLock);
+library.add(faFacebook, faGoogle);
+Vue.component('fa-icon', FontAwesomeIcon);
+
+Vue.directive('focus', {
+  inserted(ele) {
+    ele.focus();
+  },
+});
 
 window.bindRouter = function bindRouter(el, data = {}) {
   const router = new VueRouter({
@@ -28,12 +46,6 @@ window.bindRouter = function bindRouter(el, data = {}) {
     ],
   });
   Vue.use(VueRouter);
-
-  Vue.directive('focus', {
-    inserted(ele) {
-      ele.focus();
-    },
-  });
 
   return new Vue({
     el,

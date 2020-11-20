@@ -10,7 +10,7 @@ web:
     oidc:
     - id: google
       name: 'Google'
-      icon: 'fa-google'
+      icon: 'google'
       clientid: '<CLIENT ID>'
       clientsecret: '<CLIENT SECRET>'
       authurl: 'https://accounts.google.com/o/oauth2/v2/auth'

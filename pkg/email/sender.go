@@ -3,32 +3,21 @@ package email
 import (
 	"bytes"
 	"fmt"
-	"net/smtp"
-	"simple-auth/pkg/config"
-	"strings"
+	"html/template"
 )
 
 type emailData struct {
-	From  string
-	To    string
+	From  template.HTML
+	To    template.HTML
 	Model interface{}
 }
 
-func extractHostname(host string) string {
-	idx := strings.Index(host, ":")
-	if idx < 0 {
-		return host
-	}
-	return host[:idx]
-}
-
-func (s *EmailService) sendEmail(cfg *config.ConfigEmailSMTP, to string, templateName string, data IEmailData) error {
+func (s *EmailService) sendEmail(to string, templateName string, data IEmailData) error {
 	s.logger.Infof("Sending %s email to %s...", templateName, to)
-	auth := smtp.PlainAuth(cfg.Identity, cfg.Username, cfg.Password, extractHostname(cfg.Host))
 
 	templateData := &emailData{
-		From:  fmt.Sprintf("%s <%s>", data.Data().Company, cfg.From),
-		To:    to,
+		From:  template.HTML(fmt.Sprintf("%s <%s>", data.Data().Company, s.from)),
+		To:    template.HTML(to),
 		Model: data,
 	}
 
@@ -39,7 +28,7 @@ func (s *EmailService) sendEmail(cfg *config.ConfigEmailSMTP, to string, templat
 		return err
 	}
 
-	err = smtp.SendMail(cfg.Host, auth, cfg.From, []string{to}, buf.Bytes())
+	err = s.engine.Send(to, s.from, buf.Bytes())
 	if err != nil {
 		s.logger.Warn(err)
 	} else {

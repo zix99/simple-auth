@@ -1,19 +1,32 @@
 <template>
   <div>
-    <article class="message is-danger" v-if="error">
+    <article class="message is-danger" v-if="state === States.REJECTED && error">
       <div class="message-body">
-        <i class="fas fa-exclamation-triangle"></i> {{error}}
+        <i class="fas fa-exclamation-triangle"></i> <slot name="error" :error="error">{{error}}</slot>
       </div>
     </article>
-    <article class="message is-info" v-if="loading">
+    <article class="message is-info" v-if="state === States.LOADING">
       <div class="message-body">
-        <i class="fas fa-circle-notch fa-spin"></i> <slot />
+        <i class="fas fa-circle-notch fa-spin"></i> <slot>Loading...</slot>
+      </div>
+    </article>
+    <article class="message is-success" v-if="state === States.RESOLVED && this.$slots.success">
+      <div class="message-body">
+        <i class="fas fa-check"></i> <slot name="success"></slot>
       </div>
     </article>
   </div>
 </template>
 
 <script>
+
+const States = Object.freeze({
+  NONE: 0,
+  LOADING: 1,
+  RESOLVED: 2,
+  REJECTED: 3,
+});
+
 export default {
   props: {
     promise: null,
@@ -21,7 +34,8 @@ export default {
   },
   data() {
     return {
-      loading: false,
+      States,
+      state: States.NONE,
       error: null,
     };
   },
@@ -32,26 +46,33 @@ export default {
     promise() {
       this.updatePromise();
     },
+    state() {
+      this.$emit('state', this.state);
+    },
   },
   methods: {
     updatePromise() {
       if (!this.promise) {
-        this.loading = false;
+        this.state = States.NONE;
       } else {
         this.error = null;
         this.promise.pending = true;
 
         // Delay showing the loader so it's less likely to blink in/out so quickly
         const timer = setTimeout(() => {
-          this.loading = true;
+          this.state = States.LOADING;
         }, 100);
+
         this.promise
+          .then(() => {
+            this.state = States.RESOLVED;
+          })
           .catch((err) => {
             this.error = this.extractErrorMessage(err);
+            this.state = States.REJECTED;
           })
           .then(() => {
             this.promise.pending = false;
-            this.loading = false;
             clearTimeout(timer);
           });
       }

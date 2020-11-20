@@ -2,6 +2,8 @@ package ui
 
 import (
 	"errors"
+	"fmt"
+	"html/template"
 	"net/http"
 	"regexp"
 	"simple-auth/pkg/db"
@@ -55,7 +57,7 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 	}
 
 	// trigger email
-	go email.New(logger).SendWelcomeEmail(env.email, req.Email, &email.WelcomeEmailData{
+	go email.NewFromConfig(logger, env.email).SendWelcomeEmail(req.Email, &email.WelcomeEmailData{
 		EmailData: email.EmailData{
 			Company: env.meta.Company,
 			BaseURL: env.config.GetBaseURL(),
@@ -69,12 +71,12 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 		env.db.AddStipulation(account, stip)
 
 		baseURL := env.config.GetBaseURL()
-		go email.New(logger).SendVerificationEmail(env.email, req.Email, &email.VerificationData{
+		go email.NewFromConfig(logger, env.email).SendVerificationEmail(req.Email, &email.VerificationData{
 			EmailData: email.EmailData{
 				Company: env.meta.Company,
 				BaseURL: baseURL,
 			},
-			ActivationLink: baseURL + "/activate?token=" + stip.Code,
+			ActivationLink: template.HTML(fmt.Sprintf("%s/#/activate?account=%s&token=%s", baseURL, account.UUID, stip.Code)),
 		})
 	}
 

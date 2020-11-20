@@ -2,6 +2,7 @@ package ui
 
 import (
 	"errors"
+	"html/template"
 	"net/http"
 	"simple-auth/pkg/email"
 	"simple-auth/pkg/routes/common"
@@ -43,13 +44,13 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 	}
 
 	baseURL := env.config.GetBaseURL()
-	err = email.New(logger).SendForgotPasswordEmail(env.email, req.Email, &email.ForgotPasswordData{
+	err = email.NewFromConfig(logger, env.email).SendForgotPasswordEmail(req.Email, &email.ForgotPasswordData{
 		EmailData: email.EmailData{
 			Company: env.meta.Company,
 			BaseURL: baseURL,
 		},
 		ResetDuration: env.config.Login.OneTime.TokenDuration,
-		ResetLink:     baseURL + "/onetime?token=" + token,
+		ResetLink:     template.HTML(baseURL + "/onetime?token=" + token),
 	})
 	if err != nil {
 		return common.HttpInternalError(c, errorEmailSend.Compose(err))

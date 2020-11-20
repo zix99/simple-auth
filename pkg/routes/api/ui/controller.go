@@ -51,6 +51,8 @@ func (env *environment) Mount(group *echo.Group) {
 	group.POST("/account/password", env.routeChangePassword, loggedIn)
 	group.GET("/account/password", env.routeChangePasswordRequirements, loggedIn)
 
+	group.POST("/stipulation", env.routeTokenStipulation)
+
 	if env.config.Login.OneTime.Enabled {
 		group.GET("/onetime", env.routeOneTimeAuth, throttleMiddleware)
 		if env.config.Login.OneTime.AllowForgotPassword {

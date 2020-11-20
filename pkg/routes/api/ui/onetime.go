@@ -44,7 +44,7 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 	}
 
 	baseURL := env.config.GetBaseURL()
-	err = email.NewFromConfig(logger, env.email).SendForgotPasswordEmail(req.Email, &email.ForgotPasswordData{
+	go email.NewFromConfig(logger, env.email).SendForgotPasswordEmail(req.Email, &email.ForgotPasswordData{
 		EmailData: email.EmailData{
 			Company: env.meta.Company,
 			BaseURL: baseURL,
@@ -52,9 +52,6 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 		ResetDuration: env.config.Login.OneTime.TokenDuration,
 		ResetLink:     template.HTML(baseURL + "/onetime?token=" + token),
 	})
-	if err != nil {
-		return common.HttpInternalError(c, errorEmailSend.Compose(err))
-	}
 
 	return c.JSON(http.StatusOK, common.Json{"status": true})
 }

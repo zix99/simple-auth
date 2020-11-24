@@ -2,25 +2,32 @@ kind: pipeline
 name: default
 
 steps:
-  - name: Install
+  - name: Node Install
     image: node:12-slim
     commands:
       - npm ci
     volumes:
       - name: npm-cache
         path: /root/.npm
-  - name: Lint
+  - name: Node Lint
     image: node:12-slim
     commands:
       - npm run lint
-  - name: Audit
+    depends_on:
+      - Node Install
+  - name: Node Audit
     image: node:12-slim
     commands:
       - npm audit --audit-level=moderate
-  - name: JS Dist
+    depends_on:
+      - Node Install
+  - name: Node Dist
     image: node:12-slim
     commands:
       - npm run build
+    depends_on:
+      - Node Install
+      - Node Lint # Cause why bother if failed
 
   - name: Server Generate
     image: golang:1.14
@@ -38,9 +45,11 @@ steps:
     - name: go-cache
       path: /go
     commands:
-      - go test -race -cover ./...
+      - go test -race ./...
       - go vet $(go list ./... | grep -v "vendor")
       - go run honnef.co/go/tools/cmd/staticcheck ./...
+    depends_on:
+      - Server Generate
   - name: Server Build
     image: golang:1.14
     volumes:
@@ -48,6 +57,9 @@ steps:
       path: /go
     commands:
       - go build -tags box -o simple-auth-server simple-auth/cmd/server
+    depends_on:
+      - Server Generate
+      - Node Dist
   - name: CLI Build
     image: golang:1.14
     volumes:
@@ -55,11 +67,15 @@ steps:
       path: /go
     commands:
       - go build -o simple-auth-cli simple-auth/cmd/cli
+    depends_on:
+      - Server Generate
 
   - name: Integration Tests
-    image: node:12
+    image: node:12-buster
     commands:
       - ./tests/quicktest.sh --nobuild
+    depends_on:
+      - Server Build
 
   - name: Docker Build
     image: docker:19
@@ -70,6 +86,9 @@ steps:
       - docker build -t ${DRONE_REPO_NAME} -f Dockerfile.drone .
     when:
       branch: ['master']
+    depends_on:
+      - Server Build
+      - CLI Build
 
 volumes:
   - name: docker-socket

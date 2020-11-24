@@ -6,7 +6,7 @@ if [[ $* != *--nobuild* ]]; then
   go build -o simple-auth-server simple-auth/cmd/server
 fi
 
-./simple-auth-server --verbose \
+./simple-auth-server --verbose --staticfromdisk \
   --api-external=true --api-sharedsecret=super-secret &
 echo "PID: $!"
 

@@ -1,7 +1,6 @@
 package argparser
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -43,7 +42,7 @@ func setDeeply(obj interface{}, val string, path ...string) error {
 			return strings.ToLower(fName) == s
 		})
 		if !v.CanSet() {
-			return errors.New("not settable")
+			return fmt.Errorf("%s not settable", s)
 		}
 	}
 	return setFromString(&v, val)

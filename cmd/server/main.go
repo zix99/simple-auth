@@ -5,11 +5,9 @@ import (
 	"simple-auth/pkg/box/echobox"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
-	"simple-auth/pkg/routes/api/auth"
+	"simple-auth/pkg/routes/api"
 	"simple-auth/pkg/routes/api/providers"
-	"simple-auth/pkg/routes/api/ui"
 	saMiddleware "simple-auth/pkg/routes/middleware"
-	"simple-auth/pkg/services"
 
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
@@ -81,22 +79,8 @@ func simpleAuthServer(config *config.Config) error {
 	// UI
 	newUIController(&config.Web, &config.Metadata).Mount(e.Group(""))
 
-	// Attach authenticator routes
-	if config.Authenticators.Token.Enabled {
-		route := e.Group("/api/v1/auth/token")
-		auth.NewTokenAuthController(env.db, &config.Authenticators.Token).Mount(route)
-	}
-	if config.Authenticators.Simple.Enabled {
-		route := e.Group("/api/v1/auth/simple")
-		auth.NewSimpleAuthController(services.NewLocalLoginService(env.db, &config.Web.Login.TwoFactor), &config.Authenticators.Simple).Mount(route)
-	}
-	if config.Authenticators.Vouch.Enabled {
-		route := e.Group("/api/v1/auth/vouch")
-		auth.NewVouchAuthController(env.db, &config.Authenticators.Vouch, &config.Web.Login.Cookie.JWT).Mount(route)
-	}
-
-	// Attach UI/access router
-	ui.NewController(env.db, &config.Metadata, &config.Web, &config.Email).Mount(e.Group("/api/ui"))
+	// API
+	api.MountAPI(e.Group("/api"), config, env.db)
 
 	// OIDC Controllers
 	{

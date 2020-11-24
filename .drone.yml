@@ -6,6 +6,9 @@ steps:
     image: node:12-slim
     commands:
       - npm ci
+    volumes:
+      - name: npm-cache
+        path: /root/.npm
   - name: Lint
     image: node:12-slim
     commands:
@@ -35,7 +38,7 @@ steps:
     - name: go-cache
       path: /go
     commands:
-      - go test -race ./...
+      - go test -race -cover ./...
       - go vet $(go list ./... | grep -v "vendor")
       - go run honnef.co/go/tools/cmd/staticcheck ./...
   - name: Server Build
@@ -52,6 +55,11 @@ steps:
       path: /go
     commands:
       - go build -o simple-auth-cli simple-auth/cmd/cli
+
+  - name: Integration Tests
+    image: node:12
+    commands:
+      - ./tests/quicktest.sh --nobuild
 
   - name: Docker Build
     image: docker:19
@@ -70,3 +78,6 @@ volumes:
   - name: go-cache
     host:
       path: /var/ci/cache/simple-auth-go
+  - name: npm-cache
+    host:
+      path: /var/ci/cache/simple-auth-npm

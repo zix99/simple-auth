@@ -10,6 +10,7 @@ import (
 
 type LocalLoginService interface {
 	FindAuthLocal(accountUUID string) (*db.AuthLocal, error)
+	UsernameExists(username string) (bool, error)
 
 	AssertLoginCredentialsOnly(username, password string) (*db.AuthLocal, error)
 	AssertLogin(username, password string, totpCode *string) (*db.AuthLocal, error)
@@ -62,6 +63,17 @@ func (s *localLoginService) FindAuthLocal(accountUUID string) (*db.AuthLocal, er
 	}
 
 	return authLocal, nil
+}
+
+func (s *localLoginService) UsernameExists(username string) (bool, error) {
+	localAuth, err := s.dbAuth.FindAuthLocalByUsername(username)
+	if err != nil {
+		return false, err
+	}
+	if localAuth != nil {
+		return true, nil
+	}
+	return false, nil
 }
 
 func (s *localLoginService) AssertLogin(username, password string, totpCode *string) (*db.AuthLocal, error) {

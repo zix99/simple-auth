@@ -8,6 +8,7 @@ import (
 	"simple-auth/pkg/lib/totp/otpimagery"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/routes/middleware/selector/auth"
 
 	"github.com/labstack/echo/v4"
 )
@@ -17,13 +18,10 @@ type tfaSetupResponse struct {
 }
 
 func (env *environment) routeSetup2FA(c echo.Context) error {
-	claims, ok := middleware.GetSessionClaims(c)
-	if !ok {
-		return common.HttpInternalErrorf(c, "No session")
-	}
+	authContext := auth.MustGetAuthContext(c)
 
 	config := env.config.Login.TwoFactor
-	t, err := totp.NewTOTP(config.KeyLength, config.Issuer, claims.Subject)
+	t, err := totp.NewTOTP(config.KeyLength, config.Issuer, authContext.UUID)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}
@@ -35,17 +33,14 @@ func (env *environment) routeSetup2FA(c echo.Context) error {
 
 func (env *environment) route2FAQRCodeImage(c echo.Context) error {
 	config := env.config.Login.TwoFactor
-	claims, ok := middleware.GetSessionClaims(c)
-	if !ok {
-		return common.HttpInternalErrorf(c, "No session")
-	}
+	authContext := auth.MustGetAuthContext(c)
 
 	secret := c.QueryParam("secret")
 	if secret == "" {
 		return common.HttpBadRequest(c, errors.New("missing secret"))
 	}
 
-	t, err := totp.FromSecret(secret, config.Issuer, claims.Subject)
+	t, err := totp.FromSecret(secret, config.Issuer, authContext.UUID)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}
@@ -70,7 +65,7 @@ func (env *environment) routeConfirm2FA(c echo.Context) error {
 	}
 
 	log := middleware.GetLogger(c)
-	accountUUID := middleware.MustGetSessionAccountUUID(c)
+	accountUUID := auth.MustGetAccountUUID(c)
 
 	authLocal, err := env.localLoginService.FindAuthLocal(accountUUID)
 	if err != nil {
@@ -88,7 +83,7 @@ func (env *environment) routeConfirm2FA(c echo.Context) error {
 func (env *environment) routeDeactivate2FA(c echo.Context) error {
 	code := c.QueryParam("code")
 
-	uuid := c.Get(middleware.ContextAccountUUID).(string)
+	uuid := auth.MustGetAccountUUID(c)
 	authLocal, err := env.localLoginService.FindAuthLocal(uuid)
 	if err != nil {
 		return common.HttpInternalError(c, err)

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/routes/middleware/selector/auth"
 
 	"github.com/labstack/echo/v4"
 )
@@ -30,7 +31,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 	}
 	logger.Infof("Login for user '%s' accepted", req.Username)
 
-	err = middleware.CreateSession(c, &env.config.Login.Cookie, authLocal.Account(), middleware.SessionSourceLogin)
+	err = auth.CreateSession(c, &env.config.Login.Cookie, authLocal.Account(), auth.SourceLogin)
 	if err != nil {
 		return common.HttpError(c, http.StatusInternalServerError, err)
 	}
@@ -41,7 +42,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 }
 
 func (env *environment) routeLogout(c echo.Context) error {
-	middleware.ClearSession(c, &env.config.Login.Cookie)
+	auth.ClearSession(c, &env.config.Login.Cookie)
 	return c.JSON(http.StatusOK, common.Json{
 		"ok": true,
 	})

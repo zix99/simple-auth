@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"simple-auth/pkg/config"
+	"simple-auth/pkg/routes/middleware/selector/auth"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -44,7 +45,7 @@ func AuthenticationGateway(gateway *config.ConfigLoginGateway, cookieConfig *con
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			log := GetLogger(c)
-			claims, err := parseContextSession(&cookieConfig.JWT, c)
+			claims, err := auth.ParseContextSession(&cookieConfig.JWT, c)
 			if err != nil {
 				// Not logged in, pass-through to self
 				return next(c)
@@ -54,7 +55,7 @@ func AuthenticationGateway(gateway *config.ConfigLoginGateway, cookieConfig *con
 
 			// Special logout path
 			if gateway.LogoutPath != "" && req.URL.Path == gateway.LogoutPath {
-				ClearSession(c, cookieConfig)
+				auth.ClearSession(c, cookieConfig)
 				return c.Redirect(http.StatusTemporaryRedirect, "/")
 			}
 

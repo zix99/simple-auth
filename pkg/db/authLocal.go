@@ -79,7 +79,7 @@ func (s *sadb) FindAuthLocal(account *Account) (*AuthLocal, error) {
 
 func (s *sadb) FindAuthLocalByUsername(username string) (*AuthLocal, error) {
 	if username == "" {
-		return nil, errors.New("empty username")
+		return nil, AuthInvalidUsername.Newf("Empty username")
 	}
 	username = strings.ToLower(username)
 

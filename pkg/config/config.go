@@ -151,6 +151,11 @@ type ConfigEmail struct {
 	SMTP    ConfigEmailSMTP
 }
 
+type ConfigAPI struct {
+	External     bool // If true, allows external API calls (outside of session API)
+	SharedSecret string
+}
+
 // Config represents the root configuration
 type Config struct {
 	Include        []string
@@ -159,6 +164,7 @@ type Config struct {
 	Web            ConfigWeb            // Configure how the user interacts with the web
 	Email          ConfigEmail          // SMTP/Email sending config
 	Authenticators ConfigAuthencatorSet // Describes API Authenticators
+	API            ConfigAPI            // API configuration
 	Production     bool                 // Production changes how logs are generated and tighter security checks
 	Verbose        bool                 // Turns on additional logging
 	StaticFromDisk bool                 // Checks the disk for static files

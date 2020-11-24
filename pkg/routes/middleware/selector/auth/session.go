@@ -1,4 +1,4 @@
-package middleware
+package auth
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
+	"simple-auth/pkg/routes/middleware/selector"
 	"strings"
 	"time"
 
@@ -20,16 +21,9 @@ const (
 )
 
 const (
-	ContextClaims      = "auth"
-	ContextAccountUUID = "accountUUID"
-)
-
-type SessionSource string
-
-const (
-	SessionSourceOIDC    SessionSource = "oidc"
-	SessionSourceLogin   SessionSource = "login"
-	SessionSourceOneTime SessionSource = "onetime"
+	SourceOIDC    SessionSource = "oidc"
+	SourceLogin   SessionSource = "login"
+	SourceOneTime SessionSource = "onetime"
 )
 
 type SimpleAuthClaims struct {
@@ -117,7 +111,7 @@ func ClearSession(c echo.Context, config *config.ConfigLoginCookie) {
 	})
 }
 
-func parseContextSession(config *config.ConfigJWT, c echo.Context) (*SimpleAuthClaims, error) {
+func ParseContextSession(config *config.ConfigJWT, c echo.Context) (*SimpleAuthClaims, error) {
 	cookie, err := c.Cookie(authCookieName)
 	if err != nil || cookie == nil {
 		return nil, errors.New("auth cookie not set")
@@ -137,54 +131,42 @@ func parseContextSession(config *config.ConfigJWT, c echo.Context) (*SimpleAuthC
 	return nil, errors.New("token rejected")
 }
 
-func LoggedInMiddleware(config *config.ConfigJWT) echo.MiddlewareFunc {
+func sessionSelector(c echo.Context) error {
+	cookie, err := c.Cookie(authCookieName)
+	if cookie == nil {
+		return errors.New("no session cookie")
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func NewSessionAuthHandler(config *config.ConfigJWT) AuthHandler {
 	_, parseErr := parseSigningKey(config.SigningMethod, config.SigningKey, false)
 	if config.SigningKey == "" || parseErr != nil {
 		logrus.Warn("No JWT secret specified, refusing to bind user management endpoints")
-		return func(next echo.HandlerFunc) echo.HandlerFunc {
-			return func(c echo.Context) error {
-				return c.JSON(http.StatusMethodNotAllowed, jsonErrorf("Server not configured to allow session API calls"))
-			}
+		return func(c echo.Context) (*AuthContext, error) {
+			return nil, errors.New("server not configured for session api calls")
 		}
 	}
 
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			claims, err := parseContextSession(config, c)
-			if err != nil {
-				return c.JSON(http.StatusUnauthorized, jsonErrorf(err.Error()))
-			}
-			c.Set(ContextClaims, claims)
-			c.Set(ContextAccountUUID, claims.Subject)
-			return next(c)
+	return func(c echo.Context) (*AuthContext, error) {
+		claims, err := ParseContextSession(config, c)
+		if err != nil {
+			return nil, err
 		}
+		return &AuthContext{
+			UUID:   claims.Subject,
+			Source: claims.Source,
+		}, nil
 	}
 }
 
-func MustGetSessionAccountUUID(c echo.Context) string {
-	ret, ok := c.Get(ContextAccountUUID).(string)
-	if !ok {
-		panic("Required session UUID, bad middleware?")
-	}
-	return ret
-}
-
-func GetSessionClaims(c echo.Context) (*SimpleAuthClaims, bool) {
-	ret, ok := c.Get(ContextClaims).(*SimpleAuthClaims)
-	return ret, ok
-}
-
-func MustGetSessionClaims(c echo.Context) *SimpleAuthClaims {
-	ret, ok := GetSessionClaims(c)
-	if !ok {
-		panic("Requires session claims in context, bad middleware?")
-	}
-	return ret
-}
-
-func jsonErrorf(s string, args ...interface{}) map[string]interface{} {
-	return map[string]interface{}{
-		"error":   true,
-		"message": fmt.Sprintf(s, args...),
-	}
+func NewSessionAuthProvider(config *config.ConfigJWT, middleware ...echo.MiddlewareFunc) selector.SelectorGroup {
+	return NewAuthSelectorGroup(
+		sessionSelector,
+		NewSessionAuthHandler(config),
+		middleware...,
+	)
 }

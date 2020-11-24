@@ -11,6 +11,7 @@ import (
 	"simple-auth/pkg/routes/api/ui/recaptcha"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/routes/middleware/selector/auth"
 	"unicode/utf8"
 
 	"github.com/labstack/echo/v4"
@@ -81,7 +82,7 @@ func (env *environment) routeCreateAccount(c echo.Context) error {
 	}
 
 	// log the user in to a session
-	err3 := middleware.CreateSession(c, &env.config.Login.Cookie, account, middleware.SessionSourceLogin)
+	err3 := auth.CreateSession(c, &env.config.Login.Cookie, account, auth.SourceLogin)
 	if err3 != nil {
 		logger.Warnf("Unable to create session post-login, ignoring: %v", err3)
 	}

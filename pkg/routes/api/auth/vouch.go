@@ -3,7 +3,7 @@ package auth
 import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
-	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/routes/middleware/selector/auth"
 
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
@@ -25,7 +25,9 @@ func NewVouchAuthController(db db.SADB, config *config.ConfigVouchAuthenticator,
 
 func (env *VouchAuthController) Mount(group *echo.Group) {
 	logrus.Info("Enabling vouch auth...")
-	loggedInMiddleware := middleware.LoggedInMiddleware(env.jwtConfig)
+	loggedInMiddleware := auth.NewAuthMiddleware(
+		auth.NewSessionAuthHandler(env.jwtConfig),
+	)
 	group.GET("", env.routeVouchAuth, loggedInMiddleware)
 }
 

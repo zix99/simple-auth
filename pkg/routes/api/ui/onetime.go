@@ -7,6 +7,7 @@ import (
 	"simple-auth/pkg/email"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/routes/middleware/selector/auth"
 	"strings"
 	"time"
 
@@ -71,7 +72,7 @@ func (env *environment) routeOneTimeAuth(c echo.Context) error {
 		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 
-	err = middleware.CreateSession(c, &env.config.Login.Cookie, account, middleware.SessionSourceOneTime)
+	err = auth.CreateSession(c, &env.config.Login.Cookie, account, auth.SourceOneTime)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}

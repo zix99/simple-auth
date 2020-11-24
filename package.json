@@ -6,10 +6,11 @@
   "scripts": {
     "build": "webpack -p",
     "dev": "webpack --watch -d",
-    "lint": "eslint --ext js,vue vue/",
+    "lint": "eslint --ext js,vue vue/ && eslint tests/",
     "docs:dev": "npx vuepress dev docs",
     "docs": "npx vuepress build docs",
-    "clean": "rm -rf node_modules/ dist/ docs/.vuepress/dist/"
+    "clean": "rm -rf node_modules/ dist/ docs/.vuepress/dist/",
+    "integration-test": "mocha --recursive tests/ --slow 500"
   },
   "repository": {
     "type": "git",
@@ -33,11 +34,13 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "css-loader": "^3.6.0",
     "eslint": "^7.3.1",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.21.2",
     "eslint-plugin-vue": "^6.2.2",
+    "mocha": "^8.2.1",
     "vue-loader": "^15.9.3",
     "vue-template-compiler": "^2.6.11",
     "webpack": "^4.43.0",

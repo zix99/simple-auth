@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/routes/middleware/selector/auth"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -11,7 +12,7 @@ import (
 
 func (env *environment) routeAccount(c echo.Context) error {
 	logger := middleware.GetLogger(c)
-	accountUUID := c.Get(middleware.ContextAccountUUID).(string)
+	accountUUID := c.Get(auth.ContextAccountUUID).(string)
 
 	logger.Infof("Get account for %s", accountUUID)
 	account, err := env.db.FindAccount(accountUUID)
@@ -53,7 +54,7 @@ func (env *environment) routeAccount(c echo.Context) error {
 }
 
 func (env *environment) routeAccountAudit(c echo.Context) error {
-	accountUUID := c.Get(middleware.ContextAccountUUID).(string)
+	accountUUID := c.Get(auth.ContextAccountUUID).(string)
 	logger := middleware.GetLogger(c)
 
 	logger.Infof("Get account audit for %s", accountUUID)

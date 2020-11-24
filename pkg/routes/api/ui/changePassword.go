@@ -3,7 +3,7 @@ package ui
 import (
 	"net/http"
 	"simple-auth/pkg/routes/common"
-	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/routes/middleware/selector/auth"
 
 	"github.com/labstack/echo/v4"
 )
@@ -14,30 +14,27 @@ type changePasswordRequest struct {
 }
 
 func (env *environment) routeChangePasswordRequirements(c echo.Context) error {
-	claims, ok := middleware.GetSessionClaims(c)
-	if !ok {
-		return common.HttpInternalErrorf(c, "Claims not present. No session?")
-	}
+	authContext := auth.MustGetAuthContext(c)
 
 	return c.JSON(http.StatusOK, common.Json{
-		"requireOldPassword": claims.Source != middleware.SessionSourceOneTime,
+		"requireOldPassword": authContext.Source != auth.SourceOneTime,
 	})
 }
 
 func (env *environment) routeChangePassword(c echo.Context) error {
-	claims := middleware.MustGetSessionClaims(c)
+	authContext := auth.MustGetAuthContext(c)
 
 	var req changePasswordRequest
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
 
-	authLocal, err := env.localLoginService.FindAuthLocal(claims.Subject)
+	authLocal, err := env.localLoginService.FindAuthLocal(authContext.UUID)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}
 
-	if claims.Source == middleware.SessionSourceOneTime {
+	if authContext.Source == auth.SourceOneTime {
 		// Change password, but exempt from the oldPassword requirement
 		if err := env.localLoginService.UpdatePasswordUnsafe(authLocal, req.NewPassword); err != nil {
 			return common.HttpInternalError(c, err)

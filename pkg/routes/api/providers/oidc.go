@@ -10,6 +10,7 @@ import (
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/routes/middleware/selector/auth"
 	"simple-auth/pkg/saerrors"
 	"time"
 
@@ -159,7 +160,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	{
 		account, _ := env.db.FindAccountForOIDC(env.id, claims.Subject)
 		if account != nil {
-			middleware.CreateSession(c, env.cookieConfig, account, middleware.SessionSourceOIDC)
+			auth.CreateSession(c, env.cookieConfig, account, auth.SourceOIDC)
 			return c.Redirect(http.StatusTemporaryRedirect, continueURL)
 		}
 	}
@@ -174,7 +175,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 		if err2 != nil {
 			return common.HttpInternalError(c, err2)
 		}
-		middleware.CreateSession(c, env.cookieConfig, account, middleware.SessionSourceOIDC)
+		auth.CreateSession(c, env.cookieConfig, account, auth.SourceOIDC)
 		return c.Redirect(http.StatusTemporaryRedirect, continueURL)
 	}
 

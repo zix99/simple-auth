@@ -6,14 +6,14 @@
       <div class="field" v-if="requireOldPassword">
         <label class="label">Old Password</label>
         <div class="control has-icons-left">
-          <input class="input" type="password" placeholder="Password" v-model="oldpassword" />
+          <input class="input" type="password" placeholder="Password" v-model="oldpassword" v-focus />
           <span class="icon is-small is-left">
             <fa-icon icon="lock" />
           </span>
         </div>
       </div>
 
-      <ValidatedPasswordInput title="New Password" v-model="password" @valid="validPassword = $event" />
+      <ValidatedPasswordInput title="New Password" v-model="password" @valid="validPassword = $event" @enter="submitClick" />
       <div class="field is-grouped">
         <div class="control">
           <button class="button is-link" @click="submitClick" :disabled="!validInput">Update</button>

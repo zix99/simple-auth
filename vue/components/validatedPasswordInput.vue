@@ -3,7 +3,7 @@
     <div class="field">
       <label class="label">{{title}}</label>
       <div class="control has-icons-left has-icons-right">
-        <input class="input" type="password" placeholder="Password" v-model="password1" />
+        <input class="input" type="password" placeholder="Password" v-model="password1" @keypress.enter="enterPress" />
         <span class="icon is-small is-left">
           <fa-icon icon="lock" />
         </span>
@@ -21,7 +21,7 @@
     </div>
     <div class="field">
       <div class="control has-icons-left has-icons-right">
-        <input class="input" type="password" placeholder="Re-Enter Password" v-model="password2" />
+        <input class="input" type="password" placeholder="Re-Enter Password" v-model="password2" @keypress.enter="enterPress" />
         <span class="icon is-small is-left">
           <fa-icon icon="lock" />
         </span>
@@ -72,6 +72,11 @@ export default {
     onChange() {
       this.$emit('valid', this.passwordMatch && this.validPassword);
       this.$emit('input', this.password1);
+    },
+    enterPress() {
+      if (this.validPassword && this.passwordMatch) {
+        this.$emit('enter');
+      }
     },
   },
 };

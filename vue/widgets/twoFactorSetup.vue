@@ -2,6 +2,9 @@
   <div>
     <LoadingBanner :promise="loadingPromise" title="Two Factor" :codes="errorCodes">
       Activating 2FA...
+      <template v-slot:success>
+        2FA activated!
+      </template>
     </LoadingBanner>
     <div v-if="secret" class="qrcode">
       <img :src="`api/ui/2fa/qrcode?secret=${secret}`" />
@@ -11,7 +14,7 @@
       <div class="column is-half">
         <div class="field is-grouped">
           <div class="control">
-            <input class="input is-primary" type="text" placeholder="Enter 2FA Code" v-model="code">
+            <input class="input is-primary" type="text" placeholder="Enter 2FA Code" v-model="code" @keypress.enter="activate">
           </div>
           <div class="control">
             <button class="button is-link" @click="activate">Activate</button>
@@ -50,7 +53,7 @@ export default {
     activate() {
       this.loadingPromise = axios.post('api/ui/2fa', { secret: this.secret, code: this.code })
         .then(() => {
-          this.$emit('submitted');
+          setTimeout(() => this.$emit('submitted'), 1500);
         });
     },
   },

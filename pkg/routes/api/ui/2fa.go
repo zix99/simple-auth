@@ -18,10 +18,8 @@ type tfaSetupResponse struct {
 }
 
 func (env *environment) routeSetup2FA(c echo.Context) error {
-	authContext := auth.MustGetAuthContext(c)
-
 	config := env.config.Login.TwoFactor
-	t, err := totp.NewTOTP(config.KeyLength, config.Issuer, authContext.UUID)
+	t, err := totp.NewTOTP(config.KeyLength, "", "")
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}
@@ -35,12 +33,17 @@ func (env *environment) route2FAQRCodeImage(c echo.Context) error {
 	config := env.config.Login.TwoFactor
 	authContext := auth.MustGetAuthContext(c)
 
+	account, err := env.localLoginService.FindAuthLocal(authContext.UUID)
+	if err != nil {
+		return common.HttpInternalError(c, err)
+	}
+
 	secret := c.QueryParam("secret")
 	if secret == "" {
 		return common.HttpBadRequest(c, errors.New("missing secret"))
 	}
 
-	t, err := totp.FromSecret(secret, config.Issuer, authContext.UUID)
+	t, err := totp.FromSecret(secret, config.Issuer, account.Account().Email)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}

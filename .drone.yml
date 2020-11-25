@@ -38,6 +38,8 @@ steps:
       - go generate ./...
     when:
       branch: ['master']
+    depends_on:
+      - Node Dist
 
   - name: Server Test
     image: golang:1.14

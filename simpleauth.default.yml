@@ -89,6 +89,7 @@ authenticators:
 api:
     external: false
     sharedsecret: ""
+    throttleduration: 1s
 db:
     driver: "sqlite3"
     url: "simpleauth.db"

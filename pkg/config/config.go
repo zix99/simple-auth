@@ -152,8 +152,9 @@ type ConfigEmail struct {
 }
 
 type ConfigAPI struct {
-	External     bool // If true, allows external API calls (outside of session API)
-	SharedSecret string
+	External         bool // If true, allows external API calls (outside of session API)
+	SharedSecret     string
+	ThrottleDuration string // Parsed as Duration, represents a delay from any major action (Helps mitigate brute-force attacks)
 }
 
 // Config represents the root configuration

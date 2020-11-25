@@ -6,9 +6,11 @@ import (
 	authAPI "simple-auth/pkg/routes/api/auth"
 	"simple-auth/pkg/routes/api/ui"
 	v1 "simple-auth/pkg/routes/api/v1"
+	saMiddleware "simple-auth/pkg/routes/middleware"
 	"simple-auth/pkg/routes/middleware/selector"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 	"simple-auth/pkg/services"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -61,9 +63,12 @@ func buildPublicAuthMiddleware(config *config.ConfigAPI) echo.MiddlewareFunc {
 		)
 	}
 
+	throttleDuration, _ := time.ParseDuration(config.ThrottleDuration)
+	throttleMiddleware := saMiddleware.NewThrottleGroup(1, throttleDuration)
 	selectorGroups = append(selectorGroups, selector.NewSelectorGroup(
 		selector.SelectorAlways,
 		middleware.CSRF(),
+		throttleMiddleware,
 	))
 
 	return selector.NewSelectorMiddleware(selectorGroups...)

@@ -33,7 +33,7 @@
       <div class="field">
         <label class="label">Username</label>
         <div class="control has-icons-left has-icons-right">
-          <input class="input" type="text" placeholder="Text Input" v-model="username">
+          <input class="input" type="text" placeholder="Text Input" v-model="username" @keyup="checkUsername">
           <span class="icon is-small is-left">
             <fa-icon icon="user" />
           </span>
@@ -46,6 +46,17 @@
         </p>
         <p class="help is-danger" v-if="!validUsernameCharacters && validUsername">
           Username contains invalid characters. Expected {{appdata.requirements.UsernameRegex}}
+        </p>
+        <p class="help" v-if="checkingUsername">
+          <fa-icon icon="circle-notch" spin /> Checking username...
+        </p>
+        <p class="help" v-if="!checkingUsername && usernameAvailableResponse">
+          <template v-if="usernameAvailableResponse.exists">
+            <fa-icon icon="exclamation-triangle" /> {{usernameAvailableResponse.username}} is already taken
+          </template>
+          <template v-else>
+            <fa-icon icon="check" /> {{usernameAvailableResponse.username}} is available
+          </template>
         </p>
       </div>
 
@@ -89,6 +100,7 @@ import axios from 'axios';
 import CenterCard from '../components/centerCard.vue';
 import RecaptchaV2 from '../components/recaptchav2.vue';
 import ValidatedPasswordInput from '../components/validatedPasswordInput.vue';
+import debounce from '../lib/debounce';
 
 export default {
   props: {
@@ -124,6 +136,10 @@ export default {
       loading: false,
       error: null,
       createdAccountId: null,
+
+      // live-update
+      checkingUsername: false,
+      usernameAvailableResponse: null,
     };
   },
   components: {
@@ -148,6 +164,21 @@ export default {
     },
   },
   methods: {
+    checkUsername: debounce(function checkUsername() {
+      if (this.checkingUsername || !this.validUsername || !this.validUsernameCharacters) {
+        return;
+      }
+      this.checkingUsername = true;
+      axios.post('api/v1/account/check', { username: this.username })
+        .then((resp) => {
+          this.usernameAvailableResponse = resp.data;
+        }).finally(() => {
+          this.checkingUsername = false;
+          if (this.usernameAvailableResponse.username !== this.username) {
+            this.checkUsername();
+          }
+        });
+    }, 200),
     submitClick() {
       this.error = null;
 

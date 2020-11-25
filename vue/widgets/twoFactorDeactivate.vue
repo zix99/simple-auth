@@ -38,7 +38,7 @@ export default {
   },
   methods: {
     deactivate() {
-      this.loadingPromise = axios.delete(`api/ui/2fa?code=${this.code}`)
+      this.loadingPromise = axios.delete(`api/v1/2fa?code=${this.code}`)
         .then(() => {
           this.$emit('submitted');
         });

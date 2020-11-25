@@ -20,11 +20,20 @@ import (
 func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 	v1api := e.Group("/v1")
 	{
-		// API
+		// Public API
+		v1Env := v1.NewEnvironment(&config.Web, db)
 		{
 			publicAuth := buildPublicAuthMiddleware(&config.API)
-			v1Env := v1.NewEnvironment(&config.Web, db)
 			v1api.POST("/account/check", v1Env.RouteCheckUsername, publicAuth)
+		}
+		{
+			privateAuth := buildPrivateAuthMiddleware(&config.Web.Login.Cookie, &config.API)
+			if config.Web.Login.TwoFactor.Enabled {
+				v1api.GET("/2fa", v1Env.RouteSetup2FA, privateAuth)
+				v1api.GET("/2fa/qrcode", v1Env.Route2FAQRCodeImage, privateAuth)
+				v1api.POST("/2fa", v1Env.RouteConfirm2FA, privateAuth)
+				v1api.DELETE("/2fa", v1Env.RouteDeactivate2FA, privateAuth)
+			}
 		}
 
 		// Attach authenticator routes
@@ -70,6 +79,21 @@ func buildPublicAuthMiddleware(config *config.ConfigAPI) echo.MiddlewareFunc {
 		middleware.CSRF(),
 		throttleMiddleware,
 	))
+
+	return selector.NewSelectorMiddleware(selectorGroups...)
+}
+
+func buildPrivateAuthMiddleware(sessionConfig *config.ConfigLoginCookie, apiConfig *config.ConfigAPI) echo.MiddlewareFunc {
+	var selectorGroups []selector.SelectorGroup
+
+	csrf := middleware.CSRF()
+	selectorGroups = append(selectorGroups, auth.NewSessionAuthProvider(&sessionConfig.JWT, csrf))
+
+	if apiConfig.External {
+		selectorGroups = append(selectorGroups, auth.NewSharedSecretWithAccountAuth(apiConfig.SharedSecret))
+	}
+
+	selectorGroups = append(selectorGroups, selector.HandlerUnauthorized())
 
 	return selector.NewSelectorMiddleware(selectorGroups...)
 }

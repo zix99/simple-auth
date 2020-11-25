@@ -19,9 +19,21 @@ type Totp struct {
 	Issuer  string
 }
 
-func NewTOTP(keylen int, issuer, subject string) (*Totp, error) {
+func CreateSecret(keylen int) ([]byte, error) {
 	key := make([]byte, keylen)
 	if n, err := rand.Read(key); err != nil || n != keylen {
+		return nil, err
+	}
+	return key, nil
+}
+
+func EncodeSecretb32(secret []byte) string {
+	return strings.ToUpper(base32.StdEncoding.EncodeToString(secret))
+}
+
+func NewTOTP(keylen int, issuer, subject string) (*Totp, error) {
+	key, err := CreateSecret(keylen)
+	if err != nil {
 		return nil, err
 	}
 
@@ -102,7 +114,7 @@ func (s *Totp) String() string {
 }
 
 func (s *Totp) Secret() string {
-	return strings.ToUpper(base32.StdEncoding.EncodeToString(s.secret))
+	return EncodeSecretb32(s.secret)
 }
 
 func (s *Totp) GetHOTP(interval int64) string {

@@ -46,7 +46,7 @@ func SharedSecretSelector(secret string) selector.MiddlewareSelector {
 	}
 }
 
-func SharedSecretWithAccountMiddleware(secret string) AuthHandler {
+func SharedSecretWithAccountAuthMiddleware(secret string) AuthHandler {
 	return func(c echo.Context) (*AuthContext, error) {
 		if err := checkSecret(secret, c); err != nil {
 			return nil, err
@@ -67,7 +67,7 @@ func SharedSecretWithAccountMiddleware(secret string) AuthHandler {
 func NewSharedSecretWithAccountAuth(secret string, middleware ...echo.MiddlewareFunc) selector.SelectorGroup {
 	return NewAuthSelectorGroup(
 		SharedSecretSelector(secret),
-		SharedSecretWithAccountMiddleware(secret),
+		SharedSecretWithAccountAuthMiddleware(secret),
 		middleware...,
 	)
 }

@@ -7,7 +7,8 @@ if [[ $* != *--nobuild* ]]; then
 fi
 
 ./simple-auth-server --verbose --staticfromdisk \
-  --api-external=true --api-sharedsecret=super-secret &
+  --api-external=true --api-sharedsecret=super-secret \
+  --web-login-twofactor-enabled &
 echo "PID: $!"
 
 sleep 0.5

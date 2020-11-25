@@ -11,6 +11,7 @@ import (
 
 var testLocalLogin LocalLoginService
 var testLocalLoginAccount *db.Account
+var testAuthLocalAccount *db.AuthLocal
 var (
 	testLocalEmail    = "test@locallogin.com"
 	testLocalUsername = "test-user"
@@ -27,7 +28,7 @@ func init() {
 	})
 
 	testLocalLoginAccount, _ = sadb.CreateAccount(testLocalEmail)
-	sadb.CreateAuthLocal(testLocalLoginAccount, testLocalUsername, testLocalPassword)
+	testAuthLocalAccount, _ = sadb.CreateAuthLocal(testLocalLoginAccount, testLocalUsername, testLocalPassword)
 }
 
 func TestAssertLoginSuccess(t *testing.T) {

@@ -41,7 +41,7 @@ func NewAuthMiddleware(handler AuthHandler) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			context, err := handler(c)
-			if context == nil || !context.valid() {
+			if context == nil || !context.valid() || err != nil {
 				return c.JSON(http.StatusUnauthorized,
 					jsonErrorf("unauthorized", fmt.Sprintf("Unable to authenticate: %s", err.Error())))
 			}

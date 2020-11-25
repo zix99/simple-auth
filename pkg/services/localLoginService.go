@@ -15,7 +15,7 @@ type LocalLoginService interface {
 	AssertLoginCredentialsOnly(username, password string) (*db.AuthLocal, error)
 	AssertLogin(username, password string, totpCode *string) (*db.AuthLocal, error)
 
-	ActivateTOTP(authLocal *db.AuthLocal, secret, code string) error
+	ActivateTOTP(authLocal *db.AuthLocal, otp *totp.Totp, code string) error
 	DeactivateTOTP(authLocal *db.AuthLocal, code string) error
 
 	UpdatePassword(authLocal *db.AuthLocal, oldPassword string, newPassword string) error
@@ -131,17 +131,12 @@ func (s *localLoginService) assertLoginCredentials(localAuth *db.AuthLocal, pass
 	return nil
 }
 
-func (s *localLoginService) ActivateTOTP(authLocal *db.AuthLocal, secret, verificationCode string) error {
-	t, err := totp.FromSecret(secret, s.tfConfig.Issuer, authLocal.Account().Email)
-	if err != nil {
-		return err
-	}
-
-	if !t.Validate(verificationCode, s.tfConfig.Drift) {
+func (s *localLoginService) ActivateTOTP(authLocal *db.AuthLocal, otp *totp.Totp, verificationCode string) error {
+	if !otp.Validate(verificationCode, s.tfConfig.Drift) {
 		return LocalTOTPFailed.New()
 	}
 
-	tStr := t.String()
+	tStr := otp.String()
 	if err := s.dbAuth.UpdateAuthLocalTOTP(authLocal, &tStr); err != nil {
 		return err
 	}

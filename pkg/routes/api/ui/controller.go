@@ -67,13 +67,6 @@ func (env *environment) Mount(group *echo.Group) {
 		group.GET("/account/audit", env.routeAccountAudit, authProvider)
 		group.POST("/account/password", env.routeChangePassword, authProvider)
 		group.GET("/account/password", env.routeChangePasswordRequirements, authProvider)
-
-		if env.config.Login.TwoFactor.Enabled {
-			group.GET("/2fa", env.routeSetup2FA, authProvider)
-			group.GET("/2fa/qrcode", env.route2FAQRCodeImage, authProvider)
-			group.POST("/2fa", env.routeConfirm2FA, authProvider)
-			group.DELETE("/2fa", env.routeDeactivate2FA, authProvider)
-		}
 	}
 
 }

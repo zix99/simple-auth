@@ -7,7 +7,7 @@
       </template>
     </LoadingBanner>
     <div v-if="secret" class="qrcode">
-      <img :src="`api/ui/2fa/qrcode?secret=${secret}`" />
+      <img :src="`api/v1/2fa/qrcode?secret=${secret}`" />
       <span class="is-size-7">{{secret}}</span>
     </div>
     <div class="columns is-centered">
@@ -44,14 +44,14 @@ export default {
     };
   },
   created() {
-    axios.get('api/ui/2fa')
+    axios.get('api/v1/2fa')
       .then((resp) => {
         this.secret = resp.data.secret;
       });
   },
   methods: {
     activate() {
-      this.loadingPromise = axios.post('api/ui/2fa', { secret: this.secret, code: this.code })
+      this.loadingPromise = axios.post('api/v1/2fa', { secret: this.secret, code: this.code })
         .then(() => {
           setTimeout(() => this.$emit('submitted'), 1500);
         });

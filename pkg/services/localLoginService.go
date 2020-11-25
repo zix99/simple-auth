@@ -92,7 +92,7 @@ func (s *localLoginService) AssertLogin(username, password string, totpCode *str
 		}
 		if !localAuth.VerifyTOTP(*totpCode, s.tfConfig.Drift) {
 			s.dbAudit.CreateAuditRecord(localAuth, db.AuditModuleLocal, db.AuditLevelWarn, "TOTP Rejected")
-			return nil, LocalTOTPFailed.New() // FIXME
+			return nil, LocalTOTPFailed.New()
 		}
 	}
 

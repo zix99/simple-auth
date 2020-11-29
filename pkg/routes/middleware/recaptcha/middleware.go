@@ -8,7 +8,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const errorMissingRecaptchaValue saerrors.ErrorCode = "missing-recaptchv2-value"
+const (
+	errorMissingRecaptchaValue saerrors.ErrorCode = "missing-recaptchv2-value"
+	errorInvalidRecaptcha      saerrors.ErrorCode = "invalid-recaptcha"
+)
 
 // MiddlewareV2 looks for a recaptcha value in the request, and blocks a response if the value is not valid
 // Token must be on query, can't read in body
@@ -24,7 +27,7 @@ func MiddlewareV2(secret string) echo.MiddlewareFunc {
 			}
 
 			if err := validator.Validate(token); err != nil {
-				return common.HttpError(c, http.StatusForbidden, err)
+				return common.HttpError(c, http.StatusForbidden, errorInvalidRecaptcha.Compose(err))
 			}
 
 			return next(c)

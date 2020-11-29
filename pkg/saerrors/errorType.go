@@ -26,7 +26,7 @@ func (s *codedError) Error() string {
 	if s.cause != nil {
 		return s.Message() + ": " + s.cause.Error()
 	}
-	return s.cause.Error()
+	return s.Message()
 }
 
 func (s *codedError) Unwrap() error {

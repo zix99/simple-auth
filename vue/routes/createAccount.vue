@@ -187,17 +187,18 @@ export default {
         password: this.password,
         email: this.email,
       };
+      const queryData = {};
 
       if (this.appdata.recaptchav2.enabled) {
-        postData.recaptchav2 = this.$refs.recaptchav2.getResponse();
-        if (!postData.recaptchav2) {
+        queryData.recaptchav2 = this.$refs.recaptchav2.getResponse();
+        if (!queryData.recaptchav2) {
           this.error = 'Please accept RECAPTCHA';
           return;
         }
       }
 
       this.loading = true;
-      axios.post('api/ui/account', postData)
+      axios.post('api/v1/account', postData, { params: queryData })
         .then((resp) => {
           if (resp.status !== 201) throw new Error('Error creating account');
           this.createdAccountId = resp.data.id;

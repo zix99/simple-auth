@@ -3,10 +3,12 @@ package api
 import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
+	"simple-auth/pkg/email"
 	authAPI "simple-auth/pkg/routes/api/auth"
 	"simple-auth/pkg/routes/api/ui"
 	v1 "simple-auth/pkg/routes/api/v1"
 	saMiddleware "simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/routes/middleware/recaptcha"
 	"simple-auth/pkg/routes/middleware/selector"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 	"simple-auth/pkg/services"
@@ -21,10 +23,14 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 	v1api := e.Group("/v1")
 	{
 		// Public API
-		v1Env := v1.NewEnvironment(&config.Web, db)
+		v1Env := v1.NewEnvironment(config, db)
 		{
-			publicAuth := buildPublicAuthMiddleware(&config.API)
+			publicAuth := buildPublicAuthMiddleware(&config.API, nil)
+			publicAuthWithRecaptcha := buildPublicAuthMiddleware(&config.API, &config.Web.RecaptchaV2)
 			v1api.POST("/account/check", v1Env.RouteCheckUsername, publicAuth)
+			if config.Web.Login.Settings.CreateAccountEnabled {
+				v1api.POST("/account", v1Env.RouteCreateAccount, publicAuthWithRecaptcha)
+			}
 		}
 		{
 			privateAuth := buildPrivateAuthMiddleware(&config.Web.Login.Cookie, &config.API)
@@ -43,7 +49,9 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 		}
 		if config.Authenticators.Simple.Enabled {
 			route := v1api.Group("/auth/simple")
-			authAPI.NewSimpleAuthController(services.NewLocalLoginService(db, &config.Web.Login.TwoFactor), &config.Authenticators.Simple).Mount(route)
+			emailService := email.NewFromConfig(logrus.StandardLogger(), &config.Email)
+			loginService := services.NewLocalLoginService(db, emailService, &config.Metadata, &config.Web.Login.TwoFactor, &config.Web.Requirements, config.Web.GetBaseURL())
+			authAPI.NewSimpleAuthController(loginService, &config.Authenticators.Simple).Mount(route)
 		}
 		if config.Authenticators.Vouch.Enabled {
 			route := v1api.Group("/auth/vouch")
@@ -59,7 +67,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 	}
 }
 
-func buildPublicAuthMiddleware(config *config.ConfigAPI) echo.MiddlewareFunc {
+func buildPublicAuthMiddleware(config *config.ConfigAPI, recaptcha *config.ConfigRecaptchaV2) echo.MiddlewareFunc {
 	var selectorGroups []selector.SelectorGroup
 
 	if config.External {
@@ -74,10 +82,12 @@ func buildPublicAuthMiddleware(config *config.ConfigAPI) echo.MiddlewareFunc {
 
 	throttleDuration, _ := time.ParseDuration(config.ThrottleDuration)
 	throttleMiddleware := saMiddleware.NewThrottleGroup(1, throttleDuration)
+	recaptchaMiddleware := buildRecaptchaMiddleware(recaptcha)
 	selectorGroups = append(selectorGroups, selector.NewSelectorGroup(
 		selector.SelectorAlways,
 		middleware.CSRF(),
 		throttleMiddleware,
+		recaptchaMiddleware,
 	))
 
 	return selector.NewSelectorMiddleware(selectorGroups...)
@@ -96,4 +106,11 @@ func buildPrivateAuthMiddleware(sessionConfig *config.ConfigLoginCookie, apiConf
 	selectorGroups = append(selectorGroups, selector.HandlerUnauthorized())
 
 	return selector.NewSelectorMiddleware(selectorGroups...)
+}
+
+func buildRecaptchaMiddleware(config *config.ConfigRecaptchaV2) echo.MiddlewareFunc {
+	if config == nil || !config.Enabled {
+		return nil
+	}
+	return recaptcha.MiddlewareV2(config.Secret)
 }

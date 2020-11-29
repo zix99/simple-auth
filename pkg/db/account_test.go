@@ -7,7 +7,7 @@ import (
 )
 
 func TestCreateAccount(t *testing.T) {
-	account, err := sadb.CreateAccount("me@asdf.com")
+	account, err := sadb.CreateAccount("test", "me@asdf.com")
 	assert.NoError(t, err)
 	assert.Equal(t, "me@asdf.com", account.Email)
 	assert.True(t, account.Active)
@@ -15,14 +15,14 @@ func TestCreateAccount(t *testing.T) {
 }
 
 func TestCreateAccountDupeEmails(t *testing.T) {
-	sadb.CreateAccount("dupe@asdf.com")
-	account, err := sadb.CreateAccount("dupe@asdf.com")
+	sadb.CreateAccount("test", "dupe@asdf.com")
+	account, err := sadb.CreateAccount("test", "dupe@asdf.com")
 	assert.Error(t, err)
 	assert.Nil(t, account)
 }
 
 func TestFindAccount(t *testing.T) {
-	newAccount, _ := sadb.CreateAccount("findme@asdf.com")
+	newAccount, _ := sadb.CreateAccount("test", "findme@asdf.com")
 	account, err := sadb.FindAccount(newAccount.UUID)
 	assert.NoError(t, err)
 	assert.Equal(t, newAccount.ID, account.ID)

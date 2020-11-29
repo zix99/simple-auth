@@ -12,7 +12,7 @@ var oidcAccount *db.Account
 const oidcEmail = "oidc-test@asdf.com"
 
 func createOIDCMock() {
-	oidcAccount, _ = sadb.CreateAccount(oidcEmail)
+	oidcAccount, _ = sadb.CreateAccount("test", oidcEmail)
 }
 
 func TestCreateOIDCOnAccount(t *testing.T) {
@@ -43,7 +43,7 @@ func TestMissingOIDCAccount(t *testing.T) {
 }
 
 func TestTwoProviderLookup(t *testing.T) {
-	account, _ := sadb.CreateAccount("2-" + oidcEmail)
+	account, _ := sadb.CreateAccount("test", "2-"+oidcEmail)
 	assert.NoError(t, sadb.CreateOIDCForAccount(account, "p1", "abcdq"))
 	assert.NoError(t, sadb.CreateOIDCForAccount(account, "p2", "abcdn"))
 

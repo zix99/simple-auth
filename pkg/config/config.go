@@ -30,11 +30,12 @@ type ConfigAuthencatorSet struct {
 }
 
 type ConfigWebRequirements struct {
-	UsernameRegex     string // Regex match for allowed username characters (server & client enforced)
-	PasswordMinLength int
-	PasswordMaxLength int
-	UsernameMinLength int
-	UsernameMaxLength int
+	UsernameRegex           string // Regex match for allowed username characters (server & client enforced)
+	PasswordMinLength       int
+	PasswordMaxLength       int
+	UsernameMinLength       int
+	UsernameMaxLength       int
+	EmailValidationRequired bool
 }
 
 type ConfigRecaptchaV2 struct {
@@ -81,11 +82,10 @@ type ConfigOIDCProvider struct {
 }
 
 type ConfigLoginSettings struct {
-	CreateAccountEnabled    bool
-	EmailValidationRequired bool
-	RouteOnLogin            string
-	AllowedContinueUrls     []string
-	ThrottleDuration        string // Parsed as Duration, represents a delay from any major action (Helps mitigate brute-force attacks)
+	CreateAccountEnabled bool
+	RouteOnLogin         string
+	AllowedContinueUrls  []string
+	ThrottleDuration     string // Parsed as Duration, represents a delay from any major action (Helps mitigate brute-force attacks)
 }
 
 type OneTimeConfig struct {

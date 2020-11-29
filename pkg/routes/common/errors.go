@@ -42,17 +42,17 @@ func HttpInternalErrorf(c echo.Context, err string) error {
 func HttpError(c echo.Context, code int, err error) error {
 	var saerr saerrors.CodedError
 	if errors.As(err, &saerr) {
-		return httpErrorCoded(c, code, string(saerr.Code()), saerr.Message())
+		return httpErrorCoded(c, code, string(saerr.Code()), saerr.Message(), saerr.Error())
 	}
-	return httpErrorCoded(c, code, "no-code", err.Error())
+	return httpErrorCoded(c, code, "no-code", err.Error(), err.Error())
 }
 
-func httpErrorCoded(c echo.Context, code int, reason, err string) error {
+func httpErrorCoded(c echo.Context, code int, reason, message, fullError string) error {
 	log := middleware.GetLogger(c)
-	log.Warnf("%d [%s]: %s", code, reason, err)
+	log.Warnf("%d [%s]: %s", code, reason, fullError)
 	return c.JSON(code, ErrorResponse{
 		Error:   true,
-		Message: err,
+		Message: message,
 		Reason:  reason,
 	})
 }

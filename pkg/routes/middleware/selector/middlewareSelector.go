@@ -13,11 +13,12 @@ type (
 )
 
 func NewSelectorGroup(selector MiddlewareSelector, middleware ...echo.MiddlewareFunc) SelectorGroup {
+	noNilMiddleware := coalesceMiddleware(middleware...)
 	return func(next echo.HandlerFunc, c echo.Context) (bool, error) {
 		if err := selector(c); err != nil {
 			return false, fmt.Errorf("auth not handled: %w", err)
 		}
-		return true, chainMiddleware(next, middleware...)(c)
+		return true, chainMiddleware(next, noNilMiddleware...)(c)
 	}
 }
 
@@ -28,6 +29,16 @@ func chainMiddleware(next echo.HandlerFunc, middleware ...echo.MiddlewareFunc) e
 		})
 	}
 	return next
+}
+
+func coalesceMiddleware(middleware ...echo.MiddlewareFunc) []echo.MiddlewareFunc {
+	ret := make([]echo.MiddlewareFunc, 0)
+	for _, v := range middleware {
+		if v != nil {
+			ret = append(ret, v)
+		}
+	}
+	return ret
 }
 
 func NewSelectorMiddleware(selectorGroups ...SelectorGroup) echo.MiddlewareFunc {

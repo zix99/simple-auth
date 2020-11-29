@@ -4,12 +4,27 @@ const config = require('../../config');
 
 const routes = [
   ['GET', '/api/v1/2fa', null],
-  // ['GET', '/api/v1/2fa/qrcode', { secret: 'ORDRZHDCYXU435ETZCIQ====' }],
+  ['GET', '/api/v1/2fa/qrcode', { secret: 'ORDRZHDCYXU435ETZCIQ====' }],
   // ['POST', '/api/v1/2fa', { secret: 'ORDRZHDCYXU435ETZCIQ====', code: '123' }],
   // ['DELETE', '/api/v1/2fa', { code: '123' }],
 ];
 
 describe('route-surface#private', () => {
+  let testUser = null;
+  before(() => {
+    return http.post('/api/v1/account', {
+      username: 'privtest',
+      password: 'test-pass',
+      email: 'tps@example.com',
+    }, {
+      headers: {
+        Authorization: `SharedKey ${config.apiSharedKey}`,
+      },
+    }).then((resp) => {
+      testUser = resp.data;
+    });
+  });
+
   routes.forEach((route) => {
     const [method, url, payload] = route;
 
@@ -58,7 +73,7 @@ describe('route-surface#private', () => {
         url,
         headers: {
           Authorization: `SharedKey ${config.apiSharedKey}`,
-          'X-Account-UUID': 'abcdefg', // FIXME, should be a valid user (but need to port create-user api first)
+          'X-Account-UUID': testUser.id,
         },
       };
 

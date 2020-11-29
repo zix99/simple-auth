@@ -8,7 +8,7 @@ import (
 )
 
 func TestTokenStipulation(t *testing.T) {
-	account, _ := sadb.CreateAccount("stip@asdf.com")
+	account, _ := sadb.CreateAccount("test", "stip@asdf.com")
 
 	assert.False(t, sadb.AccountHasUnsatisfiedStipulations(account))
 
@@ -36,7 +36,7 @@ func TestTokenStipulation(t *testing.T) {
 }
 
 func TestUpdateAllStipulations(t *testing.T) {
-	account, _ := sadb.CreateAccount("stip2@asdf.com")
+	account, _ := sadb.CreateAccount("test", "stip2@asdf.com")
 
 	assert.NoError(t, sadb.AddStipulation(account, db.NewTokenStipulation()))
 	assert.NoError(t, sadb.AddStipulation(account, &db.ManualStipulation{}))

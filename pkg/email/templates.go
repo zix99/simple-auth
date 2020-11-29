@@ -1,10 +1,8 @@
 package email
 
 import (
-	"os"
-	"path/filepath"
 	"simple-auth/pkg/lib/multitemplate"
-	"strings"
+	"simple-auth/pkg/testutil"
 )
 
 var templateDefinitions = map[string][]string{
@@ -16,11 +14,8 @@ var templateEngine multitemplate.TemplateRenderer
 
 func init() {
 	// HACK: When testing, make sure we're in the correct path to build the templates
-	if strings.HasSuffix(os.Args[0], ".test") {
-		cwd, _ := os.Getwd()
-		if strings.HasSuffix(cwd, "/pkg/email") {
-			os.Chdir(filepath.Join(cwd, "../../"))
-		}
+	if testutil.IsTesting() {
+		testutil.SetRootWorkDir()
 	}
 	templateEngine = multitemplate.New().LoadTemplates(templateDefinitions)
 }

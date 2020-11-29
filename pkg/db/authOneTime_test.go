@@ -9,7 +9,7 @@ import (
 )
 
 func TestIssueOneTime(t *testing.T) {
-	account, _ := sadb.CreateAccount("onetime1@asdf.com")
+	account, _ := sadb.CreateAccount("test", "onetime1@asdf.com")
 	assert.NotNil(t, account)
 	ott, err := sadb.CreateAccountOneTimeToken(account, 5*time.Minute)
 	assert.NoError(t, err)
@@ -17,7 +17,7 @@ func TestIssueOneTime(t *testing.T) {
 }
 
 func TestIssueResolveOneTime(t *testing.T) {
-	account, _ := sadb.CreateAccount("onetime2@asdf.com")
+	account, _ := sadb.CreateAccount("test", "onetime2@asdf.com")
 	assert.NotNil(t, account)
 	ott, _ := sadb.CreateAccountOneTimeToken(account, 5*time.Minute)
 
@@ -40,7 +40,7 @@ func TestAssertInvalidOneTime(t *testing.T) {
 }
 
 func TestCantDoubleConsumeOneTime(t *testing.T) {
-	account, _ := sadb.CreateAccount("onetime3@asdf.com")
+	account, _ := sadb.CreateAccount("test", "onetime3@asdf.com")
 	assert.NotNil(t, account)
 	ott, _ := sadb.CreateAccountOneTimeToken(account, 5*time.Minute)
 
@@ -55,7 +55,7 @@ func TestCantDoubleConsumeOneTime(t *testing.T) {
 }
 
 func TestCantConsumeExpiredToken(t *testing.T) {
-	account, _ := sadb.CreateAccount("onetime4@asdf.com")
+	account, _ := sadb.CreateAccount("test", "onetime4@asdf.com")
 	assert.NotNil(t, account)
 	ott, _ := sadb.CreateAccountOneTimeToken(account, 0*time.Minute)
 

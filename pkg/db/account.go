@@ -9,7 +9,7 @@ import (
 )
 
 type AccountStore interface {
-	CreateAccount(email string) (*Account, error)
+	CreateAccount(name, email string) (*Account, error)
 	FindAccount(uuid string) (*Account, error)
 	FindAccountByEmail(email string) (*Account, error)
 }
@@ -22,6 +22,7 @@ type AccountProvider interface {
 type Account struct {
 	gorm.Model
 	UUID   string `gorm:"type:varchar(64);unique_index;not null"`
+	Name   string `gorm:"type:varchar(256);not null"`
 	Email  string `gorm:"type:varchar(256);unique_index;not null"`
 	Active bool   `gorm:"not null"`
 }
@@ -30,7 +31,7 @@ func (s *Account) Account() *Account {
 	return s
 }
 
-func (s *sadb) CreateAccount(email string) (*Account, error) {
+func (s *sadb) CreateAccount(name, email string) (*Account, error) {
 	email = strings.TrimSpace(strings.ToLower(email))
 	if email == "" {
 		return nil, errors.New("invalid email")
@@ -38,6 +39,7 @@ func (s *sadb) CreateAccount(email string) (*Account, error) {
 
 	account := &Account{
 		UUID:   uuid.New().String(),
+		Name:   name,
 		Email:  email,
 		Active: true,
 	}

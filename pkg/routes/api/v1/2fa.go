@@ -30,14 +30,14 @@ func (env *Environment) RouteSetup2FA(c echo.Context) error {
 func (env *Environment) Route2FAQRCodeImage(c echo.Context) error {
 	authContext := auth.MustGetAuthContext(c)
 
-	authLocal, err := env.localLoginService.FindAuthLocal(authContext.UUID)
-	if err != nil {
-		return common.HttpInternalError(c, err)
-	}
-
 	secret := c.QueryParam("secret")
 	if secret == "" {
 		return common.HttpBadRequest(c, errors.New("missing secret"))
+	}
+
+	authLocal, err := env.localLoginService.FindAuthLocal(authContext.UUID)
+	if err != nil {
+		return common.HttpInternalError(c, err)
 	}
 
 	t, err := env.twoFactorService.CreateFullSpecFromSecret(secret, authLocal)

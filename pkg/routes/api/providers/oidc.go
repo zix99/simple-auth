@@ -91,7 +91,7 @@ func (env *OIDCController) routeAuthRedirect(c echo.Context) error {
 	qp := redirectURL.Query()
 	qp.Set("response_type", "code")
 	qp.Set("client_id", env.oidcConfig.ClientID)
-	qp.Set("scope", "openid email")
+	qp.Set("scope", "openid email profile")
 	qp.Set("redirect_uri", env.buildRedirectUri())
 	qp.Set("state", state)
 	qp.Set("nonce", uuid.New().String())
@@ -140,6 +140,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	type oidcClaims struct {
 		Email         string `json:"email"`
 		EmailVerified bool   `json:"email_verified"`
+		Name          string `json:"name"`
 		jwt.StandardClaims
 	}
 	parsedToken, _ := jwt.ParseWithClaims(token, &oidcClaims{}, nil)
@@ -167,7 +168,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 
 	// If not, try to create it
 	if env.loginConfig.CreateAccountEnabled {
-		account, err := env.db.CreateAccount(claims.Email)
+		account, err := env.db.CreateAccount(strCoalesce(claims.Name, claims.Email), claims.Email)
 		if err != nil {
 			return common.HttpInternalError(c, err)
 		}
@@ -232,4 +233,13 @@ func (env *OIDCController) getContinuationURL(c echo.Context) string {
 		return env.loginConfig.RouteOnLogin
 	}
 	return "/"
+}
+
+func strCoalesce(s ...string) string {
+	for _, v := range s {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
 }

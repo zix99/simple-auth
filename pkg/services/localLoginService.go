@@ -2,14 +2,20 @@ package services
 
 import (
 	"errors"
+	"fmt"
+	"html/template"
+	"regexp"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
+	"simple-auth/pkg/email"
 	"simple-auth/pkg/lib/totp"
 	"simple-auth/pkg/saerrors"
+	"unicode/utf8"
 )
 
 type LocalLoginService interface {
 	FindAuthLocal(accountUUID string) (*db.AuthLocal, error)
+	Create(account *db.Account, username, password string) (*db.AuthLocal, error)
 	UsernameExists(username string) (bool, error)
 
 	AssertLoginCredentialsOnly(username, password string) (*db.AuthLocal, error)
@@ -27,18 +33,26 @@ type localLoginService struct {
 	dbAuth         db.AccountAuthLocal
 	dbAudit        db.AccountAudit
 	dbStipulations db.AccountStipulations
+	emailService   *email.EmailService
+	metaConfig     *config.ConfigMetadata
 	tfConfig       *config.TwoFactorConfig
+	requirements   *config.ConfigWebRequirements
+	baseURL        string
 }
 
 var _ LocalLoginService = &localLoginService{}
 
-func NewLocalLoginService(db db.SADB, tfConfig *config.TwoFactorConfig) LocalLoginService {
+func NewLocalLoginService(db db.SADB, emailService *email.EmailService, metaConfig *config.ConfigMetadata, tfConfig *config.TwoFactorConfig, requirementConfig *config.ConfigWebRequirements, baseURL string) LocalLoginService {
 	return &localLoginService{
 		dbAccount:      db,
 		dbAuth:         db,
 		dbAudit:        db,
 		dbStipulations: db,
+		emailService:   emailService,
+		metaConfig:     metaConfig,
 		tfConfig:       tfConfig,
+		requirements:   requirementConfig,
+		baseURL:        baseURL,
 	}
 }
 
@@ -49,6 +63,7 @@ const (
 	LocalTOTPMissing             saerrors.ErrorCode = "totp-missing"
 	LocalTOTPFailed              saerrors.ErrorCode = "totp-failed"
 	LocalUnsatisfiedStipulations saerrors.ErrorCode = "unsatisfied-stipulations"
+	LocalCredentialRequirements  saerrors.ErrorCode = "credentials-failed-requirements"
 )
 
 func (s *localLoginService) FindAuthLocal(accountUUID string) (*db.AuthLocal, error) {
@@ -68,12 +83,74 @@ func (s *localLoginService) FindAuthLocal(accountUUID string) (*db.AuthLocal, er
 func (s *localLoginService) UsernameExists(username string) (bool, error) {
 	localAuth, err := s.dbAuth.FindAuthLocalByUsername(username)
 	if err != nil {
-		return false, err
+		return false, nil // FIXME: This is always an error-case the way the db func works
 	}
 	if localAuth != nil {
 		return true, nil
 	}
 	return false, nil
+}
+
+func (s *localLoginService) Create(account *db.Account, username, password string) (*db.AuthLocal, error) {
+	if err := s.validateUsername(username); err != nil {
+		return nil, LocalCredentialRequirements.Compose(err)
+	}
+	if err := s.validatePassword(password); err != nil {
+		return nil, LocalCredentialRequirements.Compose(err)
+	}
+
+	authLocal, err := s.dbAuth.CreateAuthLocal(account, username, password)
+	if err != nil {
+		return nil, err
+	}
+
+	if s.requirements.EmailValidationRequired {
+		stip := db.NewTokenStipulation()
+		s.dbStipulations.AddStipulation(account, stip)
+
+		go s.emailService.SendVerificationEmail(account.Email, &email.VerificationData{
+			EmailData: email.EmailData{
+				Company: s.metaConfig.Company,
+				BaseURL: s.baseURL,
+			},
+			ActivationLink: template.HTML(fmt.Sprintf("%s/#/activate?account=%s&token=%s", s.baseURL, account.UUID, stip.Code)),
+		})
+	}
+
+	return authLocal, err
+}
+
+func (s *localLoginService) validateUsername(username string) error {
+	ulen := utf8.RuneCountInString(username)
+	if ulen < s.requirements.UsernameMinLength {
+		return errors.New("username too short")
+	}
+	if ulen > s.requirements.UsernameMaxLength {
+		return errors.New("username too long")
+	}
+
+	if s.requirements.UsernameRegex != "" {
+		re, err := regexp.Compile(s.requirements.UsernameRegex)
+		if err != nil {
+			return errors.New("unable to parse valid username regex, ask your server admin to fix this")
+		}
+		if !re.MatchString(username) {
+			return errors.New("invalid username characters")
+		}
+	}
+
+	return nil
+}
+
+func (s *localLoginService) validatePassword(password string) error {
+	plen := utf8.RuneCountInString(password)
+	if plen < s.requirements.PasswordMinLength {
+		return errors.New("password too short")
+	}
+	if plen > s.requirements.PasswordMaxLength {
+		return errors.New("password too long")
+	}
+	return nil
 }
 
 func (s *localLoginService) AssertLogin(username, password string, totpCode *string) (*db.AuthLocal, error) {

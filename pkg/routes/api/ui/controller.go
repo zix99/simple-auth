@@ -3,9 +3,10 @@ package ui
 import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
-	"simple-auth/pkg/routes/api/ui/recaptcha"
+	"simple-auth/pkg/email"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/routes/middleware/recaptcha"
 	"simple-auth/pkg/routes/middleware/selector"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 	"simple-auth/pkg/services"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/sirupsen/logrus"
 )
 
 type environment struct {
@@ -25,9 +27,10 @@ type environment struct {
 }
 
 func NewController(db db.SADB, meta *config.ConfigMetadata, config *config.ConfigWeb, emailConfig *config.ConfigEmail) common.Controller {
+	emailService := email.NewFromConfig(logrus.StandardLogger(), emailConfig)
 	return &environment{
 		db:                db,
-		localLoginService: services.NewLocalLoginService(db, &config.Login.TwoFactor),
+		localLoginService: services.NewLocalLoginService(db, emailService, meta, &config.Login.TwoFactor, &config.Requirements, config.GetBaseURL()),
 		config:            config,
 		email:             emailConfig,
 		meta:              meta,
@@ -41,9 +44,6 @@ func (env *environment) Mount(group *echo.Group) {
 	recaptchaMiddleware := buildRecaptchaMiddleware(&env.config.RecaptchaV2)
 
 	{ // Insecure routes
-		if env.config.Login.Settings.CreateAccountEnabled {
-			group.POST("/account", env.routeCreateAccount, throttleMiddleware, csrf)
-		}
 		group.POST("/login", env.routeLogin, throttleMiddleware, csrf)
 		group.POST("/logout", env.routeLogout, csrf)
 

@@ -6,14 +6,16 @@ if [[ $* != *--nobuild* ]]; then
   go build -o simple-auth-server simple-auth/cmd/server
 fi
 
+rm quicktest.db
 ./simple-auth-server --verbose --staticfromdisk \
   --api-external=true --api-sharedsecret=super-secret \
-  --web-login-twofactor-enabled &
+  --web-login-twofactor-enabled \
+  --db-url=quicktest.db &
 echo "PID: $!"
 
 sleep 0.5
 echo "Waiting for server to come up..."
-for i in `seq 1 10`; do
+for i in `seq 1 50`; do
   if $(curl -o /dev/null --fail --silent "http://localhost:9002/health"); then
     break
   fi

@@ -10,7 +10,7 @@ import (
 var auditAccount *db.Account
 
 func createAuditMock() {
-	auditAccount, _ = sadb.CreateAccount("audit-test@asdf.com")
+	auditAccount, _ = sadb.CreateAccount("test", "audit-test@asdf.com")
 }
 
 func hasEvent(records []db.AccountAuditRecord, title string) bool {

@@ -15,7 +15,7 @@ const authTokenUsername = "authtoken"
 const authTokenPassword = "howdy"
 
 func createAuthTokenMock() {
-	authTokenAccount, _ = sadb.CreateAccount(authTokenEmail)
+	authTokenAccount, _ = sadb.CreateAccount("test", authTokenEmail)
 	sadb.CreateAuthLocal(authTokenAccount, authTokenUsername, authTokenPassword)
 }
 

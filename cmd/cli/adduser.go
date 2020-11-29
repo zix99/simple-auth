@@ -20,12 +20,13 @@ var cmdAddUser = &cli.Command{
 func funcAddUser(c *cli.Context) error {
 	config := config.Load(false)
 
-	email := c.Args().Get(0)
-	username := c.Args().Get(1)
-	password := c.Args().Get(2)
+	name := c.Args().Get(0)
+	email := c.Args().Get(1)
+	username := c.Args().Get(2)
+	password := c.Args().Get(3)
 
 	if email == "" || username == "" {
-		return errors.New("please specify <email> <username> [password]")
+		return errors.New("please specify <name> <email> <username> [password]")
 	}
 
 	fmt.Printf("Email:    %s\n", email)
@@ -41,7 +42,7 @@ func funcAddUser(c *cli.Context) error {
 
 	fmt.Println("Creating account...")
 	db := db.New(config.Db.Driver, config.Db.URL)
-	account, err := db.CreateAccount(email)
+	account, err := db.CreateAccount(name, email)
 	if err != nil {
 		return err
 	}

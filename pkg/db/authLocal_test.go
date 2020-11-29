@@ -15,7 +15,7 @@ const authSimpleUsername = "auth"
 const authSimplePassword = "blablabla22"
 
 func createAuthSimpleMock() {
-	authSimpleAccount, _ = sadb.CreateAccount(authSimpleEmail)
+	authSimpleAccount, _ = sadb.CreateAccount("test", authSimpleEmail)
 	sadb.CreateAuthLocal(authSimpleAccount, authSimpleUsername, authSimplePassword)
 }
 
@@ -45,7 +45,7 @@ func TestSimpleAuthLookupAccountNil(t *testing.T) {
 }
 
 func TestSimpleAuthLookupAccountNoLink(t *testing.T) {
-	account, _ := sadb.CreateAccount("no-simpleauth-account@asdf.com")
+	account, _ := sadb.CreateAccount("test", "no-simpleauth-account@asdf.com")
 	authLocal, err := sadb.FindAuthLocal(account)
 	assert.Empty(t, authLocal)
 	assert.Error(t, err)
@@ -74,7 +74,7 @@ func TestCreateDupeUsername(t *testing.T) {
 
 func TestUpdatePassword(t *testing.T) {
 	const changePassUsername = "change-pass-uname"
-	account, _ := sadb.CreateAccount("change-pass@asdf.com")
+	account, _ := sadb.CreateAccount("test", "change-pass@asdf.com")
 	assert.NotNil(t, account)
 	authLocal, _ := sadb.CreateAuthLocal(account, changePassUsername, authSimplePassword)
 
@@ -89,7 +89,7 @@ func TestUpdatePassword(t *testing.T) {
 func TestUpdateTOTP(t *testing.T) {
 	tfa, _ := totp.NewTOTP(12, "test", "test")
 
-	account, _ := sadb.CreateAccount("totp-test@asdf.com")
+	account, _ := sadb.CreateAccount("test", "totp-test@asdf.com")
 	authLocal, _ := sadb.CreateAuthLocal(account, "test-totp", "test-totp")
 
 	tStr := tfa.String()

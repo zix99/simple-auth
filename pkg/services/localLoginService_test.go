@@ -3,9 +3,12 @@ package services
 import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
+	"simple-auth/pkg/email"
+	"simple-auth/pkg/email/engine"
 	"simple-auth/pkg/lib/totp"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,14 +23,20 @@ var (
 
 func init() {
 	sadb := getDB()
-	testLocalLogin = NewLocalLoginService(sadb, &config.TwoFactorConfig{
+	mockEmailService := email.New(logrus.StandardLogger(), engine.NewMockEngine(nil), "test@example.com")
+
+	testLocalLogin = NewLocalLoginService(sadb, mockEmailService, &config.ConfigMetadata{
+		Company: "test-corp",
+	}, &config.TwoFactorConfig{
 		Enabled:   true,
 		Drift:     1,
 		Issuer:    "test",
 		KeyLength: 12,
-	})
+	}, &config.ConfigWebRequirements{
+		EmailValidationRequired: true,
+	}, "http://example.com")
 
-	testLocalLoginAccount, _ = sadb.CreateAccount(testLocalEmail)
+	testLocalLoginAccount, _ = sadb.CreateAccount("test", testLocalEmail)
 	testAuthLocalAccount, _ = sadb.CreateAuthLocal(testLocalLoginAccount, testLocalUsername, testLocalPassword)
 }
 
@@ -59,7 +68,7 @@ func TestFindLoginByAccountMissing(t *testing.T) {
 
 func TestSimpleAuthTOTP(t *testing.T) {
 	sadb := getDB()
-	account, _ := sadb.CreateAccount("totp-account@asdf.com")
+	account, _ := sadb.CreateAccount("test", "totp-account@asdf.com")
 	assert.NotNil(t, account)
 
 	// Simple setup
@@ -105,7 +114,7 @@ func TestSimpleAuthTOTP(t *testing.T) {
 
 func TestAuthLocalModifyPassword(t *testing.T) {
 	sadb := getDB()
-	account, _ := sadb.CreateAccount("passwd-account@asdf.com")
+	account, _ := sadb.CreateAccount("test", "passwd-account@asdf.com")
 	assert.NotNil(t, account)
 
 	// Simple setup

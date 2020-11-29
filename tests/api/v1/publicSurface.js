@@ -3,6 +3,7 @@ const http = require('../../http');
 const config = require('../../config');
 
 const routes = [
+  ['POST', '/api/v1/account', { username: 'skeediddle', password: 'test-pass', email: 'test-create@example.com' }],
   ['POST', '/api/v1/account/check', { username: 'skeedoo' }],
 ];
 
@@ -42,7 +43,7 @@ describe('route-surface#public', () => {
         },
         data: payload,
       }).then((resp) => {
-        assert.equal(resp.status, 200);
+        assert.equal(Math.trunc(resp.status / 100) * 100, 200);
       });
     });
   });

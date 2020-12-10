@@ -1,6 +1,7 @@
 # Custom
 simpleauth.yml
 /*.db
+/*.db-journal
 /dist/
 simple-auth-server
 /static/

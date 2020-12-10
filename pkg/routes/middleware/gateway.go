@@ -3,6 +3,7 @@ package middleware
 import (
 	"net/http"
 	"net/url"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 
@@ -44,7 +45,7 @@ func AuthenticationGateway(gateway *config.ConfigLoginGateway, cookieConfig *con
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			log := GetLogger(c)
+			log := appcontext.GetLogger(c)
 			claims, err := auth.ParseContextSession(&cookieConfig.JWT, c)
 			if err != nil {
 				// Not logged in, pass-through to self

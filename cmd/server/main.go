@@ -1,6 +1,7 @@
 package main
 
 import (
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/box"
 	"simple-auth/pkg/box/echobox"
 	"simple-auth/pkg/config"
@@ -16,23 +17,23 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 )
 
-type environment struct {
-	db db.SADB
-}
-
 type healthResponse struct {
 	Status string
 	DB     bool
 }
 
-func (env *environment) routeHealth(c echo.Context) error {
-	return c.JSON(200, healthResponse{
-		Status: "OK",
-		DB:     env.db.IsAlive(),
-	})
+func routeHealth(db db.SADB) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.JSON(200, healthResponse{
+			Status: "OK",
+			DB:     db.IsAlive(),
+		})
+	}
 }
 
 func simpleAuthServer(config *config.Config) error {
+	log := logrus.New()
+
 	if config.Production {
 		logrus.Info("Running in production mode")
 	}
@@ -42,19 +43,23 @@ func simpleAuthServer(config *config.Config) error {
 
 	box.Global.Verbose = config.Verbose
 	box.Global.CheckDisk = config.StaticFromDisk
+	if config.Verbose {
+		log.SetLevel(logrus.DebugLevel)
+		log.Debugln("Debug enabled")
+	}
 
 	// Dependencies
-	env := &environment{
-		db: db.New(config.Db.Driver, config.Db.URL),
-	}
-	env.db.EnableLogging(config.Db.Debug)
+	db := db.New(config.Db.Driver, config.Db.URL)
+	db.EnableLogging(config.Db.Debug)
 
 	e := echo.New()
 	e.Debug = !config.Production
 
-	e.Use(saMiddleware.NewCorrelationMiddleware(false, true))
-	e.Use(saMiddleware.NewLoggerMiddleware())
 	e.Use(middleware.Recover())
+	e.Use(appcontext.WithLogger(log))
+	e.Use(saMiddleware.NewCorrelationMiddleware(false, true))
+	e.Use(saMiddleware.NewRequestLoggerMiddleware())
+	e.Use(appcontext.WithSADB(db))
 
 	// Prometheus
 	if config.Web.Prometheus {
@@ -64,7 +69,7 @@ func simpleAuthServer(config *config.Config) error {
 
 	// Gateway
 	if config.Web.Gateway.Enabled {
-		logrus.Infof("Enabling authentication gateway: %v", config.Web.Gateway.Targets)
+		log.Infof("Enabling authentication gateway: %v", config.Web.Gateway.Targets)
 		e.Use(saMiddleware.AuthenticationGateway(&config.Web.Gateway, &config.Web.Login.Cookie))
 	}
 
@@ -74,19 +79,19 @@ func simpleAuthServer(config *config.Config) error {
 	e.GET("/dist/*", echobox.Static("./dist"))
 
 	// Health
-	e.GET("/health", env.routeHealth)
+	e.GET("/health", routeHealth(db))
 
 	// UI
 	newUIController(&config.Web, &config.Metadata).Mount(e.Group(""))
 
 	// API
-	api.MountAPI(e.Group("/api"), config, env.db)
+	api.MountAPI(e.Group("/api"), config, db)
 
 	// OIDC Controllers
 	{
 		oidcGroup := e.Group("/oidc")
 		for _, oidc := range config.Web.Login.OIDC {
-			oidcController := providers.NewOIDCController(config.Web.GetBaseURL()+"/oidc", oidc.ID, &config.Web.Login.Settings, oidc, &config.Web.Login.Cookie, env.db)
+			oidcController := providers.NewOIDCController(config.Web.GetBaseURL()+"/oidc", oidc.ID, &config.Web.Login.Settings, oidc, &config.Web.Login.Cookie, db)
 			oidcController.Mount(oidcGroup)
 		}
 	}
@@ -95,7 +100,7 @@ func simpleAuthServer(config *config.Config) error {
 	e.GET("/onetime", redirectHandler("/api/ui/onetime"))
 
 	// Start
-	logrus.Infof("Starting server on http://%v", config.Web.Host)
+	log.Infof("Starting server on http://%v", config.Web.Host)
 	if config.Web.TLS.Enabled {
 		if config.Web.TLS.Auto {
 			e.AutoTLSManager.Cache = autocert.DirCache(config.Web.TLS.Cache)

@@ -17,8 +17,16 @@ type SADB interface {
 	AccountOIDC
 	AccountAuthOneTime
 	AccountStipulations
+	WithLogger(logger logrus.FieldLogger) SADB
 	EnableLogging(enable bool)
 	IsAlive() bool
+	BeginTransaction() SADBTransaction
+}
+
+type SADBTransaction interface {
+	SADB
+	Commit() error
+	Rollback() error
 }
 
 func New(driver string, args string) SADB {
@@ -45,10 +53,30 @@ func New(driver string, args string) SADB {
 	return &sadb{db}
 }
 
+func (s *sadb) WithLogger(logger logrus.FieldLogger) SADB {
+	wl := &sadb{
+		s.db.New(),
+	}
+	wl.db.SetLogger(logger)
+	return wl
+}
+
 func (s *sadb) IsAlive() bool {
 	return s.db.DB().Ping() == nil
 }
 
 func (s *sadb) EnableLogging(enable bool) {
 	s.db.LogMode(enable)
+}
+
+func (s *sadb) BeginTransaction() SADBTransaction {
+	return &sadb{s.db.Begin()}
+}
+
+func (s *sadb) Commit() error {
+	return s.db.Commit().Error
+}
+
+func (s *sadb) Rollback() error {
+	return s.db.Rollback().Error
 }

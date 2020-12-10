@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"regexp"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/email"
@@ -10,29 +11,37 @@ import (
 )
 
 type AccountService interface {
+	WithContext(ctx appcontext.Context) AccountService
 	CreateAccount(name, email string) (*db.Account, error)
 }
 
 type accountService struct {
-	dbAccount    db.AccountStore
 	emailService *email.EmailService
 	metaConfig   *config.ConfigMetadata
 	baseURL      string
+	context      appcontext.Context
 }
 
 var _ AccountService = &accountService{}
 
-func NewAccountService(db db.SADB, config *config.Config, emailService *email.EmailService) AccountService {
+func NewAccountService(config *config.Config, emailService *email.EmailService) AccountService {
 	return &accountService{
-		db,
 		emailService,
 		&config.Metadata,
 		config.Web.GetBaseURL(),
+		nil,
 	}
 }
 
+func (s *accountService) WithContext(ctx appcontext.Context) AccountService {
+	copy := *s
+	copy.context = ctx
+	return &copy
+}
+
 func (s *accountService) CreateAccount(name, emailAddress string) (*db.Account, error) {
-	account, err := s.dbAccount.CreateAccount(name, emailAddress)
+	db := appcontext.GetSADB(s.context)
+	account, err := db.CreateAccount(name, emailAddress)
 	if err != nil {
 		return nil, err
 	}

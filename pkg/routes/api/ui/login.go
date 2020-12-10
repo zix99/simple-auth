@@ -2,8 +2,8 @@ package ui
 
 import (
 	"net/http"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/routes/common"
-	"simple-auth/pkg/routes/middleware"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 
 	"github.com/labstack/echo/v4"
@@ -16,7 +16,7 @@ type loginRequest struct {
 }
 
 func (env *environment) routeLogin(c echo.Context) error {
-	logger := middleware.GetLogger(c)
+	logger := appcontext.GetLogger(c)
 	req := loginRequest{}
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)

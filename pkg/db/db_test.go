@@ -21,3 +21,23 @@ func init() {
 func TestIsAlive(t *testing.T) {
 	assert.True(t, sadb.IsAlive())
 }
+
+func TestCommit(t *testing.T) {
+	trx := sadb.BeginTransaction()
+	trx.CreateAccount("test", "commit-tran@example.com")
+	trx.Commit()
+
+	account, err := sadb.FindAccountByEmail("commit-tran@example.com")
+	assert.NotNil(t, account)
+	assert.NoError(t, err)
+}
+
+func TestRollback(t *testing.T) {
+	trx := sadb.BeginTransaction()
+	trx.CreateAccount("test", "rollback-tran@example.com")
+	trx.Rollback()
+
+	account, err := sadb.FindAccountByEmail("rollback-tran@example.com")
+	assert.Nil(t, account)
+	assert.Error(t, err)
+}

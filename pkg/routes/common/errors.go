@@ -3,7 +3,7 @@ package common
 import (
 	"errors"
 	"net/http"
-	"simple-auth/pkg/routes/middleware"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/saerrors"
 
 	"github.com/labstack/echo/v4"
@@ -48,7 +48,7 @@ func HttpError(c echo.Context, code int, err error) error {
 }
 
 func httpErrorCoded(c echo.Context, code int, reason, message, fullError string) error {
-	log := middleware.GetLogger(c)
+	log := appcontext.GetLogger(c)
 	log.Warnf("%d [%s]: %s", code, reason, fullError)
 	return c.JSON(code, ErrorResponse{
 		Error:   true,

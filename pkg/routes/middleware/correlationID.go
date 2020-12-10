@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"simple-auth/pkg/appcontext"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/random"
 )
@@ -8,7 +10,7 @@ import (
 const headerCorrelationID = "X-Correlation-ID"
 const correlationIDLength = 12
 
-const ContextCorrelationIDKey = "correlationID"
+const contextCorrelationIDKey = "correlationID"
 
 func NewCorrelationMiddleware(readHeader, writeHeader bool) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -21,7 +23,11 @@ func NewCorrelationMiddleware(readHeader, writeHeader bool) echo.MiddlewareFunc 
 				cid = random.String(correlationIDLength)
 			}
 
-			c.Set(ContextCorrelationIDKey, cid)
+			c.Set(contextCorrelationIDKey, cid)
+
+			if logger := appcontext.GetLogger(c); logger != nil {
+				appcontext.SetLogger(c, logger.WithField("cid", cid))
+			}
 
 			if writeHeader {
 				c.Response().Header().Set(headerCorrelationID, cid)
@@ -30,4 +36,9 @@ func NewCorrelationMiddleware(readHeader, writeHeader bool) echo.MiddlewareFunc 
 			return next(c)
 		}
 	}
+}
+
+func GetCorrelationId(c appcontext.Context) (string, bool) {
+	id, ok := c.Get(contextCorrelationIDKey).(string)
+	return id, ok
 }

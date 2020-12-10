@@ -2,8 +2,8 @@ package ui
 
 import (
 	"net/http"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/routes/common"
-	"simple-auth/pkg/routes/middleware"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 	"strconv"
 
@@ -11,7 +11,7 @@ import (
 )
 
 func (env *environment) routeAccount(c echo.Context) error {
-	logger := middleware.GetLogger(c)
+	logger := appcontext.GetLogger(c)
 	accountUUID := c.Get(auth.ContextAccountUUID).(string)
 
 	logger.Infof("Get account for %s", accountUUID)
@@ -55,7 +55,7 @@ func (env *environment) routeAccount(c echo.Context) error {
 
 func (env *environment) routeAccountAudit(c echo.Context) error {
 	accountUUID := c.Get(auth.ContextAccountUUID).(string)
-	logger := middleware.GetLogger(c)
+	logger := appcontext.GetLogger(c)
 
 	logger.Infof("Get account audit for %s", accountUUID)
 

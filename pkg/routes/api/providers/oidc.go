@@ -6,10 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
-	"simple-auth/pkg/routes/middleware"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 	"simple-auth/pkg/saerrors"
 	"time"
@@ -101,7 +101,7 @@ func (env *OIDCController) routeAuthRedirect(c echo.Context) error {
 }
 
 func (env *OIDCController) routeAuthCallback(c echo.Context) error {
-	logger := middleware.GetLogger(c)
+	logger := appcontext.GetLogger(c)
 
 	state := c.QueryParam("state")
 	code := c.QueryParam("code")

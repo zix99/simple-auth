@@ -4,6 +4,10 @@ set +e
 if [[ $* != *--nobuild* ]]; then
   echo Building...
   go build -o simple-auth-server simple-auth/cmd/server
+  if [[ $? != 0 ]]; then
+    echo Build failed
+    exit 2
+  fi
 fi
 
 rm quicktest.db

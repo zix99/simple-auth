@@ -2,10 +2,10 @@ package auth
 
 import (
 	"net/http"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/routes/common"
-	"simple-auth/pkg/routes/middleware"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -72,7 +72,7 @@ func (env *TokenAuthController) routeIssueSessionToken(c echo.Context) error {
 }
 
 func (env *TokenAuthController) routeIssueVerificationToken(c echo.Context) error {
-	logger := middleware.GetLogger(c)
+	logger := appcontext.GetLogger(c)
 
 	req := struct {
 		Username string `json:"username" form:"username"`

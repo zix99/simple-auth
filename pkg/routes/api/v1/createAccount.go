@@ -3,8 +3,8 @@ package v1
 import (
 	"errors"
 	"net/http"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/routes/common"
-	"simple-auth/pkg/routes/middleware"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 	"simple-auth/pkg/saerrors"
 
@@ -27,7 +27,7 @@ const (
 )
 
 func (env *Environment) RouteCreateAccount(c echo.Context) error {
-	logger := middleware.GetLogger(c)
+	logger := appcontext.GetLogger(c)
 
 	var req createAccountRequest
 	if err := c.Bind(&req); err != nil {
@@ -38,7 +38,7 @@ func (env *Environment) RouteCreateAccount(c echo.Context) error {
 		return common.HttpError(c, http.StatusConflict, usernameUnavailable.Wrap(err))
 	}
 
-	account, err := env.accountService.CreateAccount(req.Username, req.Email)
+	account, err := env.accountService.WithContext(c).CreateAccount(req.Username, req.Email)
 	if err != nil {
 		return common.HttpError(c, http.StatusBadRequest, err)
 	}

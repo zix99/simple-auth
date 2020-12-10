@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"net/http"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/lib/totp/otpimagery"
 	"simple-auth/pkg/routes/common"
-	"simple-auth/pkg/routes/middleware"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 
 	"github.com/labstack/echo/v4"
@@ -64,7 +64,7 @@ func (env *Environment) RouteConfirm2FA(c echo.Context) error {
 		return common.HttpBadRequest(c, err)
 	}
 
-	log := middleware.GetLogger(c)
+	log := appcontext.GetLogger(c)
 	accountUUID := auth.MustGetAccountUUID(c)
 
 	authLocal, err := env.localLoginService.FindAuthLocal(accountUUID)

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"html/template"
 	"net/http"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/email"
 	"simple-auth/pkg/routes/common"
-	"simple-auth/pkg/routes/middleware"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 	"strings"
 	"time"
@@ -19,7 +19,7 @@ type oneTimePostRequest struct {
 }
 
 func (env *environment) routeOneTimePost(c echo.Context) error {
-	logger := middleware.GetLogger(c)
+	logger := appcontext.GetLogger(c)
 
 	var req oneTimePostRequest
 	if err := c.Bind(&req); err != nil {
@@ -58,7 +58,7 @@ func (env *environment) routeOneTimePost(c echo.Context) error {
 }
 
 func (env *environment) routeOneTimeAuth(c echo.Context) error {
-	logger := middleware.GetLogger(c)
+	logger := appcontext.GetLogger(c)
 
 	token := strings.TrimSpace(c.QueryParam("token"))
 	if token == "" {

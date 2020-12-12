@@ -56,10 +56,10 @@ func simpleAuthServer(config *config.Config) error {
 	e.Debug = !config.Production
 
 	e.Use(middleware.Recover())
-	e.Use(appcontext.WithLogger(log))
+	e.Use(appcontext.WithLogger(log).Middleware())
 	e.Use(saMiddleware.NewCorrelationMiddleware(false, true))
 	e.Use(saMiddleware.NewRequestLoggerMiddleware())
-	e.Use(appcontext.WithSADB(db))
+	e.Use(appcontext.WithSADB(db).Middleware())
 
 	// Prometheus
 	if config.Web.Prometheus {

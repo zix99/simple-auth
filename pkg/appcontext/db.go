@@ -13,13 +13,13 @@ type sadbWrapper struct {
 	transaction db.SADBTransaction
 }
 
-func WithSADB(db db.SADB) echo.MiddlewareFunc {
-	return WithContextual(dbContextKey, func(c echo.Context) interface{} {
+func WithSADB(db db.SADB) ProviderFunc {
+	return func(c Context) (string, interface{}) {
 		log := GetLogger(c)
-		return &sadbWrapper{
+		return dbContextKey, &sadbWrapper{
 			root: db.WithLogger(log),
 		}
-	})
+	}
 }
 
 func GetSADB(c Context) db.SADB {

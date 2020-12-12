@@ -1,13 +1,12 @@
 package appcontext
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 )
 
 const loggerContextKey = "appcontext.logger"
 
-func WithLogger(fl logrus.FieldLogger) echo.MiddlewareFunc {
+func WithLogger(fl logrus.FieldLogger) ProviderFunc {
 	return With(loggerContextKey, fl)
 }
 

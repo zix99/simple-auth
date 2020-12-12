@@ -1,7 +1,5 @@
 package appcontext
 
-import "github.com/labstack/echo/v4"
-
 type Context interface {
 	Get(key string) interface{}
 }
@@ -11,26 +9,34 @@ type RWContext interface {
 	Set(key string, i interface{})
 }
 
-// With is a short-hand to set a key on each echo context
-func With(key string, i interface{}) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			c.Set(key, i)
-			return next(c)
-		}
+type ProviderFunc func(ctx Context) (key string, i interface{})
+
+func With(key string, i interface{}) ProviderFunc {
+	return func(ctx Context) (key string, i interface{}) {
+		return key, i
 	}
 }
 
-type ContextualFunc func(c echo.Context) interface{}
+type Container struct {
+	items map[string]interface{}
+}
 
-// WithContextual providers an injected value that is contextual to the echo context
-func WithContextual(key string, provider ContextualFunc) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			if val := provider(c); val != nil {
-				c.Set(key, val)
-			}
-			return next(c)
-		}
+func NewContainer() *Container {
+	return &Container{
+		items: make(map[string]interface{}),
+	}
+}
+
+func (s *Container) Get(key string) interface{} {
+	return s.items[key]
+}
+
+func (s *Container) Set(key string, i interface{}) {
+	s.items[key] = i
+}
+
+func (s *Container) Use(f ProviderFunc) {
+	if key, val := f(s); val != nil {
+		s.items[key] = val
 	}
 }

@@ -24,11 +24,11 @@ type accountService struct {
 
 var _ AccountService = &accountService{}
 
-func NewAccountService(config *config.Config, emailService *email.EmailService) AccountService {
+func NewAccountService(configMeta *config.ConfigMetadata, configWeb *config.ConfigWeb, emailService *email.EmailService) AccountService {
 	return &accountService{
 		emailService,
-		&config.Metadata,
-		config.Web.GetBaseURL(),
+		configMeta,
+		configWeb.GetBaseURL(),
 		nil,
 	}
 }

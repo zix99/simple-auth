@@ -24,7 +24,7 @@ func (env *environment) routeLogin(c echo.Context) error {
 
 	logger.Infof("Attempting login for '%s'...", req.Username)
 
-	authLocal, err := env.localLoginService.AssertLogin(req.Username, req.Password, req.Totp)
+	authLocal, err := env.localLoginService.WithContext(c).AssertLogin(req.Username, req.Password, req.Totp)
 	if err != nil {
 		logger.Infof("Login for user '%s' rejected: %v", req.Username, err)
 		return common.HttpError(c, http.StatusUnauthorized, err)

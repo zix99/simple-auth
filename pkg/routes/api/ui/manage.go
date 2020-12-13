@@ -28,7 +28,7 @@ func (env *environment) routeAccount(c echo.Context) error {
 		"auth":    responseAuth,
 	}
 
-	if authLocal, err := env.localLoginService.FindAuthLocal(account.UUID); err == nil {
+	if authLocal, err := env.localLoginService.WithContext(c).FindAuthLocal(account.UUID); err == nil {
 		responseAuth["simple"] = common.Json{
 			"username":         authLocal.Username(),
 			"twofactor":        authLocal.HasTOTP(),

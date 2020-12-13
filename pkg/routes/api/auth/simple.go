@@ -63,7 +63,7 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 		return common.HttpBadRequest(c, err)
 	}
 
-	authLocal, err := env.localLogin.AssertLogin(req.Username, req.Password, req.TOTP)
+	authLocal, err := env.localLogin.WithContext(c).AssertLogin(req.Username, req.Password, req.TOTP)
 	if err != nil {
 		return common.HttpError(c, http.StatusForbidden, err)
 	}

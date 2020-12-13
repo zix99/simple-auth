@@ -20,7 +20,7 @@ func NewEnvironment(config *config.Config, db db.SADB) *Environment {
 	emailService := email.NewFromConfig(logrus.StandardLogger(), &config.Email)
 	return &Environment{
 		services.NewAccountService(&config.Metadata, &config.Web, emailService),
-		services.NewLocalLoginService(db, emailService, &config.Metadata, &config.Web.Login.TwoFactor, &config.Web.Requirements, config.Web.GetBaseURL()),
+		services.NewLocalLoginService(emailService, &config.Metadata, &config.Web.Login.TwoFactor, &config.Web.Requirements, config.Web.GetBaseURL()),
 		services.NewTwoFactorService(&config.Web.Login.TwoFactor),
 		&config.Web.Login.Cookie,
 	}

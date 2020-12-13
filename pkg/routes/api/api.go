@@ -50,7 +50,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 		if config.Authenticators.Simple.Enabled {
 			route := v1api.Group("/auth/simple")
 			emailService := email.NewFromConfig(logrus.StandardLogger(), &config.Email)
-			loginService := services.NewLocalLoginService(db, emailService, &config.Metadata, &config.Web.Login.TwoFactor, &config.Web.Requirements, config.Web.GetBaseURL())
+			loginService := services.NewLocalLoginService(emailService, &config.Metadata, &config.Web.Login.TwoFactor, &config.Web.Requirements, config.Web.GetBaseURL())
 			authAPI.NewSimpleAuthController(loginService, &config.Authenticators.Simple).Mount(route)
 		}
 		if config.Authenticators.Vouch.Enabled {

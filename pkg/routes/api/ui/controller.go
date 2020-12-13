@@ -30,7 +30,7 @@ func NewController(db db.SADB, meta *config.ConfigMetadata, config *config.Confi
 	emailService := email.NewFromConfig(logrus.StandardLogger(), emailConfig)
 	return &environment{
 		db:                db,
-		localLoginService: services.NewLocalLoginService(db, emailService, meta, &config.Login.TwoFactor, &config.Requirements, config.GetBaseURL()),
+		localLoginService: services.NewLocalLoginService(emailService, meta, &config.Login.TwoFactor, &config.Requirements, config.GetBaseURL()),
 		config:            config,
 		email:             emailConfig,
 		meta:              meta,

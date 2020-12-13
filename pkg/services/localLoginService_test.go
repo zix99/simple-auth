@@ -1,6 +1,7 @@
 package services
 
 import (
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/email"
@@ -25,7 +26,10 @@ func init() {
 	sadb := getDB()
 	mockEmailService := email.New(logrus.StandardLogger(), engine.NewMockEngine(nil), "test@example.com")
 
-	testLocalLogin = NewLocalLoginService(sadb, mockEmailService, &config.ConfigMetadata{
+	ctx := appcontext.NewContainer()
+	ctx.Use(appcontext.WithSADB(sadb))
+
+	testLocalLogin = NewLocalLoginService(mockEmailService, &config.ConfigMetadata{
 		Company: "test-corp",
 	}, &config.TwoFactorConfig{
 		Enabled:   true,
@@ -34,7 +38,7 @@ func init() {
 		KeyLength: 12,
 	}, &config.ConfigWebRequirements{
 		EmailValidationRequired: true,
-	}, "http://example.com")
+	}, "http://example.com").WithContext(ctx)
 
 	testLocalLoginAccount, _ = sadb.CreateAccount("test", testLocalEmail)
 	testAuthLocalAccount, _ = sadb.CreateAuthLocal(testLocalLoginAccount, testLocalUsername, testLocalPassword)

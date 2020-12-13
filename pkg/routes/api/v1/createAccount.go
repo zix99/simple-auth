@@ -28,13 +28,14 @@ const (
 
 func (env *Environment) RouteCreateAccount(c echo.Context) error {
 	logger := appcontext.GetLogger(c)
+	loginService := env.localLoginService.WithContext(c)
 
 	var req createAccountRequest
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
 
-	if exists, err := env.localLoginService.UsernameExists(req.Username); exists || err != nil {
+	if exists, err := loginService.UsernameExists(req.Username); exists || err != nil {
 		return common.HttpError(c, http.StatusConflict, usernameUnavailable.Wrap(err))
 	}
 
@@ -43,7 +44,7 @@ func (env *Environment) RouteCreateAccount(c echo.Context) error {
 		return common.HttpError(c, http.StatusBadRequest, err)
 	}
 
-	_, err = env.localLoginService.Create(account, req.Username, req.Password)
+	_, err = loginService.Create(account, req.Username, req.Password)
 	if err != nil {
 		return common.HttpError(c, http.StatusBadGateway, err)
 	}
@@ -75,7 +76,7 @@ func (env *Environment) RouteCheckUsername(c echo.Context) error {
 		return common.HttpBadRequest(c, errors.New("missing username"))
 	}
 
-	exists, _ := env.localLoginService.UsernameExists(req.Username)
+	exists, _ := env.localLoginService.WithContext(c).UsernameExists(req.Username)
 
 	return c.JSON(http.StatusOK, &checkUsernameResponse{
 		Username: req.Username,

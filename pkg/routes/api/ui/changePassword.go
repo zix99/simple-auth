@@ -23,24 +23,25 @@ func (env *environment) routeChangePasswordRequirements(c echo.Context) error {
 
 func (env *environment) routeChangePassword(c echo.Context) error {
 	authContext := auth.MustGetAuthContext(c)
+	loginService := env.localLoginService.WithContext(c)
 
 	var req changePasswordRequest
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
 
-	authLocal, err := env.localLoginService.FindAuthLocal(authContext.UUID)
+	authLocal, err := loginService.FindAuthLocal(authContext.UUID)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}
 
 	if authContext.Source == auth.SourceOneTime {
 		// Change password, but exempt from the oldPassword requirement
-		if err := env.localLoginService.UpdatePasswordUnsafe(authLocal, req.NewPassword); err != nil {
+		if err := loginService.UpdatePasswordUnsafe(authLocal, req.NewPassword); err != nil {
 			return common.HttpInternalError(c, err)
 		}
 	} else {
-		if err := env.localLoginService.UpdatePassword(authLocal, req.OldPassword, req.NewPassword); err != nil {
+		if err := loginService.UpdatePassword(authLocal, req.OldPassword, req.NewPassword); err != nil {
 			return common.HttpError(c, http.StatusUnauthorized, err)
 		}
 	}

@@ -35,7 +35,7 @@ func (env *Environment) Route2FAQRCodeImage(c echo.Context) error {
 		return common.HttpBadRequest(c, errors.New("missing secret"))
 	}
 
-	authLocal, err := env.localLoginService.FindAuthLocal(authContext.UUID)
+	authLocal, err := env.localLoginService.WithContext(c).FindAuthLocal(authContext.UUID)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}
@@ -59,6 +59,8 @@ type tfaActivateRequest struct {
 }
 
 func (env *Environment) RouteConfirm2FA(c echo.Context) error {
+	loginService := env.localLoginService.WithContext(c)
+
 	var req tfaActivateRequest
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
@@ -67,7 +69,7 @@ func (env *Environment) RouteConfirm2FA(c echo.Context) error {
 	log := appcontext.GetLogger(c)
 	accountUUID := auth.MustGetAccountUUID(c)
 
-	authLocal, err := env.localLoginService.FindAuthLocal(accountUUID)
+	authLocal, err := loginService.FindAuthLocal(accountUUID)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}
@@ -78,7 +80,7 @@ func (env *Environment) RouteConfirm2FA(c echo.Context) error {
 	}
 
 	log.Infof("Setting up TOTP for %s", accountUUID)
-	if err := env.localLoginService.ActivateTOTP(authLocal, t, req.Code); err != nil {
+	if err := loginService.ActivateTOTP(authLocal, t, req.Code); err != nil {
 		return common.HttpError(c, http.StatusForbidden, err)
 	}
 
@@ -86,15 +88,16 @@ func (env *Environment) RouteConfirm2FA(c echo.Context) error {
 }
 
 func (env *Environment) RouteDeactivate2FA(c echo.Context) error {
+	loginService := env.localLoginService.WithContext(c)
 	code := c.QueryParam("code")
 
 	uuid := auth.MustGetAccountUUID(c)
-	authLocal, err := env.localLoginService.FindAuthLocal(uuid)
+	authLocal, err := loginService.FindAuthLocal(uuid)
 	if err != nil {
 		return common.HttpInternalError(c, err)
 	}
 
-	if err := env.localLoginService.DeactivateTOTP(authLocal, code); err != nil {
+	if err := loginService.DeactivateTOTP(authLocal, code); err != nil {
 		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 

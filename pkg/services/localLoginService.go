@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"regexp"
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/email"
@@ -26,6 +27,8 @@ type LocalLoginService interface {
 
 	UpdatePassword(authLocal *db.AuthLocal, oldPassword string, newPassword string) error
 	UpdatePasswordUnsafe(authLocal *db.AuthLocal, newPassword string) error
+
+	WithContext(ctx appcontext.Context) LocalLoginService
 }
 
 type localLoginService struct {
@@ -42,18 +45,24 @@ type localLoginService struct {
 
 var _ LocalLoginService = &localLoginService{}
 
-func NewLocalLoginService(db db.SADB, emailService *email.EmailService, metaConfig *config.ConfigMetadata, tfConfig *config.TwoFactorConfig, requirementConfig *config.ConfigWebRequirements, baseURL string) LocalLoginService {
+func NewLocalLoginService(emailService *email.EmailService, metaConfig *config.ConfigMetadata, tfConfig *config.TwoFactorConfig, requirementConfig *config.ConfigWebRequirements, baseURL string) LocalLoginService {
 	return &localLoginService{
-		dbAccount:      db,
-		dbAuth:         db,
-		dbAudit:        db,
-		dbStipulations: db,
-		emailService:   emailService,
-		metaConfig:     metaConfig,
-		tfConfig:       tfConfig,
-		requirements:   requirementConfig,
-		baseURL:        baseURL,
+		emailService: emailService,
+		metaConfig:   metaConfig,
+		tfConfig:     tfConfig,
+		requirements: requirementConfig,
+		baseURL:      baseURL,
 	}
+}
+
+func (s *localLoginService) WithContext(ctx appcontext.Context) LocalLoginService {
+	copy := *s
+	db := appcontext.GetSADB(ctx)
+	copy.dbAccount = db
+	copy.dbAudit = db
+	copy.dbAuth = db
+	copy.dbStipulations = db
+	return &copy
 }
 
 const (

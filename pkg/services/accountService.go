@@ -19,7 +19,7 @@ type accountService struct {
 	emailService *email.EmailService
 	metaConfig   *config.ConfigMetadata
 	baseURL      string
-	context      appcontext.Context
+	dbAccount    db.AccountStore
 }
 
 var _ AccountService = &accountService{}
@@ -35,13 +35,12 @@ func NewAccountService(configMeta *config.ConfigMetadata, configWeb *config.Conf
 
 func (s *accountService) WithContext(ctx appcontext.Context) AccountService {
 	copy := *s
-	copy.context = ctx
+	copy.dbAccount = appcontext.GetSADB(ctx)
 	return &copy
 }
 
 func (s *accountService) CreateAccount(name, emailAddress string) (*db.Account, error) {
-	db := appcontext.GetSADB(s.context)
-	account, err := db.CreateAccount(name, emailAddress)
+	account, err := s.dbAccount.CreateAccount(name, emailAddress)
 	if err != nil {
 		return nil, err
 	}

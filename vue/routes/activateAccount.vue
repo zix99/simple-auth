@@ -39,7 +39,7 @@ export default {
     };
   },
   created() {
-    this.loadingPromise = axios.post('api/ui/stipulation', { account: this.account, token: this.token });
+    this.loadingPromise = axios.post('api/v1/stipulation', { account: this.account, token: this.token });
   },
 };
 </script>

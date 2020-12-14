@@ -25,11 +25,11 @@ web:
         passwordmaxlength: 30
         usernameminlength: 5
         usernamemaxlength: 20
+        emailvalidationrequired: false  # If email validation is required before login
 
     login:
         settings:
             createaccountenabled: true      # If allowed to create account
-            emailvalidationrequired: false  # If email validation is required before login
             routeonlogin: null              # Where to route to post-login (either login or create)
             allowedcontinueurls: []         # Urls, in addition to local pages, allowed post-login via ?continue query param
             throttleduration: 1s

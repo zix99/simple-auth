@@ -22,7 +22,7 @@ import (
 func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 	v1api := e.Group("/v1")
 	{
-		// Public API
+		// Public API (eg. from the UI)
 		v1Env := v1.NewEnvironment(config, db)
 		{
 			publicAuth := buildPublicAuthMiddleware(&config.API, nil)
@@ -31,6 +31,8 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			if config.Web.Login.Settings.CreateAccountEnabled {
 				v1api.POST("/account", v1Env.RouteCreateAccount, publicAuthWithRecaptcha)
 			}
+
+			v1api.POST("/stipulation", v1Env.RouteSatisfyTokenStipulation, publicAuth)
 		}
 		{
 			privateAuth := buildPrivateAuthMiddleware(&config.Web.Login.Cookie, &config.API)

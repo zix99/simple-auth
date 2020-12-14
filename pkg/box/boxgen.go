@@ -27,14 +27,15 @@ type TemplateEmbedFile struct {
 	ModTime    int64
 }
 type TemplateEmbedBox struct {
-	BoxName string
-	Files   map[string]*TemplateEmbedFile
+	BoxName          string
+	BuildConstraints string
+	Files            map[string]*TemplateEmbedFile
 }
 
 var tmplHelpers = map[string]interface{}{
 	"bytes": fmtByteSlice,
 }
-var tmpl = template.Must(template.New("").Funcs(tmplHelpers).Parse(`//+build box
+var tmpl = template.Must(template.New("").Funcs(tmplHelpers).Parse(`//+build {{ $.BuildConstraints }}
 
 package box
 
@@ -127,6 +128,7 @@ func writeBox(boxname string, box *TemplateEmbedBox) error {
 func main() {
 	compress := flag.Bool("compress", false, "Should compress data")
 	codename := flag.String("codename", "Global", "Box name to add files to")
+	constraints := flag.String("constraints", "box", "Set build constraints for box")
 	flag.Parse()
 
 	args := flag.Args()
@@ -147,6 +149,7 @@ func main() {
 	}
 
 	box.BoxName = *codename
+	box.BuildConstraints = *constraints
 
 	err = writeBox(boxname, box)
 	if err != nil {

@@ -76,7 +76,7 @@ steps:
     - name: go-cache
       path: /go
     commands:
-      - go build -o simple-auth-cli simple-auth/cmd/cli
+      - go build -tags boxconfig -o simple-auth-cli simple-auth/cmd/cli
     depends_on:
       - Server Generate
 

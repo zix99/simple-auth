@@ -61,8 +61,6 @@ func (env *environment) Mount(group *echo.Group) {
 			selector.HandlerUnauthorized(),
 		)
 
-		group.GET("/account", env.routeAccount, authProvider)
-		group.GET("/account/audit", env.routeAccountAudit, authProvider)
 		group.POST("/account/password", env.routeChangePassword, authProvider)
 		group.GET("/account/password", env.routeChangePasswordRequirements, authProvider)
 	}

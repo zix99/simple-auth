@@ -90,7 +90,7 @@ export default {
   },
   methods: {
     refresh() {
-      this.loadingPromise = axios.get('api/ui/account')
+      this.loadingPromise = axios.get('api/v1/account')
         .then((resp) => {
           this.account = resp.data;
         }).catch(() => {

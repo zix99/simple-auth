@@ -55,7 +55,7 @@ export default {
     };
   },
   created() {
-    axios.get('api/ui/account')
+    axios.get('api/v1/account')
       .then(() => {
         // Is logged in!
         this.$router.push('/login-redirect');

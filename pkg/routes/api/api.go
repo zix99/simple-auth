@@ -36,6 +36,8 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 		}
 		{
 			privateAuth := buildPrivateAuthMiddleware(&config.Web.Login.Cookie, &config.API)
+			v1api.GET("/account", v1Env.RouteGetAccount, privateAuth)
+			v1api.GET("/account/audit", v1Env.RouteGetAccountAudit, privateAuth)
 			if config.Web.Login.TwoFactor.Enabled {
 				v1api.GET("/2fa", v1Env.RouteSetup2FA, privateAuth)
 				v1api.GET("/2fa/qrcode", v1Env.Route2FAQRCodeImage, privateAuth)

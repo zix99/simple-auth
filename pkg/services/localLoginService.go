@@ -24,13 +24,13 @@ type LocalLoginService interface {
 
 	ActivateTOTP(authLocal *db.AuthLocal, otp *totp.Totp, code string) error
 	DeactivateTOTP(authLocal *db.AuthLocal, code string) error
+	AllowTOTP() bool
 
 	UpdatePassword(authLocal *db.AuthLocal, oldPassword string, newPassword string) error
 	UpdatePasswordUnsafe(authLocal *db.AuthLocal, newPassword string) error
 
 	WithContext(ctx appcontext.Context) LocalLoginService
 }
-
 type localLoginService struct {
 	dbAccount      db.AccountStore
 	dbAuth         db.AccountAuthLocal
@@ -244,6 +244,10 @@ func (s *localLoginService) DeactivateTOTP(authLocal *db.AuthLocal, verification
 	}
 
 	return nil
+}
+
+func (s *localLoginService) AllowTOTP() bool {
+	return s.tfConfig.Enabled
 }
 
 func (s *localLoginService) UpdatePassword(authLocal *db.AuthLocal, oldPassword string, newPassword string) error {

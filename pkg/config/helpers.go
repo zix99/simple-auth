@@ -26,18 +26,3 @@ func (s *ConfigWeb) GetBaseURL() string {
 	}
 	return "http://" + s.Host
 }
-
-func (s *ConfigLogin) OIDCByProvider(id string) *ConfigOIDCProvider {
-	if id == "" {
-		return nil
-	}
-	if s.OIDC == nil {
-		return nil
-	}
-	for _, provider := range s.OIDC {
-		if provider.ID == id {
-			return provider
-		}
-	}
-	return nil
-}

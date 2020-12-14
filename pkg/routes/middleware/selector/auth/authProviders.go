@@ -18,8 +18,8 @@ type AuthContext struct {
 type AuthHandler func(c echo.Context) (*AuthContext, error)
 
 const (
-	ContextAccountUUID = "accountUUID"
-	ContextAuth        = "auth2"
+	contextAccountUUID = "accountUUID"
+	contextAuth        = "auth"
 )
 
 func (s *AuthContext) valid() bool {
@@ -33,8 +33,8 @@ func (s *AuthContext) valid() bool {
 }
 
 func setAuthContext(c echo.Context, context *AuthContext) {
-	c.Set(ContextAccountUUID, context.UUID)
-	c.Set(ContextAuth, context)
+	c.Set(contextAccountUUID, context.UUID)
+	c.Set(contextAuth, context)
 }
 
 func NewAuthMiddleware(handler AuthHandler) echo.MiddlewareFunc {
@@ -58,7 +58,7 @@ func NewAuthSelectorGroup(mwSelector selector.MiddlewareSelector, handler AuthHa
 }
 
 func GetAccountUUID(c echo.Context) (string, bool) {
-	ret, ok := c.Get(ContextAccountUUID).(string)
+	ret, ok := c.Get(contextAccountUUID).(string)
 	return ret, ok
 }
 
@@ -71,7 +71,7 @@ func MustGetAccountUUID(c echo.Context) string {
 }
 
 func GetAuthContext(c echo.Context) (*AuthContext, bool) {
-	ret, ok := c.Get(ContextAuth).(*AuthContext)
+	ret, ok := c.Get(contextAuth).(*AuthContext)
 	return ret, ok
 }
 

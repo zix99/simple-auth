@@ -1,21 +1,27 @@
-package ui
+package v1
 
 import (
 	"net/http"
 	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware/selector/auth"
+	"simple-auth/pkg/saerrors"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
 
-func (env *environment) routeAccount(c echo.Context) error {
+const (
+	errorInvalidAccount saerrors.ErrorCode = "invalid-account"
+)
+
+func (env *Environment) RouteGetAccount(c echo.Context) error {
 	logger := appcontext.GetLogger(c)
-	accountUUID := c.Get(auth.ContextAccountUUID).(string)
+	sadb := appcontext.GetSADB(c)
+	accountUUID := auth.MustGetAccountUUID(c)
 
 	logger.Infof("Get account for %s", accountUUID)
-	account, err := env.db.FindAccount(accountUUID)
+	account, err := sadb.FindAccount(accountUUID)
 	if err != nil {
 		return common.HttpError(c, http.StatusInternalServerError, errorInvalidAccount.Wrapf(err, "Logged in with unknown account"))
 	}
@@ -32,14 +38,14 @@ func (env *environment) routeAccount(c echo.Context) error {
 		responseAuth["simple"] = common.Json{
 			"username":         authLocal.Username(),
 			"twofactor":        authLocal.HasTOTP(),
-			"twofactorallowed": env.config.Login.TwoFactor.Enabled,
+			"twofactorallowed": env.localLoginService.AllowTOTP(),
 		}
 	}
 
-	if providers, err := env.db.FindOIDCForAccount(account); err == nil {
+	if providers, err := sadb.FindOIDCForAccount(account); err == nil {
 		oidcProviders := make([]common.Json, len(providers))
 		for i, oidc := range providers {
-			providerConfig := env.config.Login.OIDCByProvider(oidc.Provider)
+			providerConfig := env.oidcService.GetProvider(oidc.Provider)
 			oidcProviders[i] = common.Json{
 				"provider": oidc.Provider,
 				"subject":  oidc.Subject,
@@ -53,20 +59,21 @@ func (env *environment) routeAccount(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func (env *environment) routeAccountAudit(c echo.Context) error {
-	accountUUID := c.Get(auth.ContextAccountUUID).(string)
+func (env *Environment) RouteGetAccountAudit(c echo.Context) error {
+	accountUUID := auth.MustGetAccountUUID(c)
 	logger := appcontext.GetLogger(c)
+	sadb := appcontext.GetSADB(c)
 
 	logger.Infof("Get account audit for %s", accountUUID)
 
-	account, err := env.db.FindAccount(accountUUID)
+	account, err := sadb.FindAccount(accountUUID)
 	if err != nil {
 		return common.HttpError(c, http.StatusInternalServerError, errorInvalidAccount.Wrapf(err, "Logged in with unknown account"))
 	}
 
 	offset, _ := strconv.Atoi(c.QueryParam("offset"))
 	limit, _ := strconv.Atoi(c.QueryParam("limit"))
-	records, err := env.db.GetAuditTrailForAccount(account, offset, limit)
+	records, err := sadb.GetAuditTrailForAccount(account, offset, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 	}

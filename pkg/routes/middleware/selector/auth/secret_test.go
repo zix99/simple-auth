@@ -33,7 +33,7 @@ func TestSecretAuthProviderSuccess(t *testing.T) {
 	assert.Equal(t, 200, rec.Code)
 	assert.Equal(t, "ok", rec.Body.String())
 
-	accountUUID := c.Get(ContextAccountUUID).(string)
+	accountUUID := c.Get(contextAccountUUID).(string)
 	assert.Equal(t, "woot", accountUUID)
 }
 
@@ -82,7 +82,7 @@ func TestSecretAuthProviderChainedMiddleware(t *testing.T) {
 		assert.Equal(t, 200, rec.Code)
 		assert.Equal(t, "ok", rec.Body.String())
 
-		assert.Equal(t, "woot", c.Get(ContextAccountUUID))
+		assert.Equal(t, "woot", c.Get(contextAccountUUID))
 		assert.Equal(t, "2", c.Get("A"))
 		assert.Equal(t, "3", c.Get("B"))
 		assert.Equal(t, "3", c.Get("B"))
@@ -99,7 +99,7 @@ func TestSecretAuthProviderChainedMiddleware(t *testing.T) {
 		assert.Equal(t, 200, rec.Code)
 		assert.Equal(t, "ok", rec.Body.String())
 
-		assert.Equal(t, "huh", c.Get(ContextAccountUUID))
+		assert.Equal(t, "huh", c.Get(contextAccountUUID))
 		assert.Equal(t, "5", c.Get("N"))
 		assert.Nil(t, c.Get("A"))
 		assert.Nil(t, c.Get("B"))

@@ -5,21 +5,21 @@
     </LoadingBanner>
     <div v-if="account">
       <h2 class="title is-3">{{account.email}}</h2>
-      <Card v-if="account.auth.simple" title="Simple Auth">
+      <Card v-if="account.auth.local" title="Local Auth">
         <table class="table">
           <tbody>
             <tr>
-              <th>Enabled</th><td>{{account.auth.simple ? 'Yes' : 'No'}}</td>
+              <th>Enabled</th><td>{{account.auth.local ? 'Yes' : 'No'}}</td>
             </tr>
             <tr>
-              <th>Username</th><td>{{account.auth.simple.username}}</td>
+              <th>Username</th><td>{{account.auth.local.username}}</td>
             </tr>
             <tr>
               <th>Password</th><td><button class="button is-warning is-light" @click="$refs.modalPass.open()">Change</button></td>
             </tr>
-            <tr v-if="account.auth.simple.twofactorallowed">
+            <tr v-if="account.auth.local.twofactorallowed">
               <th>Two Factor</th>
-              <td v-if="!account.auth.simple.twofactor">
+              <td v-if="!account.auth.local.twofactor">
                 <button class="button is-secondary is-light" @click="$refs.modalTFA.open()">Activate</button>
               </td>
               <td v-else>

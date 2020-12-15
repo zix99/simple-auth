@@ -9,7 +9,6 @@ import (
 	"simple-auth/pkg/lib/totp"
 	"testing"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,7 +23,7 @@ var (
 
 func init() {
 	sadb := getDB()
-	mockEmailService := email.New(logrus.StandardLogger(), engine.NewMockEngine(nil), "test@example.com")
+	mockEmailService := email.New(engine.NewMockEngine(nil), "test@example.com")
 
 	ctx := appcontext.NewContainer()
 	ctx.Use(appcontext.WithSADB(sadb))

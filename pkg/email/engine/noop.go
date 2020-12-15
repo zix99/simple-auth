@@ -1,5 +1,9 @@
 package engine
 
+/* noop engine
+Does nothing when receiving emails
+*/
+
 type noopEngine struct {
 	returns error
 }

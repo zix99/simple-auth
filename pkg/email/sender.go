@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"simple-auth/pkg/appcontext"
 )
 
 type emailData struct {
@@ -13,7 +14,9 @@ type emailData struct {
 }
 
 func (s *EmailService) sendEmail(to string, templateName string, data IEmailData) error {
-	s.logger.Infof("Sending %s email to %s...", templateName, to)
+	log := appcontext.GetLogger(s.ctx)
+
+	log.Infof("Sending %s email to %s...", templateName, to)
 
 	templateData := &emailData{
 		From:  template.HTML(fmt.Sprintf("%s <%s>", data.Data().Company, s.from)),
@@ -24,15 +27,15 @@ func (s *EmailService) sendEmail(to string, templateName string, data IEmailData
 	var buf bytes.Buffer
 	err := templateEngine.Render(&buf, templateName, templateData)
 	if err != nil {
-		s.logger.Warn(err)
+		log.Warn(err)
 		return err
 	}
 
 	err = s.engine.Send(to, s.from, buf.Bytes())
 	if err != nil {
-		s.logger.Warn(err)
+		log.Warn(err)
 	} else {
-		s.logger.Infof("Email sent %d bytes to %s", buf.Len(), to)
+		log.Infof("Email sent %d bytes to %s", buf.Len(), to)
 	}
 	return err
 }

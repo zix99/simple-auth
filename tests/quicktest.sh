@@ -14,7 +14,7 @@ rm quicktest.db
 ./simple-auth-server --verbose --staticfromdisk \
   --api-external=true --api-sharedsecret=super-secret \
   --web-login-twofactor-enabled \
-  --email-enabled=false \
+  --email-engine=stdout \
   --db-url=quicktest.db &
 echo "PID: $!"
 

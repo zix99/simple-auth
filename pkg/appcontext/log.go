@@ -12,8 +12,10 @@ func WithLogger(fl logrus.FieldLogger) ProviderFunc {
 
 // GetLogger will always return a logger
 func GetLogger(c Context) logrus.FieldLogger {
-	if logger, ok := c.Get(loggerContextKey).(logrus.FieldLogger); ok {
-		return logger
+	if c != nil {
+		if logger, ok := c.Get(loggerContextKey).(logrus.FieldLogger); ok {
+			return logger
+		}
 	}
 	return logrus.StandardLogger()
 }

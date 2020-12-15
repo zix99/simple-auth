@@ -4,6 +4,10 @@ import (
 	"sync/atomic"
 )
 
+/* Mock Engine
+Used primarily for unit-testing
+*/
+
 type MockEmailEngine struct {
 	returns error
 	sends   int32

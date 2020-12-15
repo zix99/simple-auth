@@ -4,13 +4,12 @@ import (
 	"simple-auth/pkg/email/engine"
 	"testing"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSendWelcomeEmail(t *testing.T) {
 	mock := engine.NewMockEngine(nil)
-	service := New(logrus.StandardLogger(), mock, "test@test.com")
+	service := New(mock, "test@test.com")
 	service.SendWelcomeEmail("to@to.com", &WelcomeEmailData{
 		Name: "Bob",
 		EmailData: EmailData{
@@ -29,7 +28,7 @@ func TestSendWelcomeEmail(t *testing.T) {
 
 func TestVerificationEmail(t *testing.T) {
 	mock := engine.NewMockEngine(nil)
-	service := New(logrus.StandardLogger(), mock, "test@test.com")
+	service := New(mock, "test@test.com")
 	service.SendVerificationEmail("to@to.com", &VerificationData{
 		ActivationLink: "http://bla.com/activate",
 		EmailData: EmailData{
@@ -46,7 +45,7 @@ func TestVerificationEmail(t *testing.T) {
 
 func TestChangePasswordEmail(t *testing.T) {
 	mock := engine.NewMockEngine(nil)
-	service := New(logrus.StandardLogger(), mock, "test@test.com")
+	service := New(mock, "test@test.com")
 	service.SendForgotPasswordEmail("to@to.com", &ForgotPasswordData{
 		ResetLink:     "http://bla.com/reset",
 		ResetDuration: "10 minutes",

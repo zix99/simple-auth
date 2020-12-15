@@ -143,12 +143,12 @@ type ConfigEmailSMTP struct {
 	Identity string
 	Username string
 	Password string
-	From     string
 }
 
 type ConfigEmail struct {
-	Enabled bool
-	SMTP    ConfigEmailSMTP
+	Engine string
+	From   string
+	SMTP   ConfigEmailSMTP
 }
 
 type ConfigAPI struct {

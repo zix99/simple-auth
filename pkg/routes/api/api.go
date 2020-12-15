@@ -23,7 +23,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 	v1api := e.Group("/v1")
 	{
 		// Public API (eg. from the UI)
-		v1Env := v1.NewEnvironment(config, db)
+		v1Env := v1.NewEnvironment(config)
 		{
 			publicAuth := buildPublicAuthMiddleware(&config.API, nil)
 			publicAuthWithRecaptcha := buildPublicAuthMiddleware(&config.API, &config.Web.RecaptchaV2)
@@ -57,7 +57,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			}
 			if config.Authenticators.Simple.Enabled {
 				route := v1api.Group("/auth/simple")
-				emailService := email.NewFromConfig(logrus.StandardLogger(), &config.Email)
+				emailService := email.NewFromConfig(&config.Email)
 				loginService := services.NewLocalLoginService(emailService, &config.Metadata, &config.Web.Login.TwoFactor, &config.Web.Requirements, config.Web.GetBaseURL())
 				authAPI.NewSimpleAuthController(loginService, &config.Authenticators.Simple).Mount(route)
 			}

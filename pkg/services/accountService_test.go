@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,7 +21,7 @@ func TestEmailValidation(t *testing.T) {
 
 func TestCreateAccount(t *testing.T) {
 	mockEngine := engine.NewMockEngine(nil)
-	emailService := email.New(logrus.StandardLogger(), mockEngine, "test@test.comm")
+	emailService := email.New(mockEngine, "test@test.comm")
 	ctx := appcontext.NewContainer()
 	ctx.Use(appcontext.WithSADB(getDB()))
 	acctSrv := NewAccountService(&config.ConfigMetadata{}, &config.ConfigWeb{}, emailService).WithContext(ctx)

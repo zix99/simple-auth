@@ -12,7 +12,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
-	"github.com/sirupsen/logrus"
 )
 
 type environment struct {
@@ -25,7 +24,7 @@ type environment struct {
 }
 
 func NewController(db db.SADB, meta *config.ConfigMetadata, config *config.ConfigWeb, emailConfig *config.ConfigEmail) common.Controller {
-	emailService := email.NewFromConfig(logrus.StandardLogger(), emailConfig)
+	emailService := email.NewFromConfig(emailConfig)
 	return &environment{
 		db:                db,
 		localLoginService: services.NewLocalLoginService(emailService, meta, &config.Login.TwoFactor, &config.Requirements, config.GetBaseURL()),

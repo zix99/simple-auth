@@ -69,13 +69,13 @@ web:
         secret: null     # Secret key from google
         theme: 'light'   # light or dark
 email:
-    enabled: false
+    engine: noop
+    from: null
     smtp:
         host: ''
         identity: null
         username: null
         password: null
-        from: null
 authenticators:
     token:
         enabled: true

@@ -38,6 +38,9 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			privateAuth := buildPrivateAuthMiddleware(&config.Web.Login.Cookie, &config.API)
 			v1api.GET("/account", v1Env.RouteGetAccount, privateAuth)
 			v1api.GET("/account/audit", v1Env.RouteGetAccountAudit, privateAuth)
+
+			v1api.GET("/auth/local", v1Env.RouteGetLocalLogin, privateAuth)
+			v1api.POST("/auth/local/password", v1Env.RouteChangePassword, privateAuth)
 			if config.Web.Login.TwoFactor.Enabled {
 				v1api.GET("/2fa", v1Env.RouteSetup2FA, privateAuth)
 				v1api.GET("/2fa/qrcode", v1Env.Route2FAQRCodeImage, privateAuth)
@@ -47,19 +50,21 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 		}
 
 		// Attach authenticator routes
-		if config.Authenticators.Token.Enabled {
-			route := v1api.Group("/auth/token")
-			authAPI.NewTokenAuthController(db, &config.Authenticators.Token).Mount(route)
-		}
-		if config.Authenticators.Simple.Enabled {
-			route := v1api.Group("/auth/simple")
-			emailService := email.NewFromConfig(logrus.StandardLogger(), &config.Email)
-			loginService := services.NewLocalLoginService(emailService, &config.Metadata, &config.Web.Login.TwoFactor, &config.Web.Requirements, config.Web.GetBaseURL())
-			authAPI.NewSimpleAuthController(loginService, &config.Authenticators.Simple).Mount(route)
-		}
-		if config.Authenticators.Vouch.Enabled {
-			route := v1api.Group("/auth/vouch")
-			authAPI.NewVouchAuthController(db, &config.Authenticators.Vouch, &config.Web.Login.Cookie.JWT).Mount(route)
+		{
+			if config.Authenticators.Token.Enabled {
+				route := v1api.Group("/auth/token")
+				authAPI.NewTokenAuthController(db, &config.Authenticators.Token).Mount(route)
+			}
+			if config.Authenticators.Simple.Enabled {
+				route := v1api.Group("/auth/simple")
+				emailService := email.NewFromConfig(logrus.StandardLogger(), &config.Email)
+				loginService := services.NewLocalLoginService(emailService, &config.Metadata, &config.Web.Login.TwoFactor, &config.Web.Requirements, config.Web.GetBaseURL())
+				authAPI.NewSimpleAuthController(loginService, &config.Authenticators.Simple).Mount(route)
+			}
+			if config.Authenticators.Vouch.Enabled {
+				route := v1api.Group("/auth/vouch")
+				authAPI.NewVouchAuthController(db, &config.Authenticators.Vouch, &config.Web.Login.Cookie.JWT).Mount(route)
+			}
 		}
 	}
 

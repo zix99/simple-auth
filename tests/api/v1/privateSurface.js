@@ -7,6 +7,8 @@ const routes = [
   ['GET', '/api/v1/2fa/qrcode', { secret: 'ORDRZHDCYXU435ETZCIQ====' }],
   ['GET', '/api/v1/account', null],
   ['GET', '/api/v1/account/audit', null],
+  ['GET', '/api/v1/auth/local', null],
+  ['POST', '/api/v1/auth/local/password', { newpassword: 'bla' }],
   // ['POST', '/api/v1/2fa', { secret: 'ORDRZHDCYXU435ETZCIQ====', code: '123' }],
   // ['DELETE', '/api/v1/2fa', { code: '123' }],
 ];

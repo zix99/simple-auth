@@ -7,8 +7,6 @@ import (
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware"
 	"simple-auth/pkg/routes/middleware/recaptcha"
-	"simple-auth/pkg/routes/middleware/selector"
-	"simple-auth/pkg/routes/middleware/selector/auth"
 	"simple-auth/pkg/services"
 	"time"
 
@@ -54,17 +52,6 @@ func (env *environment) Mount(group *echo.Group) {
 			}
 		}
 	}
-
-	{ // Secure routes
-		authProvider := selector.NewSelectorMiddleware(
-			auth.NewSessionAuthProvider(&env.config.Login.Cookie.JWT, csrf),
-			selector.HandlerUnauthorized(),
-		)
-
-		group.POST("/account/password", env.routeChangePassword, authProvider)
-		group.GET("/account/password", env.routeChangePasswordRequirements, authProvider)
-	}
-
 }
 
 func buildRecaptchaMiddleware(config *config.ConfigRecaptchaV2) echo.MiddlewareFunc {

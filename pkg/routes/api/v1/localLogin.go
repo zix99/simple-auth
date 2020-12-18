@@ -19,6 +19,16 @@ type getLocalLoginResponse struct {
 
 const localLoginNotFound saerrors.ErrorCode = "local-login-not-found"
 
+// RouteGetLocalLogin gets local auth setup, if any
+// @Summary Get Local Auth
+// @Tags Auth:Local
+// @Description Get details about local authentication
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} getLocalLoginResponse
+// @Failure 400,401,404,500 {object} common.ErrorResponse
+// @Router /auth/local [get]
 func (env *Environment) RouteGetLocalLogin(c echo.Context) error {
 	authContext := auth.MustGetAuthContext(c)
 
@@ -39,6 +49,17 @@ type changePasswordRequest struct {
 	NewPassword string `json:"newpassword"`
 }
 
+// RouteChangePassword change password for local auth
+// @Summary Change Password
+// @Tags Auth:Local
+// @Description Change password for local auth
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param changePasswordRequest body changePasswordRequest true "Change password request"
+// @Success 200 {object} getLocalLoginResponse
+// @Failure 400,401,404,500 {object} common.ErrorResponse
+// @Router /auth/local/password [post]
 func (env *Environment) RouteChangePassword(c echo.Context) error {
 	authContext := auth.MustGetAuthContext(c)
 	loginService := env.localLoginService.WithContext(c)

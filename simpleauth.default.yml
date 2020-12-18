@@ -9,8 +9,9 @@ metadata:
     footer: ""
     bucket: {} # Not used by default. Can be used to customize
 web:
-    # The host and port the server (API & Web) listens on
-    host: "0.0.0.0:9002"
+    host: "0.0.0.0:9002" # The host and port the server (API & Web) listens on
+    prometheus: false    # If true, will enable /metrics endpoint (Must be compiled with prometheus support)
+    swagger: false       # If true, enables the swagger UI and docs endpoint at /swagger (Must be compiled with swagger support)
     tls:
         enabled: false
         # AutoTLS (and cache) are used to leverage LetsEncrypt to acquire certificate

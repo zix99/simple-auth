@@ -6,6 +6,7 @@ simpleauth.yml
 simple-auth-server
 /static/
 *.gen.go
+pkg/swagdocs
 
 # Logs
 logs

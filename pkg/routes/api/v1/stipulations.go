@@ -15,6 +15,17 @@ type tokenStipulationRequest struct {
 	AccountID string `json:"account"`
 }
 
+// RouteSatisfyTokenStipulation satisfy a token stipulation
+// @Summary Satisfy Stipulation
+// @Description Satisfy a stipulation on an account
+// @Tags Stipulation
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param req body tokenStipulationRequest true "Token Stipulation"
+// @Success 200 {object} common.OKResponse
+// @Failure 400,401,404,500 {object} common.ErrorResponse
+// @Router /stipulation [post]
 func (env *Environment) RouteSatisfyTokenStipulation(c echo.Context) error {
 	var req tokenStipulationRequest
 	if err := c.Bind(&req); err != nil {

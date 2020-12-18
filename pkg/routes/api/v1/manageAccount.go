@@ -41,6 +41,16 @@ type (
 	}
 )
 
+// RouteGetAccount gets account info
+// @Summary Get Account
+// @Tags Account
+// @Description Get details about account
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} getAccountResponse
+// @Failure 400,401,404,500 {object} common.ErrorResponse
+// @Router /account [get]
 func (env *Environment) RouteGetAccount(c echo.Context) error {
 	logger := appcontext.GetLogger(c)
 	sadb := appcontext.GetSADB(c)

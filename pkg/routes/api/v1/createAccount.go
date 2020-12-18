@@ -13,19 +13,30 @@ import (
 
 type createAccountRequest struct {
 	Username    string `json:"username" binding:"required"`
-	Password    string `json:"password" binding:"required"`
+	Password    string `json:"password" binding:"required" format:"password"`
 	Email       string `json:"email" binding:"required"`
 	RecaptchaV2 string `json:"recaptchav2" binding:"required"`
 }
 
 type createAccountResponse struct {
-	ID string `json:"id"`
+	ID string `json:"id"` // ID of the created user
 }
 
 const (
 	usernameUnavailable saerrors.ErrorCode = "username-unavailable"
 )
 
+// RouteCreateAccount creates a new account from echo context
+// @Summary Create Account
+// @Description Create a new account object
+// @Tags Account
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param createRequest body createAccountRequest true "Create request"
+// @Success 200 {object} createAccountResponse
+// @Failure 400,401,404,500 {object} common.ErrorResponse
+// @Router /account [post]
 func (env *Environment) RouteCreateAccount(c echo.Context) error {
 	logger := appcontext.GetLogger(c)
 	loginService := env.localLoginService.WithContext(c)
@@ -67,6 +78,17 @@ type checkUsernameResponse struct {
 	Exists   bool   `json:"exists"`
 }
 
+// RouteCheckUsername checks if username is already in use
+// @Summary Check username is in use
+// @Description Check if username is already in use
+// @Tags Account
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param checkUsernameRequest body checkUsernameRequest true "Request"
+// @Success 200 {object} checkUsernameResponse
+// @Failure 400,401,404,500 {object} common.ErrorResponse
+// @Router /account/check [post]
 func (env *Environment) RouteCheckUsername(c echo.Context) error {
 	var req checkUsernameRequest
 	if err := c.Bind(&req); err != nil {

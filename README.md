@@ -81,6 +81,16 @@ OR with docker
 docker build .
 ```
 
+### Build Tags
+
+Some parts of the build are optional & configurable.
+
+You can specify the following tags on a `go build`
+
+* `box` Includes any boxed files as part of `go generate ./...` in the resulting binary
+* `prometheus` Compiles a prometheus endpoint into the app
+* `swagger` Compiles the swagger doc and endpoint into the app
+
 
 # License
 

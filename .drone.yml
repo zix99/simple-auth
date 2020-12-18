@@ -36,6 +36,9 @@ steps:
       path: /go
     commands:
       - go generate ./...
+      - echo "box," >> .buildtags
+      - go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
+      - echo "swagger," >> .buildtags
     when:
       branch: ['master']
     depends_on:
@@ -66,7 +69,8 @@ steps:
     - name: go-cache
       path: /go
     commands:
-      - go build -tags box -o simple-auth-server simple-auth/cmd/server
+      - echo "prometheus" >> .buildtags
+      - go build -tags $(cat .buildtags) -o simple-auth-server simple-auth/cmd/server
     depends_on:
       - Server Generate
       - Node Dist

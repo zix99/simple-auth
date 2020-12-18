@@ -16,14 +16,18 @@ const (
 )
 
 type ErrorResponse struct {
-	Error   bool   `json:"error"`
-	Message string `json:"message"`
-	Reason  string `json:"reason"`
+	Error   bool   `json:"error" default:"true"`
+	Message string `json:"message" example:"A human-readable message"`
+	Reason  string `json:"reason" example:"machine-code"`
+}
+
+type OKResponse struct {
+	Success bool `json:"success" example:"true"`
 }
 
 func HttpOK(c echo.Context) error {
-	return c.JSON(http.StatusOK, Json{
-		"success": true,
+	return c.JSON(http.StatusOK, OKResponse{
+		Success: true,
 	})
 }
 

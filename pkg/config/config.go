@@ -135,7 +135,8 @@ type ConfigWeb struct {
 	RecaptchaV2  ConfigRecaptchaV2
 	Login        ConfigLogin
 	Gateway      ConfigLoginGateway
-	Prometheus   bool // If true, will enable /metrics endpoint
+	Prometheus   bool
+	Swagger      bool
 }
 
 type ConfigEmailSMTP struct {

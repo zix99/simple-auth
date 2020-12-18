@@ -52,7 +52,7 @@ export default {
     };
   },
   mounted() {
-    axios.get('api/v1/auth/local')
+    axios.get('api/v1/local')
       .then((resp) => {
         this.requireOldPassword = resp.data.requireOldPassword;
       });
@@ -63,7 +63,7 @@ export default {
         oldpassword: this.oldpassword,
         newpassword: this.password,
       };
-      this.loadingPromise = axios.post('api/v1/auth/local/password', data)
+      this.loadingPromise = axios.post('api/v1/local/password', data)
         .then(() => {
           this.success = true;
           setTimeout(() => this.$emit('submitted'), 1500);

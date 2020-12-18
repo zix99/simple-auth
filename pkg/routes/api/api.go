@@ -58,13 +58,13 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			v1api.GET("/account", v1Env.RouteGetAccount, privateAuth)
 			v1api.GET("/account/audit", v1Env.RouteGetAccountAudit, privateAuth)
 
-			v1api.GET("/auth/local", v1Env.RouteGetLocalLogin, privateAuth)
-			v1api.POST("/auth/local/password", v1Env.RouteChangePassword, privateAuth)
+			v1api.GET("/local", v1Env.RouteGetLocalLogin, privateAuth)
+			v1api.POST("/local/password", v1Env.RouteChangePassword, privateAuth)
 			if config.Web.Login.TwoFactor.Enabled {
-				v1api.GET("/2fa", v1Env.RouteSetup2FA, privateAuth)
-				v1api.GET("/2fa/qrcode", v1Env.Route2FAQRCodeImage, privateAuth)
-				v1api.POST("/2fa", v1Env.RouteConfirm2FA, privateAuth)
-				v1api.DELETE("/2fa", v1Env.RouteDeactivate2FA, privateAuth)
+				v1api.GET("/local/2fa", v1Env.RouteSetup2FA, privateAuth)
+				v1api.GET("/local/2fa/qrcode", v1Env.Route2FAQRCodeImage, privateAuth)
+				v1api.POST("/local/2fa", v1Env.RouteConfirm2FA, privateAuth)
+				v1api.DELETE("/local/2fa", v1Env.RouteDeactivate2FA, privateAuth)
 			}
 		}
 

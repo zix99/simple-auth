@@ -3,6 +3,7 @@ package auth
 import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
+	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 
 	"github.com/labstack/echo/v4"
@@ -31,6 +32,14 @@ func (env *VouchAuthController) Mount(group *echo.Group) {
 	group.GET("", env.routeVouchAuth, loggedInMiddleware)
 }
 
+// @Summary Vouch
+// @Description A vouch endpoint that checks if the user is logged in via cookie.  Intended to be used as `auth_request` in nginx
+// @Tags Auth
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} common.OKResponse
+// @Router /auth/vouch [get]
 func (env *VouchAuthController) routeVouchAuth(c echo.Context) error {
-	return c.HTML(200, "OK")
+	return common.HttpOK(c)
 }

@@ -15,6 +15,7 @@ rm quicktest.db
   --api-external=true --api-sharedsecret=super-secret \
   --web-login-twofactor-enabled \
   --email-engine=stdout \
+  --web-requirements-emailvalidationrequired=false \
   --db-url=quicktest.db &
 echo "PID: $!"
 

@@ -39,6 +39,26 @@ func (env *SimpleAuthController) Mount(group *echo.Group) {
 	group.POST("", env.routeSimpleAuthenticate)
 }
 
+type simpleAuthRequest struct {
+	Username string  `json:"username" form:"username"`
+	Password string  `json:"password" form:"password"`
+	TOTP     *string `json:"totp" form:"totp"`
+}
+
+type simpleAuthResponse struct {
+	ID string `json:"id"` // Account ID
+}
+
+// @Summary Authenticate
+// @Description Authenticate username and password. 200 on success, otherwise 403
+// @Tags Auth
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param simpleAuthRequest body simpleAuthRequest true "Credentials"
+// @Success 200 {object} simpleAuthResponse
+// @Failure 400,401,403,404,500 {object} common.ErrorResponse
+// @Router /auth/simple [post]
 func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 	if env.config.SharedSecret != "" {
 		authHeader := c.Request().Header.Get(echo.HeaderAuthorization)
@@ -54,11 +74,7 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 		}
 	}
 
-	req := struct {
-		Username string  `json:"username" form:"username"`
-		Password string  `json:"password" form:"password"`
-		TOTP     *string `json:"totp" form:"totp"`
-	}{}
+	var req simpleAuthRequest
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
@@ -68,7 +84,7 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 		return common.HttpError(c, http.StatusForbidden, err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{
-		"id": authLocal.Account().UUID,
+	return c.JSON(http.StatusOK, simpleAuthResponse{
+		ID: authLocal.Account().UUID,
 	})
 }

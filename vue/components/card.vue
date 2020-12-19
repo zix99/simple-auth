@@ -1,6 +1,6 @@
 <template>
-    <div class="card">
-        <header class="card-header">
+    <div class="card my-3">
+        <header class="card-header m-6">
             <p class="card-header-title">{{title}}</p>
         </header>
         <div class="card-content">

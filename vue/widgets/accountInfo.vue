@@ -5,6 +5,20 @@
     </LoadingBanner>
     <div v-if="account">
       <h2 class="title is-3">{{account.email}}</h2>
+
+      <Card title="Account">
+        <table class="table">
+          <tbody>
+            <tr v-if="account.name">
+              <th>Name</th><td>{{account.name}}</td>
+            </tr>
+            <tr>
+              <th>Created</th><td><ShortDate :date="account.created" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </Card>
+
       <Card v-if="account.auth.local" title="Local Auth">
         <table class="table">
           <tbody>
@@ -64,6 +78,7 @@ import axios from 'axios';
 import Card from '../components/card.vue';
 import LoadingBanner from '../components/loadingBanner.vue';
 import Modal from '../components/modal.vue';
+import ShortDate from '../components/shortdate.vue';
 import LogoutButton from './logoutButton.vue';
 import ChangePassword from './changePassword.vue';
 import TwoFactorSetup from './twoFactorSetup.vue';
@@ -78,6 +93,7 @@ export default {
     ChangePassword,
     TwoFactorSetup,
     TwoFactorDeactivate,
+    ShortDate,
   },
   data() {
     return {

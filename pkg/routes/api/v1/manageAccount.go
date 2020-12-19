@@ -34,9 +34,10 @@ type (
 		OIDC  *[]getAccountOIDCAuthResponse `json:"oidc,omitempty"`
 	}
 	getAccountResponse struct {
-		ID      string                         `json:"id"`
+		ID      string                         `json:"id" example:"00000000-0000-0000-0000-000000000000"`
 		Created time.Time                      `json:"created"`
-		Email   string                         `json:"email"`
+		Email   string                         `json:"email" example:"sa@example.com"`
+		Name    string                         `json:"name" example:"John Smith"`
 		Auth    getAccountAuthProviderResponse `json:"auth"`
 	}
 )
@@ -66,6 +67,7 @@ func (env *Environment) RouteGetAccount(c echo.Context) error {
 		ID:      account.UUID,
 		Created: account.CreatedAt,
 		Email:   account.Email,
+		Name:    account.Name,
 	}
 
 	if authLocal, err := env.localLoginService.WithContext(c).FindAuthLocal(account.UUID); err == nil {

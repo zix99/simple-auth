@@ -51,7 +51,7 @@ func (env *Environment) RouteOneTimeCreateToken(c echo.Context) error {
 }
 
 // @Summary OneTime Authenticate
-// @Description Loggin via onetime token and create session
+// @Description Login via onetime token and create session
 // @Tags Session
 // @Accept json
 // @Param token query string true "OneTime token to authenticate against"

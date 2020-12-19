@@ -5,7 +5,6 @@ import (
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/email"
 	authAPI "simple-auth/pkg/routes/api/auth"
-	"simple-auth/pkg/routes/api/ui"
 	v1 "simple-auth/pkg/routes/api/v1"
 	saMiddleware "simple-auth/pkg/routes/middleware"
 	"simple-auth/pkg/routes/middleware/recaptcha"
@@ -44,14 +43,26 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 		// Public API (eg. from the UI)
 		v1Env := v1.NewEnvironment(config)
 		{
-			publicAuth := buildPublicAuthMiddleware(&config.API, nil)
-			publicAuthWithRecaptcha := buildPublicAuthMiddleware(&config.API, &config.Web.RecaptchaV2)
+			publicAuth := buildPublicAuthMiddleware(&config.API, nil, true)
+			publicAuthWithRecaptcha := buildPublicAuthMiddleware(&config.API, &config.Web.RecaptchaV2, true)
+			publicAuthNoDelay := buildPublicAuthMiddleware(&config.API, nil, false)
+
 			v1api.POST("/account/check", v1Env.RouteCheckUsername, publicAuth)
 			if config.Web.Login.Settings.CreateAccountEnabled {
 				v1api.POST("/account", v1Env.RouteCreateAccount, publicAuthWithRecaptcha)
 			}
 
 			v1api.POST("/stipulation", v1Env.RouteSatisfyTokenStipulation, publicAuth)
+
+			v1api.POST("/auth/session", v1Env.RouteSessionLogin, publicAuth)
+			v1api.DELETE("/auth/session", v1Env.RouteSessionLogout, publicAuthNoDelay)
+
+			if config.Web.Login.OneTime.Enabled {
+				v1api.GET("/auth/onetime", v1Env.RouteOneTimeAuth, publicAuth)
+				if config.Web.Login.OneTime.AllowForgotPassword {
+					v1api.POST("/auth/onetime", v1Env.RouteOneTimeCreateToken, publicAuthWithRecaptcha)
+				}
+			}
 		}
 		{
 			privateAuth := buildPrivateAuthMiddleware(&config.Web.Login.Cookie, &config.API)
@@ -86,16 +97,10 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			}
 		}
 	}
-
-	// LEGACY: Attach UI/access router
-	{
-		uiGroup := e.Group("/ui")
-		controller := ui.NewController(db, &config.Metadata, &config.Web, &config.Email)
-		controller.Mount(uiGroup)
-	}
 }
 
-func buildPublicAuthMiddleware(config *config.ConfigAPI, recaptcha *config.ConfigRecaptchaV2) echo.MiddlewareFunc {
+// Authentication that allows either UI access (with CSRF, throttled, and optional recaptcha), or private-api-key access
+func buildPublicAuthMiddleware(config *config.ConfigAPI, recaptcha *config.ConfigRecaptchaV2, throttle bool) echo.MiddlewareFunc {
 	var selectorGroups []selector.SelectorGroup
 
 	if config.External {
@@ -109,7 +114,10 @@ func buildPublicAuthMiddleware(config *config.ConfigAPI, recaptcha *config.Confi
 	}
 
 	throttleDuration, _ := time.ParseDuration(config.ThrottleDuration)
-	throttleMiddleware := saMiddleware.NewThrottleGroup(1, throttleDuration)
+	var throttleMiddleware echo.MiddlewareFunc
+	if throttle {
+		throttleMiddleware = saMiddleware.NewThrottleGroup(1, throttleDuration)
+	}
 	recaptchaMiddleware := buildRecaptchaMiddleware(recaptcha)
 	selectorGroups = append(selectorGroups, selector.NewSelectorGroup(
 		selector.SelectorAlways,
@@ -121,6 +129,7 @@ func buildPublicAuthMiddleware(config *config.ConfigAPI, recaptcha *config.Confi
 	return selector.NewSelectorMiddleware(selectorGroups...)
 }
 
+// Allow a session token, or private key access
 func buildPrivateAuthMiddleware(sessionConfig *config.ConfigLoginCookie, apiConfig *config.ConfigAPI) echo.MiddlewareFunc {
 	var selectorGroups []selector.SelectorGroup
 

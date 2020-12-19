@@ -8,7 +8,7 @@ import axios from 'axios';
 export default {
   methods: {
     logout() {
-      axios.post('api/ui/logout')
+      axios.delete('api/v1/auth/session')
         .catch(() => {})
         .then(() => {
           if (this.$router) {

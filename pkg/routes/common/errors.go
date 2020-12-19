@@ -13,6 +13,7 @@ const (
 	ErrDeserialization saerrors.ErrorCode = "deserialize-failed"
 	ErrBadRequest      saerrors.ErrorCode = "bad-request"
 	ErrInternal        saerrors.ErrorCode = "internal-error"
+	ErrMissingFields   saerrors.ErrorCode = "missing-fields"
 )
 
 type ErrorResponse struct {

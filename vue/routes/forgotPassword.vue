@@ -87,7 +87,7 @@ export default {
         }
       }
 
-      this.loadingPromise = axios.post('api/ui/onetime', data, { params })
+      this.loadingPromise = axios.post('api/v1/auth/onetime', data, { params })
         .then(() => {
           this.sent = true;
         });

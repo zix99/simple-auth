@@ -11,6 +11,7 @@ type Environment struct {
 	localLoginService services.LocalLoginService
 	twoFactorService  services.TwoFactorService
 	oidcService       services.OIDCService
+	sessionService    services.SessionService
 	loginConfig       *config.ConfigLoginCookie
 }
 
@@ -21,6 +22,7 @@ func NewEnvironment(config *config.Config) *Environment {
 		services.NewLocalLoginService(emailService, &config.Metadata, &config.Web.Login.TwoFactor, &config.Web.Requirements, config.Web.GetBaseURL()),
 		services.NewTwoFactorService(&config.Web.Login.TwoFactor),
 		services.NewOIDCService(config.Web.Login.OIDC),
+		services.NewSessionService(emailService, &config.Web.Login.Cookie, &config.Web.Login.OneTime, &config.Web, &config.Metadata),
 		&config.Web.Login.Cookie,
 	}
 }

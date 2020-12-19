@@ -102,7 +102,7 @@ export default {
         password: this.password,
         totp: this.totp,
       };
-      this.signinPromise = axios.post('api/ui/login', postData)
+      this.signinPromise = axios.post('api/v1/auth/session', postData)
         .then(() => {
           this.$emit('loggedIn');
         }).finally(() => {

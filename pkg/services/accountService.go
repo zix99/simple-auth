@@ -13,6 +13,7 @@ import (
 type AccountService interface {
 	WithContext(ctx appcontext.Context) AccountService
 	CreateAccount(name, email string) (*db.Account, error)
+	FindAccountByEmail(email string) (*db.Account, error)
 }
 
 type accountService struct {
@@ -67,4 +68,9 @@ func validateEmail(email string) error {
 		return errors.New("invalid email")
 	}
 	return nil
+}
+
+func (s *accountService) FindAccountByEmail(email string) (*db.Account, error) {
+	account, err := s.dbAccount.FindAccountByEmail(email)
+	return account, err
 }

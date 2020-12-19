@@ -43,7 +43,6 @@ web:
                 expiresminutes: 30
             name: "auth"
             path: /
-            expiresminutes: 1440
             secureonly: false
             httponly: true
         oidc: []

@@ -22,6 +22,7 @@ func loadYaml(config *Config, filename string) error {
 	defer f.Close()
 
 	decoder := yaml.NewDecoder(f)
+	decoder.SetStrict(true)
 	if err := decoder.Decode(config); err != nil {
 		logrus.Errorf("Unable to parse config %s: %v", filename, err)
 		return err
@@ -29,19 +30,22 @@ func loadYaml(config *Config, filename string) error {
 
 	logrus.Infof("Loaded config file %s", filename)
 
-	// recurse into include files
-	processIncludes(config, false)
-
-	return nil
+	return processIncludes(config, false)
 }
 
-func processIncludes(config *Config, abortOnError bool) error {
+func processIncludes(config *Config, abortOnNotFound bool) error {
 	if len(config.Include) > 0 {
 		includes := config.Include
 		config.Include = nil
 		for _, fn := range includes {
-			if err := loadYaml(config, fn); err != nil && abortOnError {
-				return fmt.Errorf("unable to load %s: %v", fn, err)
+			if err := loadYaml(config, fn); err != nil {
+				if err == os.ErrNotExist {
+					if abortOnNotFound {
+						return fmt.Errorf("unable to load %s: %w", fn, err)
+					}
+				} else {
+					return fmt.Errorf("unable to load %s: %w", fn, err)
+				}
 			}
 		}
 	}

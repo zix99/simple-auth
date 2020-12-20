@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"errors"
 	"net/http"
 	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/routes/common"
@@ -12,10 +11,9 @@ import (
 )
 
 type createAccountRequest struct {
-	Username    string `json:"username" binding:"required"`
-	Password    string `json:"password" binding:"required" format:"password"`
-	Email       string `json:"email" binding:"required"`
-	RecaptchaV2 string `json:"recaptchav2" binding:"required"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required" format:"password"`
+	Email    string `json:"email" validate:"required"`
 }
 
 type createAccountResponse struct {
@@ -45,6 +43,9 @@ func (env *Environment) RouteCreateAccount(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
+	if err := c.Validate(&req); err != nil {
+		return common.HttpBadRequest(c, err)
+	}
 
 	if exists, err := loginService.UsernameExists(req.Username); exists || err != nil {
 		return common.HttpError(c, http.StatusConflict, usernameUnavailable.Wrap(err))
@@ -70,7 +71,7 @@ func (env *Environment) RouteCreateAccount(c echo.Context) error {
 }
 
 type checkUsernameRequest struct {
-	Username string `json:"username"`
+	Username string `json:"username" validate:"required"`
 }
 
 type checkUsernameResponse struct {
@@ -94,8 +95,8 @@ func (env *Environment) RouteCheckUsername(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
-	if req.Username == "" {
-		return common.HttpBadRequest(c, errors.New("missing username"))
+	if err := c.Validate(&req); err != nil {
+		return common.HttpBadRequest(c, err)
 	}
 
 	exists, _ := env.localLoginService.WithContext(c).UsernameExists(req.Username)

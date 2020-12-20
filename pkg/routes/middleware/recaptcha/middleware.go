@@ -13,7 +13,7 @@ const (
 	errorInvalidRecaptcha      saerrors.ErrorCode = "invalid-recaptcha"
 )
 
-// MiddlewareV2 looks for a recaptcha value in the request, and blocks a response if the value is not valid
+// MiddlewareV2 looks for a "recaptchav2" query value in the request, and blocks a response if the value is not valid
 // Token must be on query, can't read in body
 func MiddlewareV2(secret string) echo.MiddlewareFunc {
 	validator := NewValidatorV2(secret)

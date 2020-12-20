@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"errors"
 	"net/http"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware/selector/auth"
@@ -56,7 +55,7 @@ func (env *Environment) getLocalLoginResponse(c echo.Context) (*getLocalLoginRes
 
 type changePasswordRequest struct {
 	OldPassword string `json:"oldpassword"` // Not required if source is one-time (eg reset link)
-	NewPassword string `json:"newpassword"`
+	NewPassword string `json:"newpassword" validate:"required"`
 }
 
 // RouteChangePassword change password for local auth
@@ -78,9 +77,8 @@ func (env *Environment) RouteChangePassword(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
-
-	if req.NewPassword == "" {
-		return common.HttpBadRequest(c, errors.New("missing newpassword"))
+	if err := c.Validate(&req); err != nil {
+		return common.HttpBadRequest(c, err)
 	}
 
 	authLocal, err := loginService.FindAuthLocal(authContext.UUID)

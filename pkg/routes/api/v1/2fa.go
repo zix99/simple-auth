@@ -2,7 +2,6 @@ package v1
 
 import (
 	"bytes"
-	"errors"
 	"net/http"
 	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/lib/totp/otpimagery"
@@ -53,7 +52,7 @@ func (env *Environment) Route2FAQRCodeImage(c echo.Context) error {
 
 	secret := c.QueryParam("secret")
 	if secret == "" {
-		return common.HttpBadRequest(c, errors.New("missing secret"))
+		return common.HttpBadRequestf(c, "missing secret")
 	}
 
 	authLocal, err := env.localLoginService.WithContext(c).FindAuthLocal(authContext.UUID)
@@ -75,8 +74,8 @@ func (env *Environment) Route2FAQRCodeImage(c echo.Context) error {
 }
 
 type tfaActivateRequest struct {
-	Secret string `json:"secret" format:"password"`
-	Code   string `json:"code"`
+	Secret string `json:"secret" format:"password" validate:"required"`
+	Code   string `json:"code" validate:"required"`
 }
 
 // RouteConfirm2FA confirm 2fa code and activate
@@ -97,8 +96,8 @@ func (env *Environment) RouteConfirm2FA(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
-	if req.Code == "" || req.Secret == "" {
-		return common.HttpBadRequestf(c, "Missing field")
+	if err := c.Validate(&req); err != nil {
+		return common.HttpBadRequest(c, err)
 	}
 
 	log := appcontext.GetLogger(c)

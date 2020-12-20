@@ -10,8 +10,8 @@ import (
 )
 
 type loginRequest struct {
-	Username string  `json:"username" binding:"required"`
-	Password string  `json:"password" binding:"required"`
+	Username string  `json:"username" validate:"required"`
+	Password string  `json:"password" validate:"required"`
 	Totp     *string `json:"totp"`
 }
 
@@ -30,9 +30,8 @@ func (env *Environment) RouteSessionLogin(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
-
-	if req.Username == "" || req.Password == "" {
-		return common.HttpBadRequest(c, common.ErrMissingFields.Newf("missing email or password"))
+	if err := c.Validate(&req); err != nil {
+		return common.HttpBadRequest(c, err)
 	}
 
 	logger.Infof("Attempting login for '%s'...", req.Username)

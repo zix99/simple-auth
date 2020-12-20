@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"errors"
 	"net/http"
 	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/routes/common"
@@ -11,7 +10,7 @@ import (
 )
 
 type oneTimePostRequest struct {
-	Email string `json:"email" form:"email" binding:"required" example:"sa@example.com"`
+	Email string `json:"email" form:"email" validate:"required,email" example:"sa@example.com"`
 }
 
 // @Summary Create OneTime
@@ -30,9 +29,8 @@ func (env *Environment) RouteOneTimeCreateToken(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
-
-	if req.Email == "" {
-		return common.HttpBadRequest(c, common.ErrMissingFields.Newf("Missing email"))
+	if err := c.Validate(&req); err != nil {
+		return common.HttpBadRequest(c, err)
 	}
 
 	logger.Infof("Issuing one-time token to email %s...", req.Email)
@@ -63,7 +61,7 @@ func (env *Environment) RouteOneTimeAuth(c echo.Context) error {
 
 	token := strings.TrimSpace(c.QueryParam("token"))
 	if token == "" {
-		return common.HttpBadRequest(c, errors.New("missing token"))
+		return common.HttpBadRequestf(c, "missing token")
 	}
 
 	logger.Infof("Attemping to one-time signin for token %s...", token)

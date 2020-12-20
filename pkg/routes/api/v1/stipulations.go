@@ -11,8 +11,8 @@ import (
 )
 
 type tokenStipulationRequest struct {
-	Token     string `json:"token"`
-	AccountID string `json:"account"`
+	Token     string `json:"token" validate:"required"`
+	AccountID string `json:"account" validate:"uuid"` // If blank, from session
 }
 
 // RouteSatisfyTokenStipulation satisfy a token stipulation
@@ -29,6 +29,9 @@ type tokenStipulationRequest struct {
 func (env *Environment) RouteSatisfyTokenStipulation(c echo.Context) error {
 	var req tokenStipulationRequest
 	if err := c.Bind(&req); err != nil {
+		return common.HttpBadRequest(c, err)
+	}
+	if err := c.Validate(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
 

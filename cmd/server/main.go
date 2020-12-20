@@ -53,6 +53,7 @@ func simpleAuthServer(config *config.Config) error {
 
 	e := echo.New()
 	e.Debug = !config.Production
+	e.Validator = NewGoPlaygroundValidator()
 
 	applyHooks(e, config)
 

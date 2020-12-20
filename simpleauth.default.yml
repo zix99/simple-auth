@@ -1,25 +1,28 @@
-production: false
-verbose: false
-staticfromdisk: false
+production: false           # Production-level optimization
+verbose: false              # Enable debug-level logging
+staticfromdisk: false       # Before looking at internal storage for static content, check disk (primarily for debugging)
 include: ['simpleauth.yml']
 
-# Metadata is fed into the `tmpl` files to be rendered
+# Metadata is fed into the `tmpl` and emails to be rendered
 metadata:
     company: "My Company"
     footer: ""
     bucket: {} # Not used by default. Can be used to customize
 web:
     host: "0.0.0.0:9002" # The host and port the server (API & Web) listens on
+    baseurl: null        # Specifies the full URL the server will be at. If null, inferred from host
     prometheus: false    # If true, will enable /metrics endpoint (Must be compiled with prometheus support)
     swagger: false       # If true, enables the swagger UI and docs endpoint at /swagger (Must be compiled with swagger support)
     tls:
         enabled: false
+        certfile: null   # Certificate file, if enabled (and not auto)
+        keyfile: null    # Key file, if enabled (and not auto)
         # AutoTLS (and cache) are used to leverage LetsEncrypt to acquire certificate
         # Needs to be internet-facing to work
         auto: true
         cache: ./
 
-    # Requirements inform server and client of any form requirements
+    # Requirements inform server and client of any user requirements
     requirements:
         usernameregex: '^[a-z][a-z0-9.]+$'
         passwordminlength: 3
@@ -28,39 +31,55 @@ web:
         usernamemaxlength: 20
         emailvalidationrequired: false  # If email validation is required before login
 
+    # Login section for setting different ways a user is allowed to login
     login:
         settings:
             createaccountenabled: true      # If allowed to create account
             routeonlogin: null              # Where to route to post-login (either login or create)
             allowedcontinueurls: []         # Urls, in addition to local pages, allowed post-login via ?continue query param
-            throttleduration: 1s
+            throttleduration: 1s            # How often a user can make requests to a throttled API (disrupts brute-force attacks)
         cookie:
             jwt:
                 # Key for jwt-signing
-                signingmethod: "hs256"
-                signingkey: ""
-                issuer: "simple-auth"
-                expiresminutes: 30
-            name: "auth"
-            path: /
-            secureonly: false
-            httponly: true
+                signingmethod: "hs256"      # HS256, HS512, RS256, RS512
+                signingkey: ""              # IMPORTANT: The key that will sign use credentials. this MUST be kept secret, otherwise anyone can login to your site or hack your users. If RSA key, should be PEM
+                issuer: "simple-auth"       # Who shows up as the issuer of the token
+                expiresminutes: 30          # Max time (and default time) until token expiration
+            name: "auth"           # The name of the cookie that the session will be stored in
+            path: /                # The path the session will be stored at (mainly useful if simple-auth is at a sub-path of root)
+            domain: null           # Override the domain of the cookie
+            secureonly: false      # If the cookie will only be passed on https
+            httponly: true         # If the cookie can't be accessed from javascript
         oidc: []
+        # - id: google
+        #   name: Google
+        #   icon: google
+        #   clientid: id-from-google
+        #   clientsecret: super-secret-from-google
+        #   authurl: auth-endpoint
+        #   tokenurl: token-endpoint
         onetime:
-            enabled: true
+            enabled: true             # Allow single-use token for login (important for forgot-password email)
             allowforgotpassword: true # If allowed to issue forgot-password email.  Required email config
             tokenduration: 1h
-        # Two-factor auth 2FA / TOTP
+        # Two-factor auth 2FA / TOTP (Only impacts local-auth users, not oidc)
         twofactor:
-            enabled: false
+            enabled: false           # TOTP two-factor (google authenticator, and others)
             keylength: 12
-            drift: 2
-            issuer: "simple-auth"
+            drift: 2                 # How many tokens around the "current" token to check (Accounts for user-entry-delay)
+            issuer: "simple-auth"    # Who the token shows up as issued-by in the 2fa app
 
+    # Gateway allows simple-auth to act as a reverse-proxy. If the user is logged-in, they will be allowed to pass-through the proxy
+    # to the remote application.  Intentionally left simple, only can pass to one server.  If you have more than one backend server
+    # to pass to, I recommend looking at nginx and the vouch endpoint
     gateway:
         enabled: false
-        logoutpath: "/logout"
-        targets: []
+        logoutpath: "/logout"  # Special path that will act as "logout" (clear session).  Shouldn't conflict with any downstream URLs
+        targets: []            # One or more downstream servers that SA will proxy to
+        host: null             # Override the host header
+        rewrite: null          # Rewrite URLs upon proxying eg "/old"->"/new" or "/api/*"->"/$1"
+        headers: null          # Write additional headers (excluding host header)
+        nocache: true          # If true, will attempt to disable caching to gateway target
 
     # Enable or disable recaptchav2
     recaptchav2:
@@ -68,28 +87,38 @@ web:
         sitekey: null    # site key from google
         secret: null     # Secret key from google
         theme: 'light'   # light or dark
+
+# Email config; sends welcome, forgot password, etc
 email:
-    engine: noop
-    from: null
-    smtp:
+    engine: noop  # Email engines: smtp,noop,stdout
+    from: null    # Who the email is "from"
+    smtp:         # If engine is "smtp", the config
         host: ''
         identity: null
         username: null
         password: null
+
+# Different ways a remote service can check a user is authenticated
 authenticators:
     token:
         enabled: true
         sessionexpiresminutes: 720 # 12 hours
         verificationexpiresseconds: 15
-    simple:
-        enabled: true
-        sharedsecret: "your-super-secret-token"
-    vouch:
-        enabled: true
+    simple: # An endpoint that allows checking a username/password/totp. See docs for more details
+        enabled: false
+        sharedsecret: null
+    vouch: # An endpoint intended to use for nginx auth_request
+        enabled: false
+
+# All of the API endpoints that the UI uses are also available for API calls
+# if this is enabled
 api:
     external: false
-    sharedsecret: ""
-    throttleduration: 1s
+    sharedsecret: ""      # A shared-key secret that allows making API calls via the Authorization header (see docs for more detail)
+    throttleduration: 1s  # Throttle on public-facing APIs (even if non-external)
+
+# Storage engine
 db:
-    driver: "sqlite3"
-    url: "simpleauth.db"
+    driver: "sqlite3"     # Storage driver: "sqlite3", "postgres", "mysql"
+    url: "simpleauth.db"  # Storage connection URL. See http://gorm.io/docs/connecting_to_the_database.html
+    debug: false          # Will output query performance to log

@@ -2,9 +2,9 @@ package config
 
 // ConfigDatabase holds database-specific configuration
 type ConfigDatabase struct {
-	Driver string // Driver, eg "sqlite3", "postgres", or "mysql"
-	URL    string // Connection string for the driver. See http://gorm.io/docs/connecting_to_the_database.html
-	Debug  bool   // Enable debug logging
+	Driver string
+	URL    string
+	Debug  bool
 }
 
 type ConfigTokenAuthenticator struct {
@@ -55,11 +55,11 @@ type ConfigJWT struct {
 type ConfigLoginGateway struct {
 	Enabled    bool
 	Targets    []string
-	Host       string            // Override the host header
-	LogoutPath string            // Path for the logout url (to override & skip proxying)
-	Rewrite    map[string]string // Rewrite URLs upon proxying eg "/old"->"/new" or "/api/*"->"/$1"
-	Headers    map[string]string // Override additional headers (excluding host header)
-	NoCache    bool              // If true, will attempt to disable caching to gateway target
+	Host       string
+	LogoutPath string
+	Rewrite    map[string]string
+	Headers    map[string]string
+	NoCache    bool
 }
 
 type ConfigLoginCookie struct {

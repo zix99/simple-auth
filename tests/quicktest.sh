@@ -20,6 +20,8 @@ rm quicktest.db
   --web-login-twofactor-enabled \
   --email-engine=stdout \
   --web-requirements-emailvalidationrequired=false \
+  --authenticators-simple-enabled --authenticators-simple-sharedsecret=your-super-secret-token \
+  --authenticators-vouch-enabled \
   --db-url=quicktest.db &
 echo "PID: $!"
 

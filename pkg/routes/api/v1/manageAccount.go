@@ -18,11 +18,6 @@ const (
 )
 
 type (
-	getAccountLocalAuthResponse struct {
-		Username       string `json:"username"`
-		HasTwoFactor   bool   `json:"twofactor"`
-		AllowTwoFactor bool   `json:"twofactorallowed"`
-	}
 	getAccountOIDCAuthResponse struct {
 		Provider string `json:"provider"`
 		Subject  string `json:"subject"`
@@ -30,7 +25,7 @@ type (
 		Name     string `json:"name"`
 	}
 	getAccountAuthProviderResponse struct {
-		Local *getAccountLocalAuthResponse  `json:"local,omitempty"`
+		Local *getLocalLoginResponse        `json:"local,omitempty"`
 		OIDC  *[]getAccountOIDCAuthResponse `json:"oidc,omitempty"`
 	}
 	getAccountResponse struct {
@@ -70,12 +65,10 @@ func (env *Environment) RouteGetAccount(c echo.Context) error {
 		Name:    account.Name,
 	}
 
-	if authLocal, err := env.localLoginService.WithContext(c).FindAuthLocal(account.UUID); err == nil {
-		response.Auth.Local = &getAccountLocalAuthResponse{
-			Username:       authLocal.Username(),
-			HasTwoFactor:   authLocal.HasTOTP(),
-			AllowTwoFactor: env.localLoginService.AllowTOTP(),
-		}
+	if localLoginResponse, err := env.getLocalLoginResponse(c); err != nil {
+		logger.Warnln(err)
+	} else {
+		response.Auth.Local = localLoginResponse
 	}
 
 	if providers, err := sadb.FindOIDCForAccount(account); err == nil && len(providers) > 0 {

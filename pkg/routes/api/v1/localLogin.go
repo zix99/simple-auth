@@ -30,18 +30,28 @@ const localLoginNotFound saerrors.ErrorCode = "local-login-not-found"
 // @Failure 400,401,404,500 {object} common.ErrorResponse
 // @Router /local [get]
 func (env *Environment) RouteGetLocalLogin(c echo.Context) error {
-	authContext := auth.MustGetAuthContext(c)
-
-	if authLocal, err := env.localLoginService.WithContext(c).FindAuthLocal(authContext.UUID); err == nil {
-		return c.JSON(http.StatusOK, &getLocalLoginResponse{
-			Username:           authLocal.Username(),
-			HasTwoFactor:       authLocal.HasTOTP(),
-			AllowTwoFactor:     env.localLoginService.AllowTOTP(),
-			RequireOldPassword: !allowUnsafePasswordUpdate(authContext),
-		})
+	resp, err := env.getLocalLoginResponse(c)
+	if err != nil {
+		return common.HttpError(c, http.StatusNotFound, localLoginNotFound.New())
 	}
 
-	return common.HttpError(c, http.StatusNotFound, localLoginNotFound.New())
+	return c.JSON(http.StatusOK, resp)
+}
+
+func (env *Environment) getLocalLoginResponse(c echo.Context) (*getLocalLoginResponse, error) {
+	authContext := auth.MustGetAuthContext(c)
+
+	authLocal, err := env.localLoginService.WithContext(c).FindAuthLocal(authContext.UUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &getLocalLoginResponse{
+		Username:           authLocal.Username(),
+		HasTwoFactor:       authLocal.HasTOTP(),
+		AllowTwoFactor:     env.localLoginService.AllowTOTP(),
+		RequireOldPassword: !allowUnsafePasswordUpdate(authContext),
+	}, nil
 }
 
 type changePasswordRequest struct {

@@ -20,6 +20,7 @@ type tfaSetupResponse struct {
 // @Description Creates a new 2fa secret to use for next steps
 // @Tags Local
 // @Security ApiKeyAuth
+// @Security SessionAuth
 // @Accept json
 // @Produce json
 // @Success 200 {object} tfaSetupResponse
@@ -41,6 +42,7 @@ func (env *Environment) RouteSetup2FA(c echo.Context) error {
 // @Description Gets qrcode to display to user
 // @Tags Local
 // @Security ApiKeyAuth
+// @Security SessionAuth
 // @Accept json
 // @Produce png
 // @Param secret query string true "Secret to generate qrcode for"
@@ -83,6 +85,7 @@ type tfaActivateRequest struct {
 // @Description Activates 2FA
 // @Tags Local
 // @Security ApiKeyAuth
+// @Security SessionAuth
 // @Accept json
 // @Produce json
 // @Param tfaActivateRequest body tfaActivateRequest true "Body"
@@ -126,6 +129,7 @@ func (env *Environment) RouteConfirm2FA(c echo.Context) error {
 // @Description Deactivate 2FA
 // @Tags Local
 // @Security ApiKeyAuth
+// @Security SessionAuth
 // @Accept json
 // @Produce json
 // @Param code query string true "Code to check against before deactivating"

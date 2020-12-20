@@ -42,6 +42,7 @@ type (
 // @Tags Account
 // @Description Get details about account
 // @Security ApiKeyAuth
+// @Security SessionAuth
 // @Accept json
 // @Produce json
 // @Success 200 {object} getAccountResponse
@@ -104,6 +105,7 @@ type (
 // @Tags Account
 // @Description Get account audit trail
 // @Security ApiKeyAuth
+// @Security SessionAuth
 // @Accept json
 // @Produce json
 // @Param offset query number false "Offset of record to fetch"

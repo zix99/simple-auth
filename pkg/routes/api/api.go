@@ -37,6 +37,10 @@ import (
 // @in header
 // @name Authorization
 
+// @securityDefinitions.apikey SessionAuth
+// @in cookie
+// @name auth
+
 func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 	v1api := e.Group("/v1")
 	{

@@ -23,6 +23,7 @@ const localLoginNotFound saerrors.ErrorCode = "local-login-not-found"
 // @Tags Local
 // @Description Get details about local authentication
 // @Security ApiKeyAuth
+// @Security SessionAuth
 // @Accept json
 // @Produce json
 // @Success 200 {object} getLocalLoginResponse
@@ -63,6 +64,7 @@ type changePasswordRequest struct {
 // @Tags Local
 // @Description Change password for local auth
 // @Security ApiKeyAuth
+// @Security SessionAuth
 // @Accept json
 // @Produce json
 // @Param changePasswordRequest body changePasswordRequest true "Change password request"

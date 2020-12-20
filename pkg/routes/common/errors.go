@@ -36,6 +36,10 @@ func HttpBadRequest(c echo.Context, err error) error {
 	return HttpError(c, http.StatusBadRequest, ErrBadRequest.Compose(err))
 }
 
+func HttpBadRequestf(c echo.Context, msg string, args ...interface{}) error {
+	return HttpError(c, http.StatusBadRequest, ErrBadRequest.Newf(msg, args...))
+}
+
 func HttpInternalError(c echo.Context, err error) error {
 	return HttpError(c, http.StatusInternalServerError, ErrInternal.Wrap(err))
 }

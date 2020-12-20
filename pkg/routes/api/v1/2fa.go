@@ -97,6 +97,9 @@ func (env *Environment) RouteConfirm2FA(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return common.HttpBadRequest(c, err)
 	}
+	if req.Code == "" || req.Secret == "" {
+		return common.HttpBadRequestf(c, "Missing field")
+	}
 
 	log := appcontext.GetLogger(c)
 	accountUUID := auth.MustGetAccountUUID(c)
@@ -133,6 +136,9 @@ func (env *Environment) RouteConfirm2FA(c echo.Context) error {
 func (env *Environment) RouteDeactivate2FA(c echo.Context) error {
 	loginService := env.localLoginService.WithContext(c)
 	code := c.QueryParam("code")
+	if code == "" {
+		return common.HttpBadRequestf(c, "missing field: code")
+	}
 
 	uuid := auth.MustGetAccountUUID(c)
 	authLocal, err := loginService.FindAuthLocal(uuid)

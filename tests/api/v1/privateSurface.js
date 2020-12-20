@@ -1,6 +1,9 @@
 const { assert } = require('chai');
+const speakeasy = require('speakeasy');
 const http = require('../../http');
 const config = require('../../config');
+
+const tfaSecret = 'ORDRZHDCYXU435ETZCIQ====';
 
 const routes = [
   ['GET', '/api/v1/account', null],
@@ -8,9 +11,9 @@ const routes = [
   ['GET', '/api/v1/local', null],
   ['POST', '/api/v1/local/password', { newpassword: 'bla' }],
   ['GET', '/api/v1/local/2fa', null],
-  ['GET', '/api/v1/local/2fa/qrcode', { secret: 'ORDRZHDCYXU435ETZCIQ====' }],
-  // ['POST', '/api/v1/local/2fa', { secret: 'ORDRZHDCYXU435ETZCIQ====', code: '123' }],
-  // ['DELETE', '/api/v1/local/2fa', { code: '123' }],
+  ['GET', '/api/v1/local/2fa/qrcode', { secret: tfaSecret }],
+  ['POST', '/api/v1/local/2fa', { secret: tfaSecret, code: speakeasy.totp({ secret: tfaSecret, encoding: 'base32' }) }],
+  ['DELETE', '/api/v1/local/2fa', { code: speakeasy.totp({ secret: tfaSecret, encoding: 'base32' }) }],
 ];
 
 describe('route-surface#private', () => {

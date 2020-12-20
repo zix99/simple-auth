@@ -13,6 +13,9 @@
               <th>Name</th><td>{{account.name}}</td>
             </tr>
             <tr>
+              <th>ID</th><td>{{account.id}}</td>
+            </tr>
+            <tr>
               <th>Created</th><td><ShortDate :date="account.created" /></td>
             </tr>
           </tbody>

@@ -100,6 +100,17 @@ type (
 	}
 )
 
+// @Summary Get Account Audit
+// @Tags Account
+// @Description Get account audit trail
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param offset query number false "Offset of record to fetch"
+// @Param limit query number false "Limit of records to fetch, default 10"
+// @Success 200 {object} getAccountAuditResponse
+// @Failure 400,401,404,500 {object} common.ErrorResponse
+// @Router /account/audit [get]
 func (env *Environment) RouteGetAccountAudit(c echo.Context) error {
 	accountUUID := auth.MustGetAccountUUID(c)
 	logger := appcontext.GetLogger(c)
@@ -114,6 +125,10 @@ func (env *Environment) RouteGetAccountAudit(c echo.Context) error {
 
 	offset, _ := strconv.Atoi(c.QueryParam("offset"))
 	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	if limit == 0 {
+		limit = 10
+	}
+
 	records, err := sadb.GetAuditTrailForAccount(account, offset, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)

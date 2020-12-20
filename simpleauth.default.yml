@@ -1,7 +1,7 @@
 production: false           # Production-level optimization
 verbose: false              # Enable debug-level logging
 staticfromdisk: false       # Before looking at internal storage for static content, check disk (primarily for debugging)
-include: ['simpleauth.yml']
+include: []                 # Other files that should be loaded as config
 
 # Metadata is fed into the `tmpl` and emails to be rendered
 metadata:

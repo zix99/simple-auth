@@ -16,6 +16,7 @@ fi
 
 rm quicktest.db
 ./simple-auth-server --verbose --staticfromdisk \
+  --web-login-cookie-jwt-signingkey=this-is-a-test \
   --api-external=true --api-sharedsecret=super-secret \
   --web-login-twofactor-enabled \
   --email-engine=stdout \

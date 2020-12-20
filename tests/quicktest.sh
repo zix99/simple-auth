@@ -1,6 +1,10 @@
 #!/bin/bash
 set +e
 
+# This is a wrapper that builds-and-bounces simpel-auth with a mock DB
+# In order to run integration tests against.  Alternatively you
+# can run it manually with the npm script
+
 if [[ $* != *--nobuild* ]]; then
   echo Building...
   go build -o simple-auth-server simple-auth/cmd/server

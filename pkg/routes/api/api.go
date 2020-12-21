@@ -1,6 +1,7 @@
 package api
 
 import (
+	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/email"
@@ -42,6 +43,8 @@ import (
 // @name auth
 
 func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
+	transactional := appcontext.Transaction()
+
 	v1api := e.Group("/v1")
 	{
 		// Public API (eg. from the UI)
@@ -53,7 +56,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 
 			v1api.POST("/account/check", v1Env.RouteCheckUsername, publicAuth)
 			if config.Providers.Settings.CreateAccountEnabled {
-				v1api.POST("/account", v1Env.RouteCreateAccount, publicAuthWithRecaptcha)
+				v1api.POST("/account", v1Env.RouteCreateAccount, publicAuthWithRecaptcha, transactional)
 			}
 
 			v1api.POST("/stipulation", v1Env.RouteSatisfyTokenStipulation, publicAuth)

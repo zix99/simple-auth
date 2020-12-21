@@ -57,7 +57,6 @@ func (env *Environment) RouteCreateAccount(c echo.Context) error {
 	if err != nil {
 		return common.HttpError(c, http.StatusBadRequest, err)
 	}
-
 	_, err = loginService.Create(account, req.Username, req.Password)
 	if err != nil {
 		return common.HttpError(c, http.StatusBadGateway, err)

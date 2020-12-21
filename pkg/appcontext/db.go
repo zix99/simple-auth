@@ -41,6 +41,7 @@ func Transaction() echo.MiddlewareFunc {
 			}
 
 			dbw.transaction = dbw.root.BeginTransaction()
+			log.Debugln("Starting transaction...")
 
 			committed := false
 			defer func() {

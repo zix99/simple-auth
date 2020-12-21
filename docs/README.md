@@ -13,19 +13,19 @@ Looking to get started? See [Quickstart](quickstart)
 **Common use-cases include:**
 
 - Stand-alone user management (signup), and credential validation via API
-- Reverse proxy to downstream service blocked by login (gateway)
-- Per-request vouching (eg. for NGINX `auth_request` to act as a validator for login), to act as an authentication portal
-- Same-domain/subdomain login provider via cookie validation
-- Various API implementations to authenticate a user (Simple username/password, OIDC, etc)
+- Reverse proxy to downstream service blocked by login ([gateway](/access/gateway))
+- Per-request [vouching](/authenticators/vouch) (eg. for NGINX `auth_request` to act as a validator for login), to act as an authentication portal
+- [Same-domain/subdomain login](/access/cookie) provider via cookie validation
+- Various API implementations to [authenticate a user](/login) (Simple username/password, OIDC, etc)
 
 **And it providers the common functionality:**
 
 - "Simple" credentials (Username, password, and optionally TOTP/2FA)
-- OpenID Connect Login (OIDC) eg. Google Auth
+- [OpenID Connect Login](/login/oidc) (OIDC) eg. Google Auth
 - Welcome email, and optional user email verification
 - Forgot/lost password
 - Login/access-attempt auditing
-- REST API to all underlying functionality
+- [REST API](https://simple-auth.surge.sh/api) to all underlying functionality
 
 
 ## Concepts

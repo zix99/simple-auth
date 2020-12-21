@@ -17,10 +17,6 @@ import (
 )
 
 const (
-	authCookieName = "auth"
-)
-
-const (
 	SourceOIDC    SessionSource = "oidc"
 	SourceLogin   SessionSource = "login"
 	SourceOneTime SessionSource = "onetime"
@@ -85,7 +81,7 @@ func CreateSession(c echo.Context, config *config.ConfigLoginCookie, account *db
 	}
 
 	cookie := &http.Cookie{
-		Name:     authCookieName,
+		Name:     config.Name,
 		Value:    signedToken,
 		HttpOnly: config.HTTPOnly,
 		Secure:   config.SecureOnly,
@@ -101,7 +97,7 @@ func CreateSession(c echo.Context, config *config.ConfigLoginCookie, account *db
 
 func ClearSession(c echo.Context, config *config.ConfigLoginCookie) {
 	c.SetCookie(&http.Cookie{
-		Name:     authCookieName,
+		Name:     config.Name,
 		Value:    "",
 		HttpOnly: config.HTTPOnly,
 		Secure:   config.SecureOnly,
@@ -111,14 +107,14 @@ func ClearSession(c echo.Context, config *config.ConfigLoginCookie) {
 	})
 }
 
-func ParseContextSession(config *config.ConfigJWT, c echo.Context) (*SimpleAuthClaims, error) {
-	cookie, err := c.Cookie(authCookieName)
+func ParseContextSession(config *config.ConfigLoginCookie, c echo.Context) (*SimpleAuthClaims, error) {
+	cookie, err := c.Cookie(config.Name)
 	if err != nil || cookie == nil {
 		return nil, errors.New("auth cookie not set")
 	}
 
 	token, err := jwt.ParseWithClaims(cookie.Value, &SimpleAuthClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return parseSigningKey(config.SigningMethod, config.SigningKey, true)
+		return parseSigningKey(config.JWT.SigningMethod, config.JWT.SigningKey, true)
 	})
 	if err != nil {
 		return nil, errors.New("unable to parse JWT")
@@ -131,20 +127,22 @@ func ParseContextSession(config *config.ConfigJWT, c echo.Context) (*SimpleAuthC
 	return nil, errors.New("token rejected")
 }
 
-func sessionSelector(c echo.Context) error {
-	cookie, err := c.Cookie(authCookieName)
-	if cookie == nil {
-		return errors.New("no session cookie")
+func sessionSelector(cookieName string) selector.MiddlewareSelector {
+	return func(c echo.Context) error {
+		cookie, err := c.Cookie(cookieName)
+		if cookie == nil {
+			return errors.New("no session cookie")
+		}
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
-func NewSessionAuthHandler(config *config.ConfigJWT) AuthHandler {
-	_, parseErr := parseSigningKey(config.SigningMethod, config.SigningKey, false)
-	if config.SigningKey == "" || parseErr != nil {
+func NewSessionAuthHandler(config *config.ConfigLoginCookie) AuthHandler {
+	_, parseErr := parseSigningKey(config.JWT.SigningMethod, config.JWT.SigningKey, false)
+	if config.JWT.SigningKey == "" || parseErr != nil {
 		logrus.Warn("No JWT secret specified, refusing to bind user management endpoints")
 		return func(c echo.Context) (*AuthContext, error) {
 			return nil, errors.New("server not configured for session api calls")
@@ -163,9 +161,9 @@ func NewSessionAuthHandler(config *config.ConfigJWT) AuthHandler {
 	}
 }
 
-func NewSessionAuthProvider(config *config.ConfigJWT, middleware ...echo.MiddlewareFunc) selector.SelectorGroup {
+func NewSessionAuthProvider(config *config.ConfigLoginCookie, middleware ...echo.MiddlewareFunc) selector.SelectorGroup {
 	return NewAuthSelectorGroup(
-		sessionSelector,
+		sessionSelector(config.Name),
 		NewSessionAuthHandler(config),
 		middleware...,
 	)

@@ -97,7 +97,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			}
 			if config.Authenticators.Vouch.Enabled {
 				route := v1api.Group("/auth/vouch")
-				authAPI.NewVouchAuthController(db, &config.Authenticators.Vouch, &config.Web.Login.Cookie.JWT).Mount(route)
+				authAPI.NewVouchAuthController(db, &config.Authenticators.Vouch, &config.Web.Login.Cookie).Mount(route)
 			}
 		}
 	}
@@ -138,7 +138,7 @@ func buildPrivateAuthMiddleware(sessionConfig *config.ConfigLoginCookie, apiConf
 	var selectorGroups []selector.SelectorGroup
 
 	csrf := middleware.CSRF()
-	selectorGroups = append(selectorGroups, auth.NewSessionAuthProvider(&sessionConfig.JWT, csrf))
+	selectorGroups = append(selectorGroups, auth.NewSessionAuthProvider(sessionConfig, csrf))
 
 	if apiConfig.External {
 		selectorGroups = append(selectorGroups, auth.NewSharedSecretWithAccountAuth(apiConfig.SharedSecret))

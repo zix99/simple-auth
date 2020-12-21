@@ -11,23 +11,23 @@ import (
 )
 
 type VouchAuthController struct {
-	db        db.SADB
-	config    *config.ConfigVouchAuthenticator
-	jwtConfig *config.ConfigJWT
+	db           db.SADB
+	config       *config.ConfigVouchAuthenticator
+	cookieConfig *config.ConfigLoginCookie
 }
 
-func NewVouchAuthController(db db.SADB, config *config.ConfigVouchAuthenticator, jwtConfig *config.ConfigJWT) *VouchAuthController {
+func NewVouchAuthController(db db.SADB, config *config.ConfigVouchAuthenticator, cookieConfig *config.ConfigLoginCookie) *VouchAuthController {
 	return &VouchAuthController{
-		db:        db,
-		config:    config,
-		jwtConfig: jwtConfig,
+		db:           db,
+		config:       config,
+		cookieConfig: cookieConfig,
 	}
 }
 
 func (env *VouchAuthController) Mount(group *echo.Group) {
 	logrus.Info("Enabling vouch auth...")
 	loggedInMiddleware := auth.NewAuthMiddleware(
-		auth.NewSessionAuthHandler(env.jwtConfig),
+		auth.NewSessionAuthHandler(env.cookieConfig),
 	)
 	group.GET("", env.routeVouchAuth, loggedInMiddleware)
 }

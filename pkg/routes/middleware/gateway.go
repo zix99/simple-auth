@@ -46,7 +46,7 @@ func AuthenticationGateway(gateway *config.ConfigLoginGateway, cookieConfig *con
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			log := appcontext.GetLogger(c)
-			claims, err := auth.ParseContextSession(&cookieConfig.JWT, c)
+			claims, err := auth.ParseContextSession(cookieConfig, c)
 			if err != nil {
 				// Not logged in, pass-through to self
 				return next(c)

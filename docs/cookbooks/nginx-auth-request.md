@@ -11,11 +11,20 @@ B -- proxy_pass --> D[Backend]
 
 ## Setting up Simple-Auth with auth_request
 
-In order to set this up, you need to do three things:
+In order to set this up, you need to do a few things:
 
+1. Enable vouch endpoint
 1. Set up nginx to sit infront of simple-auth to make an `auth_request` (vouch) to *simple-auth*
 1. Set up nginx to proxy *simple-auth* UI
 1. Run simple-auth server that can be proxied to by nginx
+
+### Enabling vouch endpoint
+
+```yaml
+authenticators:
+    vouch:
+        enabled: true
+```
 
 ### Docker
 

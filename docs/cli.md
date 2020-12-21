@@ -1,6 +1,10 @@
 # Command Line Interface (CLI)
 
-*simple-auth* also bundles `simple-auth-cli` which can be run as an easy interface to *simple-auth*'s database.
+*simple-auth* also bundles `simple-auth-cli` which can be run as an easy interface to *simple-auth*'s database.  The CLI is able to interface with the database **without the server running**, allowing for modifications, repair, or maintenance.
+
+::: tip
+Make sure the CLI has access to your configuration via `SA_INCLUDE` environment variable, otherwise it might be pointing to the wrong (default) database.
+:::
 
 Simple actions can be completed, such as:
 - Create account

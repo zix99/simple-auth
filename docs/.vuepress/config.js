@@ -21,16 +21,24 @@ module.exports = {
         title: 'Login Providers',
         path: '/login',
         children: [
-          '/login/simple',
+          '/login/local',
           '/login/oidc',
+        ],
+      },
+      {
+        title: 'Authenticators',
+        path: '/authenticators',
+        children: [
+          '/authenticators/simple',
+          '/authenticators/vouch',
         ],
       },
       {
         title: 'Cookbooks',
         path: '/cookbooks',
         children: [
-          '/cookbooks/nginx-auth-request',
           '/cookbooks/gateway',
+          '/cookbooks/nginx-auth-request',
         ],
       },
     ]

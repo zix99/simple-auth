@@ -19,6 +19,10 @@ metadata:
 
 Any file placed in the `/static` working directory will be served as a static file to the web.  By default, *simple-auth* will attempt to load `common.css` in this directory to modify any in-line styles.
 
+::: warning
+In order to allow reading from disk, you need to set the config value `staticfromdisk: true`
+:::
+
 ### Adding a Background
 
 In the below example, place a file `bg.jpg` in the `/static/` directory, and add the following to `common.css`:

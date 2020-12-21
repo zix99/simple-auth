@@ -7,9 +7,15 @@ Config can be loaded into `simple-auth` in the following ways (in-order):
 1. Command line argument flags. eg `--metadata-company=SuperCorp`
 1. Any additional configuration specified in the `include` field (see below)
 
+::: tip
+When translating from *yaml* to other formats (eg. `metadata.company`):
+1. When an argument, seprate with `-`, eg `--metadata-company`
+1. When an environment variable, separate with a `_`, eg `SA_METADATA_COMPANY`
+:::
+
 ## Include Config
 
-To specify another location to look for config, you can use the `include` config (an array of paths).  This can be added in the following standard ways:
+To specify another location to look for a **yaml config file**, you can use the `include` config.  This can be added in the following standard ways:
 
 1. `include: []` in yaml config
 1. `--include=/etc/simpleauth.yml`
@@ -17,7 +23,7 @@ To specify another location to look for config, you can use the `include` config
 
 ## Default Configuration
 
-The default config is contained purely in `simpleauth.default.yml`, which is embedded into the application executable.
+The default config is contained purely in `simpleauth.default.yml`, which is embedded into the application executable.  This file contains all of the defaults for the application.
 
 <<< ../simpleauth.default.yml
 

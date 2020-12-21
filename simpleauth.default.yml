@@ -42,7 +42,7 @@ web:
             httponly: true         # If the cookie can't be accessed from javascript
         onetime:
             enabled: true             # Allow single-use token for login (important for forgot-password email)
-            allowforgotpassword: true # If allowed to issue forgot-password email.  Required email config
+            allowforgotpassword: false # If allowed to issue forgot-password email.  Required email config
             tokenduration: 1h
 
     # Gateway allows simple-auth to act as a reverse-proxy. If the user is logged-in, they will be allowed to pass-through the proxy

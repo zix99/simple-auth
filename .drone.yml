@@ -120,6 +120,9 @@ kind: pipeline
 type: docker
 name: Documentation
 
+when:
+  branch: ['master']
+
 steps:
   - name: Node Install
     image: node:12-slim

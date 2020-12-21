@@ -4,12 +4,14 @@ module.exports = {
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Github', link: 'https://google.com' }
+      { text: 'Quickstart', link: 'quickstart' },
+      { text: 'API Docs', link: 'http://simple-auth.surge.sh/api' },
     ],
     sidebar: [
       {
         title: 'Simple Auth',
         path: '/',
+        collapsable: false,
         children: [
           '/quickstart',
           '/config',
@@ -20,6 +22,7 @@ module.exports = {
       {
         title: 'Login Providers',
         path: '/login',
+        collapsable: false,
         children: [
           '/login/local',
           '/login/oidc',
@@ -28,6 +31,7 @@ module.exports = {
       {
         title: 'Authenticators',
         path: '/authenticators',
+        collapsable: false,
         children: [
           '/authenticators/simple',
           '/authenticators/vouch',
@@ -36,6 +40,7 @@ module.exports = {
       {
         title: 'Access Layer',
         path: '/access',
+        collapsable: false,
         children: [
           '/access/cookie',
           '/access/gateway',
@@ -48,6 +53,10 @@ module.exports = {
           '/cookbooks/gateway',
           '/cookbooks/nginx-auth-request',
         ],
+      },
+      {
+        title: 'API Docs',
+        path: 'http://simple-auth.surge.sh/api',
       },
     ]
   },

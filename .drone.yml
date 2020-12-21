@@ -131,6 +131,13 @@ steps:
     volumes:
       - name: npm-cache
         path: /root/.npm
+  - name: Server Generate
+    image: golang:1.14
+    volumes:
+    - name: go-cache
+      path: /go
+    commands:
+      - go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
   - name: Docs Build
     image: node:12-slim
     commands:
@@ -151,3 +158,6 @@ volumes:
   - name: npm-cache
     host:
       path: /var/ci/cache/simple-auth-npm
+  - name: go-cache
+    host:
+      path: /var/ci/cache/simple-auth-go

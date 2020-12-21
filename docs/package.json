@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "vuepress dev ./",
-    "build": "vuepress build ./",
+    "build": "npm run build:vuepress && npm run build:spectacle",
+    "build:vuepress": "vuepress build ./ && npm run",
+    "build:spectacle": "spectacle -t .vuepress/dist/api ../pkg/swagdocs/swagger.json",
     "clean": "rm -rf .vuepress/dist",
     "deploy": "surge --project .vuepress/dist/ --domain simple-auth.surge.sh"
   },
@@ -13,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "mermaid": "^8.8.4",
+    "spectacle-docs": "^1.1.0",
     "surge": "^0.21.7",
     "vuepress": "^1.7.1"
   }

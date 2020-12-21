@@ -124,7 +124,7 @@ steps:
   - name: Node Install
     image: node:12-slim
     commands:
-      - cs docs && npm ci
+      - cd docs && npm ci
     volumes:
       - name: npm-cache
         path: /root/.npm

@@ -33,22 +33,24 @@ const (
 )
 
 type OIDCController struct {
-	baseURL      string
-	id           string
-	loginConfig  *config.ConfigLoginSettings
-	oidcConfig   *config.ConfigOIDCProvider
-	cookieConfig *config.ConfigLoginCookie
-	db           db.SADB
+	baseURL        string
+	id             string
+	providerConfig *config.ConfigProviderSettings
+	loginConfig    *config.ConfigLoginSettings
+	oidcConfig     *config.ConfigOIDCProvider
+	cookieConfig   *config.ConfigLoginCookie
+	db             db.SADB
 }
 
-func NewOIDCController(baseURL, id string, loginConfig *config.ConfigLoginSettings, oidcConfig *config.ConfigOIDCProvider, cookieConfig *config.ConfigLoginCookie, sadb db.SADB) *OIDCController {
+func NewOIDCController(baseURL, id string, providerConfig *config.ConfigProviderSettings, loginConfig *config.ConfigLoginSettings, oidcConfig *config.ConfigOIDCProvider, cookieConfig *config.ConfigLoginCookie, sadb db.SADB) *OIDCController {
 	return &OIDCController{
-		baseURL:      baseURL,
-		id:           id,
-		loginConfig:  loginConfig,
-		oidcConfig:   oidcConfig,
-		cookieConfig: cookieConfig,
-		db:           sadb,
+		baseURL:        baseURL,
+		id:             id,
+		providerConfig: providerConfig,
+		loginConfig:    loginConfig,
+		oidcConfig:     oidcConfig,
+		cookieConfig:   cookieConfig,
+		db:             sadb,
 	}
 }
 
@@ -167,7 +169,7 @@ func (env *OIDCController) routeAuthCallback(c echo.Context) error {
 	}
 
 	// If not, try to create it
-	if env.loginConfig.CreateAccountEnabled {
+	if env.providerConfig.CreateAccountEnabled {
 		account, err := env.db.CreateAccount(strCoalesce(claims.Name, claims.Email), claims.Email)
 		if err != nil {
 			return common.HttpInternalError(c, err)

@@ -8,6 +8,7 @@ metadata:
     company: "My Company"
     footer: ""
     bucket: {} # Not used by default. Can be used to customize
+
 web:
     host: "0.0.0.0:9002" # The host and port the server (API & Web) listens on
     baseurl: null        # Specifies the full URL the server will be at. If null, inferred from host
@@ -21,20 +22,9 @@ web:
         # Needs to be internet-facing to work
         auto: true
         cache: ./
-
-    # Requirements inform server and client of any user requirements
-    requirements:
-        usernameregex: '^[a-z][a-z0-9.]+$'
-        passwordminlength: 3
-        passwordmaxlength: 30
-        usernameminlength: 5
-        usernamemaxlength: 20
-        emailvalidationrequired: false  # If email validation is required before login
-
     # Login section for setting different ways a user is allowed to login
     login:
         settings:
-            createaccountenabled: true      # If allowed to create account
             routeonlogin: null              # Where to route to post-login (either login or create)
             allowedcontinueurls: []         # Urls, in addition to local pages, allowed post-login via ?continue query param
             throttleduration: 1s            # How often a user can make requests to a throttled API (disrupts brute-force attacks)
@@ -50,24 +40,10 @@ web:
             domain: null           # Override the domain of the cookie
             secureonly: false      # If the cookie will only be passed on https
             httponly: true         # If the cookie can't be accessed from javascript
-        oidc: []
-        # - id: google
-        #   name: Google
-        #   icon: google
-        #   clientid: id-from-google
-        #   clientsecret: super-secret-from-google
-        #   authurl: auth-endpoint
-        #   tokenurl: token-endpoint
         onetime:
             enabled: true             # Allow single-use token for login (important for forgot-password email)
             allowforgotpassword: true # If allowed to issue forgot-password email.  Required email config
             tokenduration: 1h
-        # Two-factor auth 2FA / TOTP (Only impacts local-auth users, not oidc)
-        twofactor:
-            enabled: false           # TOTP two-factor (google authenticator, and others)
-            keylength: 12
-            drift: 2                 # How many tokens around the "current" token to check (Accounts for user-entry-delay)
-            issuer: "simple-auth"    # Who the token shows up as issued-by in the 2fa app
 
     # Gateway allows simple-auth to act as a reverse-proxy. If the user is logged-in, they will be allowed to pass-through the proxy
     # to the remote application.  Intentionally left simple, only can pass to one server.  If you have more than one backend server
@@ -97,6 +73,32 @@ email:
         identity: null
         username: null
         password: null
+
+providers:
+    settings:
+        createaccountenabled: true      # If allowed to create account (under any method)
+    local:
+        emailvalidationrequired: false  # If email validation is required before login
+        requirements:
+            usernameregex: '^[a-z][a-z0-9.]+$'
+            passwordminlength: 3
+            passwordmaxlength: 30
+            usernameminlength: 5
+            usernamemaxlength: 20
+        twofactor: # Two-factor auth 2FA / TOTP (Only impacts local-auth users, not oidc)
+            enabled: false           # TOTP two-factor (google authenticator, and others)
+            keylength: 12
+            drift: 2                 # How many tokens around the "current" token to check (Accounts for user-entry-delay)
+            issuer: "simple-auth"    # Who the token shows up as issued-by in the 2fa app
+    oidc: []
+    # - id: google
+    #   name: Google
+    #   icon: google
+    #   clientid: id-from-google
+    #   clientsecret: super-secret-from-google
+    #   authurl: auth-endpoint
+    #   tokenurl: token-endpoint
+
 
 # Different ways a remote service can check a user is authenticated
 authenticators:

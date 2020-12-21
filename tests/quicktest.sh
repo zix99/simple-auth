@@ -18,9 +18,9 @@ rm quicktest.db
 ./simple-auth-server --verbose --staticfromdisk \
   --web-login-cookie-jwt-signingkey=this-is-a-test \
   --api-external=true --api-sharedsecret=super-secret \
-  --web-login-twofactor-enabled \
+  --providers-local-twofactor-enabled \
   --email-engine=stdout \
-  --web-requirements-emailvalidationrequired=false \
+  --providers-local-emailvalidationrequired=false \
   --authenticators-simple-enabled --authenticators-simple-sharedsecret=your-super-secret-token \
   --authenticators-vouch-enabled \
   --db-url=quicktest.db &

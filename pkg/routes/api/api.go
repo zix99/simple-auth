@@ -52,7 +52,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			publicAuthNoDelay := buildPublicAuthMiddleware(&config.API, nil, false)
 
 			v1api.POST("/account/check", v1Env.RouteCheckUsername, publicAuth)
-			if config.Web.Login.Settings.CreateAccountEnabled {
+			if config.Providers.Settings.CreateAccountEnabled {
 				v1api.POST("/account", v1Env.RouteCreateAccount, publicAuthWithRecaptcha)
 			}
 
@@ -75,7 +75,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 
 			v1api.GET("/local", v1Env.RouteGetLocalLogin, privateAuth)
 			v1api.POST("/local/password", v1Env.RouteChangePassword, privateAuth)
-			if config.Web.Login.TwoFactor.Enabled {
+			if config.Providers.Local.TwoFactor.Enabled {
 				v1api.GET("/local/2fa", v1Env.RouteSetup2FA, privateAuth)
 				v1api.GET("/local/2fa/qrcode", v1Env.Route2FAQRCodeImage, privateAuth)
 				v1api.POST("/local/2fa", v1Env.RouteConfirm2FA, privateAuth)
@@ -92,7 +92,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			if config.Authenticators.Simple.Enabled {
 				route := v1api.Group("/auth/simple")
 				emailService := email.NewFromConfig(&config.Email)
-				loginService := services.NewLocalLoginService(emailService, &config.Metadata, &config.Web.Login.TwoFactor, &config.Web.Requirements, config.Web.GetBaseURL())
+				loginService := services.NewLocalLoginService(emailService, &config.Metadata, &config.Providers.Local, config.Web.GetBaseURL())
 				authAPI.NewSimpleAuthController(loginService, &config.Authenticators.Simple).Mount(route)
 			}
 			if config.Authenticators.Vouch.Enabled {

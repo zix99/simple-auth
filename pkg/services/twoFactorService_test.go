@@ -10,7 +10,7 @@ import (
 var testTwoFator TwoFactorService
 
 func init() {
-	testTwoFator = NewTwoFactorService(&config.TwoFactorConfig{
+	testTwoFator = NewTwoFactorService(&config.ConfigTwoFactor{
 		Enabled:   true,
 		Drift:     1,
 		Issuer:    "test-issuer",

@@ -38,19 +38,17 @@ type localLoginService struct {
 	dbStipulations db.AccountStipulations
 	emailService   *email.EmailService
 	metaConfig     *config.ConfigMetadata
-	tfConfig       *config.TwoFactorConfig
-	requirements   *config.ConfigWebRequirements
+	lpConfig       *config.ConfigLocalProvider
 	baseURL        string
 }
 
 var _ LocalLoginService = &localLoginService{}
 
-func NewLocalLoginService(emailService *email.EmailService, metaConfig *config.ConfigMetadata, tfConfig *config.TwoFactorConfig, requirementConfig *config.ConfigWebRequirements, baseURL string) LocalLoginService {
+func NewLocalLoginService(emailService *email.EmailService, metaConfig *config.ConfigMetadata, localProviderConfig *config.ConfigLocalProvider, baseURL string) LocalLoginService {
 	return &localLoginService{
 		emailService: emailService,
 		metaConfig:   metaConfig,
-		tfConfig:     tfConfig,
-		requirements: requirementConfig,
+		lpConfig:     localProviderConfig,
 		baseURL:      baseURL,
 	}
 }
@@ -113,7 +111,7 @@ func (s *localLoginService) Create(account *db.Account, username, password strin
 		return nil, err
 	}
 
-	if s.requirements.EmailValidationRequired {
+	if s.lpConfig.EmailValidationRequired {
 		stip := db.NewTokenStipulation()
 		s.dbStipulations.AddStipulation(account, stip)
 
@@ -131,15 +129,15 @@ func (s *localLoginService) Create(account *db.Account, username, password strin
 
 func (s *localLoginService) validateUsername(username string) error {
 	ulen := utf8.RuneCountInString(username)
-	if ulen < s.requirements.UsernameMinLength {
+	if ulen < s.lpConfig.Requirements.UsernameMinLength {
 		return errors.New("username too short")
 	}
-	if ulen > s.requirements.UsernameMaxLength {
+	if ulen > s.lpConfig.Requirements.UsernameMaxLength {
 		return errors.New("username too long")
 	}
 
-	if s.requirements.UsernameRegex != "" {
-		re, err := regexp.Compile(s.requirements.UsernameRegex)
+	if s.lpConfig.Requirements.UsernameRegex != "" {
+		re, err := regexp.Compile(s.lpConfig.Requirements.UsernameRegex)
 		if err != nil {
 			return errors.New("unable to parse valid username regex, ask your server admin to fix this")
 		}
@@ -153,10 +151,10 @@ func (s *localLoginService) validateUsername(username string) error {
 
 func (s *localLoginService) validatePassword(password string) error {
 	plen := utf8.RuneCountInString(password)
-	if plen < s.requirements.PasswordMinLength {
+	if plen < s.lpConfig.Requirements.PasswordMinLength {
 		return errors.New("password too short")
 	}
-	if plen > s.requirements.PasswordMaxLength {
+	if plen > s.lpConfig.Requirements.PasswordMaxLength {
 		return errors.New("password too long")
 	}
 	return nil
@@ -176,7 +174,7 @@ func (s *localLoginService) AssertLogin(username, password string, totpCode *str
 		if totpCode == nil || *totpCode == "" {
 			return nil, LocalTOTPMissing.New()
 		}
-		if !localAuth.VerifyTOTP(*totpCode, s.tfConfig.Drift) {
+		if !localAuth.VerifyTOTP(*totpCode, s.lpConfig.TwoFactor.Drift) {
 			s.dbAudit.CreateAuditRecord(localAuth, db.AuditModuleLocal, db.AuditLevelWarn, "TOTP Rejected")
 			return nil, LocalTOTPFailed.New()
 		}
@@ -218,7 +216,7 @@ func (s *localLoginService) assertLoginCredentials(localAuth *db.AuthLocal, pass
 }
 
 func (s *localLoginService) ActivateTOTP(authLocal *db.AuthLocal, otp *totp.Totp, verificationCode string) error {
-	if !otp.Validate(verificationCode, s.tfConfig.Drift) {
+	if !otp.Validate(verificationCode, s.lpConfig.TwoFactor.Drift) {
 		return LocalTOTPFailed.New()
 	}
 
@@ -235,7 +233,7 @@ func (s *localLoginService) DeactivateTOTP(authLocal *db.AuthLocal, verification
 		return errors.New("totp disabled")
 	}
 
-	if !authLocal.VerifyTOTP(verificationCode, s.tfConfig.Drift) {
+	if !authLocal.VerifyTOTP(verificationCode, s.lpConfig.TwoFactor.Drift) {
 		return LocalTOTPFailed.New()
 	}
 
@@ -247,7 +245,7 @@ func (s *localLoginService) DeactivateTOTP(authLocal *db.AuthLocal, verification
 }
 
 func (s *localLoginService) AllowTOTP() bool {
-	return s.tfConfig.Enabled
+	return s.lpConfig.TwoFactor.Enabled
 }
 
 func (s *localLoginService) UpdatePassword(authLocal *db.AuthLocal, oldPassword string, newPassword string) error {

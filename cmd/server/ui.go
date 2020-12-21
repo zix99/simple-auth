@@ -10,24 +10,25 @@ import (
 )
 
 type uiController struct {
-	config *config.ConfigWeb
-	meta   *config.ConfigMetadata
+	config         *config.ConfigWeb
+	meta           *config.ConfigMetadata
+	providerConfig *config.ConfigProviders
 }
 
-func newUIController(config *config.ConfigWeb, meta *config.ConfigMetadata) *uiController {
-	return &uiController{config, meta}
+func newUIController(config *config.ConfigWeb, meta *config.ConfigMetadata, providers *config.ConfigProviders) *uiController {
+	return &uiController{config, meta, providers}
 }
 
 func (s *uiController) Mount(group *echo.Group) {
 	group.Use(middleware.CSRF())
 
 	group.GET("/", func(c echo.Context) error {
-		context := buildTemplateContext(c, s.meta, s.config)
+		context := buildTemplateContext(c, s.meta, s.config, s.providerConfig)
 		return c.Render(http.StatusOK, "home", context)
 	})
 }
 
-func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *config.ConfigWeb) map[string]interface{} {
+func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *config.ConfigWeb, providerConfig *config.ConfigProviders) map[string]interface{} {
 	continueURL := web.Login.Settings.ResolveContinueURL(c.QueryParam("continue"))
 
 	app := common.Json{
@@ -35,17 +36,23 @@ func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *conf
 		"footer":  meta.Footer,
 		"csrf":    c.Get("csrf"),
 		"login": common.Json{
-			"createAccount":  web.Login.Settings.CreateAccountEnabled,
+			"createAccount":  providerConfig.Settings.CreateAccountEnabled,
 			"forgotPassword": web.Login.OneTime.AllowForgotPassword && web.Login.OneTime.Enabled,
 			"continue":       continueURL,
 		},
-		"requirements": web.Requirements,
+		"requirements": common.Json{
+			"UsernameRegex":     providerConfig.Local.Requirements.UsernameRegex,
+			"PasswordMinLength": providerConfig.Local.Requirements.PasswordMinLength,
+			"PasswordMaxLength": providerConfig.Local.Requirements.PasswordMaxLength,
+			"UsernameMinLength": providerConfig.Local.Requirements.UsernameMinLength,
+			"UsernameMaxLength": providerConfig.Local.Requirements.UsernameMaxLength,
+		},
 		"recaptchav2": common.Json{
 			"enabled": web.RecaptchaV2.Enabled,
 			"sitekey": web.RecaptchaV2.SiteKey,
 			"theme":   web.RecaptchaV2.Theme,
 		},
-		"oidc": buildOIDCContext(web.Login.OIDC),
+		"oidc": buildOIDCContext(providerConfig.OIDC),
 	}
 
 	for k, v := range meta.Bucket {

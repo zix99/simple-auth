@@ -37,16 +37,15 @@ To enable google login, you need to set up an OIDC provider as documented [here]
 Then add a bit of configuration as an OIDC login-provider:
 
 ```yaml
-web:
-  login:
-    oidc:
-    - id: google
-      name: 'Google'
-      icon: 'google'
-      clientid: 'xxx'
-      clientsecret: 'yyy'
-      authurl: 'https://accounts.google.com/o/oauth2/v2/auth'
-      tokenurl: 'https://oauth2.googleapis.com/token'
+providers:
+  oidc:
+  - id: google
+    name: 'Google'
+    icon: 'google'
+    clientid: 'xxx'
+    clientsecret: 'yyy'
+    authurl: 'https://accounts.google.com/o/oauth2/v2/auth'
+    tokenurl: 'https://oauth2.googleapis.com/token'
 ```
 
 # Customization

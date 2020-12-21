@@ -12,12 +12,12 @@ type TwoFactorService interface {
 }
 
 type twoFactorService struct {
-	tfConfig *config.TwoFactorConfig
+	tfConfig *config.ConfigTwoFactor
 }
 
 var _ TwoFactorService = &twoFactorService{}
 
-func NewTwoFactorService(tfConfig *config.TwoFactorConfig) TwoFactorService {
+func NewTwoFactorService(tfConfig *config.ConfigTwoFactor) TwoFactorService {
 	return &twoFactorService{
 		tfConfig,
 	}

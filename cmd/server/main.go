@@ -78,7 +78,7 @@ func simpleAuthServer(config *config.Config) error {
 	e.GET("/health", routeHealth(db))
 
 	// UI
-	newUIController(&config.Web, &config.Metadata).Mount(e.Group(""))
+	newUIController(&config.Web, &config.Metadata, &config.Providers).Mount(e.Group(""))
 
 	// API
 	api.MountAPI(e.Group("/api"), config, db)
@@ -86,8 +86,8 @@ func simpleAuthServer(config *config.Config) error {
 	// OIDC Controllers
 	{
 		oidcGroup := e.Group("/oidc")
-		for _, oidc := range config.Web.Login.OIDC {
-			oidcController := providers.NewOIDCController(config.Web.GetBaseURL()+"/oidc", oidc.ID, &config.Web.Login.Settings, oidc, &config.Web.Login.Cookie, db)
+		for _, oidc := range config.Providers.OIDC {
+			oidcController := providers.NewOIDCController(config.Web.GetBaseURL()+"/oidc", oidc.ID, &config.Providers.Settings, &config.Web.Login.Settings, oidc, &config.Web.Login.Cookie, db)
 			oidcController.Mount(oidcGroup)
 		}
 	}

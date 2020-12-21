@@ -30,12 +30,13 @@ func init() {
 
 	testLocalLogin = NewLocalLoginService(mockEmailService, &config.ConfigMetadata{
 		Company: "test-corp",
-	}, &config.TwoFactorConfig{
-		Enabled:   true,
-		Drift:     1,
-		Issuer:    "test",
-		KeyLength: 12,
-	}, &config.ConfigWebRequirements{
+	}, &config.ConfigLocalProvider{
+		TwoFactor: config.ConfigTwoFactor{
+			Enabled:   true,
+			Drift:     1,
+			Issuer:    "test",
+			KeyLength: 12,
+		},
 		EmailValidationRequired: true,
 	}, "http://example.com").WithContext(ctx)
 

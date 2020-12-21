@@ -16,6 +16,7 @@ module.exports = {
           '/quickstart',
           '/config',
           '/customization',
+          '/email',
           '/cli',
         ],
       },

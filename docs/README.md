@@ -8,6 +8,8 @@ or enterprise user management (kerberos, active directory, etc...)
 Looking to get started? See [Quickstart](quickstart)
 :::
 
+![Simpleauth](./simpleauth.png)
+
 **Common use-cases include:**
 
 - Stand-alone user management (signup), and credential validation via API

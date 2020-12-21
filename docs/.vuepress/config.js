@@ -34,6 +34,14 @@ module.exports = {
         ],
       },
       {
+        title: 'Access Layer',
+        path: '/access',
+        children: [
+          '/access/cookie',
+          '/access/gateway',
+        ],
+      },
+      {
         title: 'Cookbooks',
         path: '/cookbooks',
         children: [

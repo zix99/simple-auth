@@ -6,6 +6,8 @@ It allows users to sign-up with a UI, offering various providers.  Then, via var
 
 [Read the Documentation](https://simple-auth.surge.sh)
 
+![Simple-auth](docs/simpleauth.png)
+
 # Running Simple Auth
 
 [Read Quickstart](https://simple-auth.surge.sh/quickstart.html)

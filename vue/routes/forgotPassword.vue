@@ -15,11 +15,12 @@
         <label class="label">Email</label>
         <div class="control has-icons-left">
           <input class="input"
-            ref="email"
             :class="{ 'is-danger': !validEmail }"
             type="email"
             placeholder="Email input"
-            v-model="email" />
+            @keypress.enter="submitClick"
+            v-model="email"
+            v-focus />
           <span class="icon is-small is-left">
             <fa-icon icon="envelope" />
           </span>
@@ -63,9 +64,6 @@ export default {
       sent: false,
       loadingPromise: null,
     };
-  },
-  mounted() {
-    this.$refs.email.focus();
   },
   components: {
     CenterCard,

@@ -15,11 +15,12 @@
         <label class="label">Email</label>
         <div class="control has-icons-left has-icons-right">
           <input class="input"
-            ref="email"
             :class="{ 'is-danger': !validEmail }"
             type="email"
             placeholder="Email input"
-            v-model="email" />
+            @keypress.enter="submitClick"
+            v-model="email"
+            v-focus />
           <span class="icon is-small is-left">
             <fa-icon icon="envelope" />
           </span>
@@ -33,7 +34,7 @@
       <div class="field">
         <label class="label">Username</label>
         <div class="control has-icons-left has-icons-right">
-          <input class="input" type="text" placeholder="Text Input" v-model="username" @keyup="checkUsername">
+          <input class="input" type="text" placeholder="Text Input" v-model="username" @keyup="checkUsername" @keypress.enter="submitClick">
           <span class="icon is-small is-left">
             <fa-icon icon="user" />
           </span>
@@ -65,13 +66,14 @@
         :maxlength="appdata.requirements.PasswordMaxLength"
         v-model="password"
         @valid="validPassword = $event"
+        @enter="submitClick"
         />
 
       <RecaptchaV2 v-if="appdata.recaptchav2.enabled" :sitekey="appdata.recaptchav2.sitekey" :theme="appdata.recaptchav2.theme" ref="recaptchav2" />
 
       <div class="field is-grouped">
         <div class="control">
-          <button class="button is-link" @click="submitClick" :disabled="!validEmail || !validPassword || !validUsername || !validUsernameCharacters">Submit</button>
+          <button class="button is-link" @click="submitClick" :disabled="!validForm">Submit</button>
         </div>
       </div>
     </div>
@@ -148,9 +150,6 @@ export default {
     RecaptchaV2,
     ValidatedPasswordInput,
   },
-  mounted() {
-    this.$refs.email.focus();
-  },
   computed: {
     validEmail() {
       return validator.isEmail(this.email);
@@ -162,6 +161,9 @@ export default {
     validUsernameCharacters() {
       if (!this.appdata.requirements.UsernameRegex) return true;
       return this.username.match(this.appdata.requirements.UsernameRegex);
+    },
+    validForm() {
+      return this.validEmail && this.validPassword && this.validUsername && this.validUsernameCharacters;
     },
   },
   methods: {
@@ -182,6 +184,11 @@ export default {
     }, 200),
     submitClick() {
       this.error = null;
+
+      if (!this.validForm) {
+        this.error = 'Invalid form values';
+        return;
+      }
 
       const postData = {
         username: this.username,

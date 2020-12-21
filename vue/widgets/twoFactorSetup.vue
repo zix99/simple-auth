@@ -14,7 +14,7 @@
       <div class="column is-half">
         <div class="field is-grouped">
           <div class="control">
-            <input class="input is-primary" type="text" placeholder="Enter 2FA Code" v-model="code" @keypress.enter="activate">
+            <input class="input is-primary" type="text" placeholder="Enter 2FA Code" v-model="code" @keypress.enter="activate" v-focus>
           </div>
           <div class="control">
             <button class="button is-link" @click="activate">Activate</button>

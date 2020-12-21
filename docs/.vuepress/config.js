@@ -52,6 +52,7 @@ module.exports = {
         children: [
           '/cookbooks/gateway',
           '/cookbooks/nginx-auth-request',
+          '/cookbooks/signingkey-pair',
         ],
       },
       {

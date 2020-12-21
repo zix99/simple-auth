@@ -72,3 +72,7 @@ Authentication providers are generally APIs where a downstream service can authe
 
 ### Gateway
 **Gateway-mode** is when *simple-auth* sits between the user and what they're trying to access as a portal
+
+# Next Steps
+
+Try heading over to [Quickstart](quickstart) and giving it a try!

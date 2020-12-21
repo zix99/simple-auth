@@ -23,6 +23,7 @@ rm quicktest.db
   --providers-local-emailvalidationrequired=false \
   --authenticators-simple-enabled --authenticators-simple-sharedsecret=your-super-secret-token \
   --authenticators-vouch-enabled \
+  --web-login-onetime-allowforgotpassword \
   "--db-url=file::memory:?cache=shared" &
 echo "PID: $!"
 

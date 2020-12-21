@@ -10,7 +10,7 @@
       </div>
     </article>
 
-    <div v-if="!loading && !createdAccountId && appdata.login.createAccount">
+    <div v-if="!loading && !successMessage && appdata.login.createAccount">
       <div class="field">
         <label class="label">Email</label>
         <div class="control has-icons-left has-icons-right">
@@ -80,13 +80,13 @@
       <fa-icon icon="circle-notch" spin /> Creating account...
     </div>
 
-    <div v-if="createdAccountId">
+    <div v-if="successMessage">
       <article class="message is-success">
         <div class="message-body">
-          <fa-icon icon="check" /> Account Successfully Created!
+          <fa-icon icon="check" /> {{successMessage}}
         </div>
       </article>
-      <div>
+      <div v-if="willRedirect">
         <fa-icon icon="cog" spin /> Redirecting...
       </div>
     </div>
@@ -135,7 +135,8 @@ export default {
       // responsive
       loading: false,
       error: null,
-      createdAccountId: null,
+      successMessage: null,
+      willRedirect: false,
 
       // live-update
       checkingUsername: false,
@@ -187,7 +188,9 @@ export default {
         password: this.password,
         email: this.email,
       };
-      const queryData = {};
+      const queryData = {
+        createSession: true,
+      };
 
       if (this.appdata.recaptchav2.enabled) {
         queryData.recaptchav2 = this.$refs.recaptchav2.getResponse();
@@ -201,10 +204,15 @@ export default {
       axios.post('api/v1/account', postData, { params: queryData })
         .then((resp) => {
           if (resp.status !== 201) throw new Error('Error creating account');
-          this.createdAccountId = resp.data.id;
-          setTimeout(() => {
-            this.$router.push('/login-redirect');
-          }, 2.5 * 1000);
+          if (resp.data.createdSession) {
+            this.successMessage = 'Account Successfully Created!';
+            this.willRedirect = true;
+            setTimeout(() => {
+              this.$router.push('/login-redirect');
+            }, 2.5 * 1000);
+          } else {
+            this.successMessage = 'Account created, but needs email verification before logging in. Please check your email.';
+          }
         }).catch((err) => {
           this.error = `${err.message}`;
           if (err.response && err.response.data) {

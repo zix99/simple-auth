@@ -6,6 +6,7 @@ import (
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 	"simple-auth/pkg/saerrors"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -17,7 +18,8 @@ type createAccountRequest struct {
 }
 
 type createAccountResponse struct {
-	ID string `json:"id"` // ID of the created user
+	ID             string `json:"id"`                       // ID of the created user
+	CreatedSession bool   `json:"createdSession,omitempty"` // Did create session
 }
 
 const (
@@ -32,12 +34,14 @@ const (
 // @Accept json
 // @Produce json
 // @Param createRequest body createAccountRequest true "Create request"
+// @Param createSession query boolean false "Attempts to create a session on successful login"
 // @Success 200 {object} createAccountResponse
 // @Failure 400,401,404,500 {object} common.ErrorResponse
 // @Router /account [post]
 func (env *Environment) RouteCreateAccount(c echo.Context) error {
 	logger := appcontext.GetLogger(c)
 	loginService := env.localLoginService.WithContext(c)
+	accountService := env.accountService.WithContext(c)
 
 	var req createAccountRequest
 	if err := c.Bind(&req); err != nil {
@@ -47,11 +51,13 @@ func (env *Environment) RouteCreateAccount(c echo.Context) error {
 		return common.HttpBadRequest(c, err)
 	}
 
+	createSession, _ := strconv.ParseBool(c.QueryParam("createSession"))
+
 	if exists, err := loginService.UsernameExists(req.Username); exists || err != nil {
 		return common.HttpError(c, http.StatusConflict, usernameUnavailable.Wrap(err))
 	}
 
-	account, err := env.accountService.WithContext(c).CreateAccount(req.Username, req.Email)
+	account, err := accountService.CreateAccount(req.Username, req.Email)
 	if err != nil {
 		return common.HttpError(c, http.StatusBadRequest, err)
 	}
@@ -61,13 +67,19 @@ func (env *Environment) RouteCreateAccount(c echo.Context) error {
 		return common.HttpError(c, http.StatusBadGateway, err)
 	}
 
-	if err := auth.CreateSession(c, env.loginConfig, account, auth.SourceLogin); err != nil {
-		logger.Warnf("Unable to create session post-login, ignoring: %v", err)
+	ret := &createAccountResponse{
+		ID: account.UUID,
 	}
 
-	return c.JSON(http.StatusCreated, &createAccountResponse{
-		ID: account.UUID,
-	})
+	if createSession && !accountService.HasUnsatisfiedStipulations(account) {
+		if err := auth.CreateSession(c, env.loginConfig, account, auth.SourceLogin); err == nil {
+			ret.CreatedSession = true
+		} else {
+			logger.Warnf("Unable to create session post-login, ignoring: %v", err)
+		}
+	}
+
+	return c.JSON(http.StatusCreated, ret)
 }
 
 type checkUsernameRequest struct {

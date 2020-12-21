@@ -14,13 +14,16 @@ type AccountService interface {
 	WithContext(ctx appcontext.Context) AccountService
 	CreateAccount(name, email string) (*db.Account, error)
 	FindAccountByEmail(email string) (*db.Account, error)
+
+	HasUnsatisfiedStipulations(account *db.Account) bool
 }
 
 type accountService struct {
-	emailService *email.EmailService
-	metaConfig   *config.ConfigMetadata
-	baseURL      string
-	dbAccount    db.AccountStore
+	emailService   *email.EmailService
+	metaConfig     *config.ConfigMetadata
+	baseURL        string
+	dbAccount      db.AccountStore
+	dbStipulations db.AccountStipulations
 }
 
 var _ AccountService = &accountService{}
@@ -31,12 +34,15 @@ func NewAccountService(configMeta *config.ConfigMetadata, configWeb *config.Conf
 		configMeta,
 		configWeb.GetBaseURL(),
 		nil,
+		nil,
 	}
 }
 
 func (s *accountService) WithContext(ctx appcontext.Context) AccountService {
 	copy := *s
-	copy.dbAccount = appcontext.GetSADB(ctx)
+	sadb := appcontext.GetSADB(ctx)
+	copy.dbAccount = sadb
+	copy.dbStipulations = sadb
 	return &copy
 }
 
@@ -73,4 +79,8 @@ func validateEmail(email string) error {
 func (s *accountService) FindAccountByEmail(email string) (*db.Account, error) {
 	account, err := s.dbAccount.FindAccountByEmail(email)
 	return account, err
+}
+
+func (s *accountService) HasUnsatisfiedStipulations(account *db.Account) bool {
+	return s.dbStipulations.AccountHasUnsatisfiedStipulations(account)
 }

@@ -124,18 +124,23 @@ steps:
   - name: Node Install
     image: node:12-slim
     commands:
-      - npm ci
+      - cs docs && npm ci
     volumes:
       - name: npm-cache
         path: /root/.npm
   - name: Docs Build
     image: node:12-slim
     commands:
-      - npm run build
+      - cd docs && npm run build
   - name: Deploy
     image: node:12-slim
+    environment:
+      SURGE_LOGIN:
+        from_secret: surge_login
+      SURGE_TOKEN:
+        from_secret: surge_token
     commands:
-      - npm run deploy
+      - cd docs && npm run deploy
     when:
       branch: ['master']
 

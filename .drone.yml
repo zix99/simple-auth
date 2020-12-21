@@ -114,3 +114,32 @@ volumes:
   - name: npm-cache
     host:
       path: /var/ci/cache/simple-auth-npm
+
+---
+kind: pipeline
+type: docker
+name: Documentation
+
+steps:
+  - name: Node Install
+    image: node:12-slim
+    commands:
+      - npm ci
+    volumes:
+      - name: npm-cache
+        path: /root/.npm
+  - name: Docs Build
+    image: node:12-slim
+    commands:
+      - npm run build
+  - name: Deploy
+    image: node:12-slim
+    commands:
+      - npm run deploy
+    when:
+      branch: ['master']
+
+volumes:
+  - name: npm-cache
+    host:
+      path: /var/ci/cache/simple-auth-npm

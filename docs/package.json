@@ -1,0 +1,19 @@
+{
+  "name": "simple-auth-docs",
+  "version": "1.0.0",
+  "description": "*Simple-Auth* is a designed to be an easy way to manage users in a multi-usecase scenario.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vuepress dev ./",
+    "build": "vuepress build ./",
+    "clean": "rm -rf .vuepress/dist",
+    "deploy": "surge --project .vuepress/dist/ --domain simple-auth.surge.sh"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mermaid": "^8.8.4",
+    "surge": "^0.21.7",
+    "vuepress": "^1.7.1"
+  }
+}

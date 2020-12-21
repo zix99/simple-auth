@@ -4,5 +4,5 @@ Gateway is a simple way for *simple-auth* to act as an authentication gateway an
 
 ## docker-compose
 
-<<< @/examples/gateway/docker-compose.yml
+<<< @/../examples/gateway/docker-compose.yml
 

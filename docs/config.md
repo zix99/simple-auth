@@ -19,7 +19,7 @@ To specify another location to look for config, you can use the `include` config
 
 The default config is contained purely in `simpleauth.default.yml`, which is embedded into the application executable.
 
-<<< @/simpleauth.default.yml
+<<< ../simpleauth.default.yml
 
 # Advanced Config
 

@@ -7,9 +7,7 @@
     "build": "webpack -p",
     "dev": "webpack --watch -d",
     "lint": "eslint --ext js,vue vue/ && eslint tests/",
-    "docs:dev": "npx vuepress dev docs",
-    "docs": "npx vuepress build docs",
-    "clean": "rm -rf node_modules/ dist/ docs/.vuepress/dist/",
+    "clean": "rm -rf node_modules/ dist/",
     "integration-test": "mocha --recursive tests/ --slow 500 --timeout 10000"
   },
   "repository": {

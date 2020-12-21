@@ -7,6 +7,7 @@ import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/email"
+	"simple-auth/pkg/saerrors"
 	"unicode/utf8"
 )
 
@@ -46,7 +47,15 @@ func (s *accountService) WithContext(ctx appcontext.Context) AccountService {
 	return &copy
 }
 
+const (
+	AccountEmailExists saerrors.ErrorCode = "account-email-exists"
+)
+
 func (s *accountService) CreateAccount(name, emailAddress string) (*db.Account, error) {
+	if account, _ := s.dbAccount.FindAccountByEmail(emailAddress); account != nil {
+		return nil, AccountEmailExists.New()
+	}
+
 	account, err := s.dbAccount.CreateAccount(name, emailAddress)
 	if err != nil {
 		return nil, err

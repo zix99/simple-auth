@@ -43,6 +43,7 @@ func (s *sadb) CreateAccount(name, email string) (*Account, error) {
 		Email:  email,
 		Active: true,
 	}
+
 	if result := s.db.Create(&account); result.Error != nil {
 		return nil, result.Error
 	}

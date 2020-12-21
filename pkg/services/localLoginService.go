@@ -71,6 +71,7 @@ const (
 	LocalTOTPFailed              saerrors.ErrorCode = "totp-failed"
 	LocalUnsatisfiedStipulations saerrors.ErrorCode = "unsatisfied-stipulations"
 	LocalCredentialRequirements  saerrors.ErrorCode = "credentials-failed-requirements"
+	LocalUsernameUnavailable     saerrors.ErrorCode = "username-unavailable"
 )
 
 func (s *localLoginService) FindAuthLocal(accountUUID string) (*db.AuthLocal, error) {
@@ -104,6 +105,10 @@ func (s *localLoginService) Create(account *db.Account, username, password strin
 	}
 	if err := s.validatePassword(password); err != nil {
 		return nil, LocalCredentialRequirements.Compose(err)
+	}
+
+	if authLocal, _ := s.dbAuth.FindAuthLocalByUsername(username); authLocal != nil {
+		return nil, LocalUsernameUnavailable.New()
 	}
 
 	authLocal, err := s.dbAuth.CreateAuthLocal(account, username, password)

@@ -5,7 +5,7 @@ import (
 	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware/selector/auth"
-	"simple-auth/pkg/saerrors"
+	"simple-auth/pkg/services"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -21,10 +21,6 @@ type createAccountResponse struct {
 	ID             string `json:"id"`                       // ID of the created user
 	CreatedSession bool   `json:"createdSession,omitempty"` // Did create session
 }
-
-const (
-	usernameUnavailable saerrors.ErrorCode = "username-unavailable"
-)
 
 // RouteCreateAccount creates a new account from echo context
 // @Summary Create Account
@@ -54,7 +50,7 @@ func (env *Environment) RouteCreateAccount(c echo.Context) error {
 	createSession, _ := strconv.ParseBool(c.QueryParam("createSession"))
 
 	if exists, err := loginService.UsernameExists(req.Username); exists || err != nil {
-		return common.HttpError(c, http.StatusConflict, usernameUnavailable.Wrap(err))
+		return common.HttpError(c, http.StatusConflict, services.LocalUsernameUnavailable.Wrap(err))
 	}
 
 	account, err := accountService.CreateAccount(req.Username, req.Email)

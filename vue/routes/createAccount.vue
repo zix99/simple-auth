@@ -104,6 +104,11 @@ import RecaptchaV2 from '../components/recaptchav2.vue';
 import ValidatedPasswordInput from '../components/validatedPasswordInput.vue';
 import debounce from '../lib/debounce';
 
+const errorCodes = {
+  'username-unavailable': 'The username you have selected is unavailable',
+  'account-email-exists': 'The email address you have entered is already associated with an account',
+};
+
 export default {
   props: {
     appdata: {
@@ -221,9 +226,13 @@ export default {
             this.successMessage = 'Account created, but needs email verification before logging in. Please check your email.';
           }
         }).catch((err) => {
-          this.error = `${err.message}`;
-          if (err.response && err.response.data) {
-            this.error += `: ${err.response.data.message}`;
+          if (err.response.data && err.response.data.reason && errorCodes[err.response.data.reason]) {
+            this.error = errorCodes[err.response.data.reason];
+          } else {
+            this.error = `${err.message}`;
+            if (err.response && err.response.data) {
+              this.error += `: ${err.response.data.message}`;
+            }
           }
         }).then(() => {
           this.loading = false;

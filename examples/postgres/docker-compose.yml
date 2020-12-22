@@ -1,0 +1,24 @@
+version: '3.3'
+services:
+  simpleauth:
+    build: ../../
+    ports:
+      - 8082:80
+    environment:
+      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: ra9etioahtjkj2345 # REPLACE THIS WITH SOMETHING UNIQUE!!!!
+      SA_DB_DRIVER: postgres
+      SA_DB_URL: "host=db user=postgres dbname=postgres password=test sslmode=disable"
+    volumes:
+      - sadb:/var/lib/simple-auth
+    depends_on:
+      - db
+  db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_PASSWORD: test
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  sadb: {}
+  pgdata: {}

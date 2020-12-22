@@ -17,6 +17,7 @@ module.exports = {
           '/config',
           '/customization',
           '/email',
+          '/database',
           '/cli',
         ],
       },

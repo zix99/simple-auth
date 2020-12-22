@@ -3,3 +3,4 @@ test.db
 simpleauth.yml
 Dockerfile
 examples/
+docs/

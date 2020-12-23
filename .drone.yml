@@ -167,7 +167,7 @@ volumes:
 
 kind: pipeline
 type: docker
-name: Documentation
+name: Sync
 
 when:
   branch: ['master']

@@ -120,9 +120,6 @@ kind: pipeline
 type: docker
 name: Documentation
 
-when:
-  branch: ['master']
-
 steps:
   - name: Node Install
     image: node:12-slim
@@ -165,3 +162,23 @@ volumes:
   - name: go-cache
     host:
       path: /var/ci/cache/simple-auth-go
+
+---
+
+kind: pipeline
+type: docker
+name: Documentation
+
+when:
+  branch: ['master']
+
+steps:
+  - name: Push To Github
+    image: appleboy/drone-git-push
+    settings:
+      branch: master
+      remote: git@github.com:zix99/simple-auth.git
+      ssh_key:
+        from_secret: sshkey_github
+    when:
+      branch: ['master']

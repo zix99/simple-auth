@@ -12,7 +12,7 @@ Looking to get started? See [Quickstart](quickstart)
 
 **Common use-cases include:**
 
-- Stand-alone user management (signup), and credential validation via API
+- Stand-alone user management (signup), and [credential validation via API](/authenticators/simple)
 - Reverse proxy to downstream service blocked by login ([gateway](/access/gateway))
 - Per-request [vouching](/authenticators/vouch) (eg. for NGINX `auth_request` to act as a validator for login), to act as an authentication portal
 - [Same-domain/subdomain login](/access/cookie) provider via cookie validation
@@ -25,8 +25,7 @@ Looking to get started? See [Quickstart](quickstart)
 - Welcome email, and optional user email verification
 - Forgot/lost password
 - Login/access-attempt auditing
-- [REST API](https://simple-auth.surge.sh/api) to all underlying functionality
-
+- <a :href="`${$themeConfig.docsUrl}/api`">REST API</a> to all underlying functionality
 
 ## Concepts
 

@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vuepress dev ./",
     "build": "npm run build:vuepress && npm run build:spectacle",
-    "build:vuepress": "vuepress build ./ && npm run",
+    "build:vuepress": "vuepress build ./",
     "build:spectacle": "spectacle -t .vuepress/dist/api ../pkg/swagdocs/swagger.json",
     "clean": "rm -rf .vuepress/dist",
-    "deploy": "surge --project .vuepress/dist/ --domain simple-auth.surge.sh"
+    "deploy": "surge --project .vuepress/dist/ --domain simple-auth.surge.sh",
+    "test": "start-server-and-test test:serve http://localhost:8081 test:badlinks",
+    "test:serve": "http-server .vuepress/dist/",
+    "test:badlinks": "blc -r http://localhost:8081"
   },
   "author": "",
   "license": "ISC",
@@ -18,5 +21,10 @@
     "spectacle-docs": "^1.1.0",
     "surge": "^0.21.7",
     "vuepress": "^1.7.1"
+  },
+  "devDependencies": {
+    "broken-link-checker": "^0.7.8",
+    "http-server": "^0.12.3",
+    "start-server-and-test": "^1.11.6"
   }
 }

@@ -26,6 +26,14 @@ In order to use different persistence, you can chose a different driver and url.
 
 This is the default.  To sepecify a different path, change the `db.url` config.
 
+#### Docker
+
+If using docker, make sure to mount a persistent volume, otherwise you may lose your users on container restart.
+
+*simple-auth* will put all its persistent storage here: `/var/lib/simple-auth`
+
+<<< @/examples/simple/docker-compose.yml
+
 ### Sqlite in-memory
 
 ::: warning
@@ -46,6 +54,12 @@ This is an example setup using a docker-compose file to specify the config for a
 
 If you use a standalone applicable, you only need to set `SA_DB_DRIVER` and `SA_DB_URL`
 
-<<< @/../examples/postgres/docker-compose.yml
+<<< @/examples/postgres/docker-compose.yml
 
 ### Mysql
+
+::: warning
+Make sure to set `?charset=utf8&parseTime=True&loc=Local` on the connection, otherwise you will receive errors
+:::
+
+<<< @/examples/mysql/docker-compose.yml

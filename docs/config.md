@@ -29,6 +29,10 @@ The default config is contained purely in `simpleauth.default.yml`, which is emb
 
 # Advanced Config
 
+## Persistence
+
+If you want to use a database other than `sqlite3` (local file), see [database drivers](/database)
+
 ## Signing Key Pair
 
 See [SigningKey RSA Pair Cookbook](cookbooks/signingkey-pair)

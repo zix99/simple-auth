@@ -1,0 +1,46 @@
+version: '3.3'
+services:
+
+  # Traefik listening on port 88 (in case 80 conflicts with something...)
+  traefik:
+    image: traefik:v2.3
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:88"
+    ports:
+      - "88:88"
+      - "8090:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  # Simpleauth
+  simpleauth:
+    build: ../../../
+    environment:
+      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: ra9etioahtjkj2345 # CHANGE ME!!
+      SA_VERBOSE: 'true'
+      SA_WEB_LOGIN_SETTINGS_ROUTEONLOGIN: "http://${DOMAIN}:88"
+      SA_WEB_LOGIN_COOKIE_DOMAIN: ${DOMAIN} # IMPORTANT: Higher-level domain
+    volumes:
+      - sadb:/var/lib/simple-auth
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.simpleauth.rule=Host(`auth.${DOMAIN}`)" # Fill in with your own domain
+      - "traefik.http.routers.simpleauth.entrypoints=web"
+  
+  # testapp is a small nodejs app that will verify your token and only let you in if you have a valid token
+  testapp:
+    build: ./testapp
+    environment:
+      AUTHURL: "http://auth.${DOMAIN}:88"
+      JWTKEY: ra9etioahtjkj2345 # This should match the signing key for simpleauth
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.testapp.rule=Host(`${DOMAIN}`)" # Fill in with your own domain
+      - "traefik.http.routers.testapp.entrypoints=web"
+    
+
+volumes:
+  sadb: {}

@@ -17,7 +17,7 @@ providers:
 ```
 
 ::: warning
-In order for email validation to work, email must be enabled. See [email](../cookbooks/email)
+In order for email validation to work, email must be enabled. See [email](/email)
 :::
 
 ### Requirements
@@ -76,7 +76,7 @@ providers:
 ### Forgot Password
 
 ::: warning
-By default, forgot password isn't enabled because it relies on a [email engine](../cookbooks/email) being set up.
+By default, forgot password isn't enabled because it relies on a [email engine](/email) being set up.
 :::
 
 *Forgot password* functionality can send an an email to an account with a link to

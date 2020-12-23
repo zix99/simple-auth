@@ -32,8 +32,8 @@ The following example will set up a docker-compose stack that has a static page 
 
 #### docker-compose
 
-<<< @/../examples/docker-nginx/docker-compose.yml
+<<< @/examples/docker-nginx/docker-compose.yml
 
 #### nginx.conf
 
-<<< @/../examples/docker-nginx/nginx.conf
+<<< @/examples/docker-nginx/nginx.conf

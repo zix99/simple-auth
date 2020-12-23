@@ -142,6 +142,10 @@ steps:
     image: node:12-slim
     commands:
       - cd docs && npm run build
+  - name: Docs Test
+    image: node:12-slim
+    commands:
+      - cd docs && npm run test
   - name: Deploy
     image: node:12-slim
     environment:

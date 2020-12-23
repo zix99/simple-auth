@@ -13,7 +13,7 @@ Simple actions can be completed, such as:
 - Examine configuration
 - etc.
 
-## Help
+## Help Docs
 
 ```
 NAME:

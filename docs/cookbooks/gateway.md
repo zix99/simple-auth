@@ -12,5 +12,5 @@ B -- Proxies --> C[Backend]
 
 ## docker-compose example
 
-<<< @/../examples/gateway/docker-compose.yml
+<<< @/examples/gateway/docker-compose.yml
 

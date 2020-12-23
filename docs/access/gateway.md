@@ -7,7 +7,7 @@ Gateway is a simple way for *simple-auth* to **act as an authentication gateway 
 ::: tip
 The gateway can target many backend servers, **however**, it can't route to different
 servers depending on host or path.  If you have a more complex use-case, please
-look at [nginx auth request](nginx-auth-request).
+look at [nginx auth request](/cookbooks/nginx-auth-request).
 :::
 
 ::: warning

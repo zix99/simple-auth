@@ -6,6 +6,8 @@ It allows users to sign-up with a UI, offering various providers.  Then, via var
 
 [Read the Documentation](https://simple-auth.surge.sh)
 
+View examples in /docs/examples
+
 ![Simple-auth](docs/simpleauth.png)
 
 # Running Simple Auth
@@ -18,8 +20,11 @@ It allows users to sign-up with a UI, offering various providers.  Then, via var
 
 Two commands need to be run to dev:
 ```sh
-go run simple-auth/cmd/server
+# Runs frontend code in watch mode
 npm run dev
+
+# Runs the server
+go run simple-auth/cmd/server
 ```
 
 ## Building

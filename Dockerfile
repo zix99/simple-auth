@@ -26,4 +26,5 @@ ENV SA_PRODUCTION=true \
     SA_WEB_HOST="0.0.0.0:80" \
     SA_DB_URL="/var/lib/simple-auth/simpleauth.db"
 
+EXPOSE 80
 CMD ["./simple-auth-server"]

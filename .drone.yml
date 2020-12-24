@@ -1,5 +1,6 @@
 kind: pipeline
-name: default
+type: docker
+name: Build
 
 steps:
   - name: Node Install
@@ -169,16 +170,19 @@ kind: pipeline
 type: docker
 name: Sync
 
-when:
-  branch: ['master']
+trigger:
+  branch:
+  - master
 
 steps:
   - name: Push To Github
-    image: appleboy/drone-git-push
-    settings:
-      branch: master
-      remote: ssh://git@github.com/zix99/simple-auth.git
-      ssh_key:
+    image: alpine/git
+    environment:
+      GIT_KEY:
         from_secret: sshkey_github
-    when:
-      branch: ['master']
+    commands:
+      - mkdir -p /root/.ssh && echo "$GIT_KEY" > /root/.ssh/id_rsa && chown 400 /root/.ssh/id_rsa
+      - ssh-keyscan github.com >> /root/.ssh/known_hosts
+      - git remote add mirror git@github.com:zix99/simple-auth.git
+      - git push mirror --force
+

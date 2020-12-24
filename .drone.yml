@@ -177,7 +177,7 @@ steps:
     image: appleboy/drone-git-push
     settings:
       branch: master
-      remote: git@github.com:zix99/simple-auth.git
+      remote: ssh://git@github.com:zix99/simple-auth.git
       ssh_key:
         from_secret: sshkey_github
     when:

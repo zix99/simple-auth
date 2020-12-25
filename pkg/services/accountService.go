@@ -7,9 +7,12 @@ import (
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
 	"simple-auth/pkg/email"
+	"simple-auth/pkg/instrumentation"
 	"simple-auth/pkg/saerrors"
 	"unicode/utf8"
 )
+
+var accountCreateCounter instrumentation.Counter = instrumentation.NewCounter("sa_account_create", "Account creation counter")
 
 type AccountService interface {
 	WithContext(ctx appcontext.Context) AccountService
@@ -68,6 +71,8 @@ func (s *accountService) CreateAccount(name, emailAddress string) (*db.Account, 
 		},
 		Name: name,
 	})
+
+	accountCreateCounter.Inc()
 
 	return account, nil
 }

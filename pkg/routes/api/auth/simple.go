@@ -60,6 +60,8 @@ type simpleAuthResponse struct {
 // @Failure 400,401,403,404,500 {object} common.ErrorResponse
 // @Router /auth/simple [post]
 func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
+	const metricName = "simple"
+
 	if env.config.SharedSecret != "" {
 		authHeader := c.Request().Header.Get(echo.HeaderAuthorization)
 		if authHeader == "" {
@@ -81,8 +83,11 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 
 	authLocal, err := env.localLogin.WithContext(c).AssertLogin(req.Username, req.Password, req.TOTP)
 	if err != nil {
+		incAuthCounterError(metricName, err)
 		return common.HttpError(c, http.StatusForbidden, err)
 	}
+
+	incAuthCounterSuccess(metricName)
 
 	return c.JSON(http.StatusOK, simpleAuthResponse{
 		ID: authLocal.Account().UUID,

@@ -3,11 +3,14 @@ package v1
 import (
 	"net/http"
 	"simple-auth/pkg/appcontext"
+	"simple-auth/pkg/instrumentation"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware/selector/auth"
 
 	"github.com/labstack/echo/v4"
 )
+
+var loginCounter instrumentation.Counter = instrumentation.NewCounter("sa_local_login", "Counter for local login", "success")
 
 type loginRequest struct {
 	Username string  `json:"username" validate:"required"`
@@ -39,6 +42,7 @@ func (env *Environment) RouteSessionLogin(c echo.Context) error {
 	authLocal, err := env.localLoginService.WithContext(c).AssertLogin(req.Username, req.Password, req.Totp)
 	if err != nil {
 		logger.Infof("Login for user '%s' rejected: %v", req.Username, err)
+		loginCounter.Inc(false)
 		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
 	logger.Infof("Login for user '%s' accepted", req.Username)
@@ -46,6 +50,8 @@ func (env *Environment) RouteSessionLogin(c echo.Context) error {
 	if err := env.sessionService.IssueSession(c, authLocal, auth.SourceLogin); err != nil {
 		return common.HttpError(c, http.StatusInternalServerError, err)
 	}
+
+	loginCounter.Inc(true)
 
 	return c.JSON(http.StatusOK, common.Json{
 		"ok": true,

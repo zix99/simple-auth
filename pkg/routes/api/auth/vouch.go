@@ -41,5 +41,6 @@ func (env *VouchAuthController) Mount(group *echo.Group) {
 // @Success 200 {object} common.OKResponse
 // @Router /auth/vouch [get]
 func (env *VouchAuthController) routeVouchAuth(c echo.Context) error {
+	incAuthCounterSuccess("vouch")
 	return common.HttpOK(c)
 }

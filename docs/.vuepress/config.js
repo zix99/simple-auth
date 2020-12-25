@@ -4,7 +4,7 @@ module.exports = {
   title: "Simple Auth",
   description: "Simple White-Labeled Authentication Provider",
   themeConfig: {
-    repoUrl: "https://bitbucket.org/zix99/simple-auth/src/master",
+    repoUrl: "https://github.com/zix99/simple-auth/tree/master",
     docsUrl,
     nav: [
       { text: 'Home', link: '/' },

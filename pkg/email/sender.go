@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"html/template"
 	"simple-auth/pkg/appcontext"
+	"simple-auth/pkg/instrumentation"
 )
+
+var emailCounter instrumentation.Counter = instrumentation.NewCounter("sa_email_sends", "Email sending metrics", "template", "success")
 
 type emailData struct {
 	From  template.HTML
@@ -37,5 +40,8 @@ func (s *EmailService) sendEmail(to string, templateName string, data IEmailData
 	} else {
 		log.Infof("Email sent %d bytes to %s", buf.Len(), to)
 	}
+
+	emailCounter.Inc(templateName, err == nil)
+
 	return err
 }

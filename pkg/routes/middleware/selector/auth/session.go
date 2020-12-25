@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
+	"simple-auth/pkg/instrumentation"
 	"simple-auth/pkg/routes/middleware/selector"
 	"strings"
 	"time"
@@ -15,6 +16,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 )
+
+var sessionCounter instrumentation.Counter = instrumentation.NewCounter("sa_session_create", "Session creation counter", "source")
 
 const (
 	SourceOIDC    SessionSource = "oidc"
@@ -91,6 +94,8 @@ func CreateSession(c echo.Context, config *config.ConfigLoginCookie, account *db
 	}
 
 	c.SetCookie(cookie)
+
+	sessionCounter.Inc(source)
 
 	return nil
 }

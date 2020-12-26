@@ -4,19 +4,19 @@
       Fetching account details...
     </LoadingBanner>
     <div v-if="account">
-      <h2 class="title is-3">{{account.email}}</h2>
+      <h2 class="title">{{account.email}}</h2>
 
       <Card title="Account">
         <table class="table">
           <tbody>
             <tr v-if="account.name">
-              <th>Name</th><td>{{account.name}}</td>
+              <th class="is-hidden-mobile">Name</th><td>{{account.name}}</td>
             </tr>
             <tr>
-              <th>ID</th><td>{{account.id}}</td>
+              <th class="is-hidden-mobile">ID</th><td>{{account.id}}</td>
             </tr>
             <tr>
-              <th>Created</th><td><ShortDate :date="account.created" /></td>
+              <th class="is-hidden-mobile">Created</th><td><ShortDate :date="account.created" /></td>
             </tr>
           </tbody>
         </table>
@@ -26,16 +26,16 @@
         <table class="table">
           <tbody>
             <tr>
-              <th>Enabled</th><td>{{account.auth.local ? 'Yes' : 'No'}}</td>
+              <th class="is-hidden-mobile">Enabled</th><td>{{account.auth.local ? 'Yes' : 'No'}}</td>
             </tr>
             <tr>
-              <th>Username</th><td>{{account.auth.local.username}}</td>
+              <th class="is-hidden-mobile">Username</th><td>{{account.auth.local.username}}</td>
             </tr>
             <tr>
-              <th>Password</th><td><button class="button is-warning is-light" @click="$refs.modalPass.open()">Change</button></td>
+              <th class="is-hidden-mobile">Password</th><td><button class="button is-warning is-light" @click="$refs.modalPass.open()">Change</button></td>
             </tr>
             <tr v-if="account.auth.local.twofactorallowed">
-              <th>Two Factor</th>
+              <th class="is-hidden-mobile">Two Factor</th>
               <td v-if="!account.auth.local.twofactor">
                 <button class="button is-secondary is-light" @click="$refs.modalTFA.open()">Activate</button>
               </td>
@@ -50,10 +50,10 @@
         <table class="table">
           <tbody>
             <tr>
-              <th>Provider</th><td><fa-icon :icon="['fab', oidc.icon]" /> {{oidc.name}}</td>
+              <th class="is-hidden-mobile">Provider</th><td><fa-icon :icon="['fab', oidc.icon]" /> {{oidc.name}}</td>
             </tr>
             <tr>
-              <th>Subject</th><td>{{oidc.subject}}</td>
+              <th class="is-hidden-mobile">Subject</th><td>{{oidc.subject}}</td>
             </tr>
           </tbody>
         </table>

@@ -10,6 +10,7 @@ type ConfigDatabase struct {
 type ConfigMetadata struct {
 	Company string
 	Footer  string
+	TagLine string
 	Bucket  map[string]interface{}
 }
 

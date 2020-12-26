@@ -34,6 +34,7 @@ func buildTemplateContext(c echo.Context, meta *config.ConfigMetadata, web *conf
 	app := common.Json{
 		"company": meta.Company,
 		"footer":  meta.Footer,
+		"tagline": meta.TagLine,
 		"csrf":    c.Get("csrf"),
 		"login": common.Json{
 			"createAccount":  providerConfig.Settings.CreateAccountEnabled,

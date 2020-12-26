@@ -9,7 +9,7 @@
           <p v-if="isRemoteContinue">After logging in, you will be redirected to:<br /><strong>{{appdata.login.continue}}</strong></p>
         </div>
 
-        <div class="has-text-left">
+        <div class="box has-text-left">
           <Login
             @loggedIn="$router.push('/login-redirect')"
             @state="showAltLogin=false"
@@ -24,7 +24,7 @@
             </div>
           </div>
           <div v-if="appdata.login.createAccount">
-            <p class="is-size-4">or</p>
+            <p class="is-size-5">or</p>
             <div class="my-2">
               <router-link to="/create" class="button is-primary">Create Account</router-link>
             </div>

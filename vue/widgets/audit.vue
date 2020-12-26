@@ -5,16 +5,16 @@
       <thead>
         <tr>
           <th>Date</th>
-          <th>Level</th>
-          <th>Module</th>
+          <th class="is-hidden-mobile">Level</th>
+          <th class="is-hidden-mobile">Module</th>
           <th>Message</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="record in this.records" :key="record.ts">
           <td><ShortDate :date="record.ts" /></td>
-          <td :class="levelToClass(record.level)">{{record.level}}</td>
-          <td>{{record.module}}</td>
+          <td :class="levelToClass(record.level)" class="is-hidden-mobile">{{record.level}}</td>
+          <td class="is-hidden-mobile">{{record.module}}</td>
           <td>{{record.message}}</td>
         </tr>
       </tbody>

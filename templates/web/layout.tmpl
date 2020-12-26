@@ -12,9 +12,18 @@
         {{block "head" .}}{{end}}
     </head>
     <body>
+        <section class="hero">
+            <div class="hero-body">
+                <div class="container">
+                    <a href="/">
+                        <h1 class="title">{{ .company }}</h1>
+                        {{if .tagline}}<h2 class="subtitle">{{ .tagline }}</h2>{{end}}
+                    </a>
+                </div>
+            </div>
+        </section>
         <section class="section" id="main">
             <div class="container">
-                <a href="/"><h1 class="title">{{ .company }}</h1></a>
                 {{template "content" .}}
             </div>
         </section>

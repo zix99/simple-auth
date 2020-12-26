@@ -5,8 +5,9 @@ include: []                 # Other files that should be loaded as config
 
 # Metadata is fed into the `tmpl` and emails to be rendered
 metadata:
-    company: "My Company"
-    footer: ""
+    company: "Simple Auth" # Used in emails, site title, etc
+    tagline: null          # Displays under the title
+    footer: ""             # Foot text
     bucket: {} # Not used by default. Can be used to customize
 
 web:

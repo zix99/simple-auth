@@ -26,6 +26,7 @@ Looking to get started? See [Quickstart](quickstart)
 - Forgot/lost password
 - Login/access-attempt auditing
 - <a :href="`${$themeConfig.docsUrl}/api`">REST API</a> to all underlying functionality
+- Mobile friendly
 
 ## Concepts
 

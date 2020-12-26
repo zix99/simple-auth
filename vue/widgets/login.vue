@@ -29,7 +29,7 @@
         </div>
       </div>
 
-      <div class="field is-grouped">
+      <div class="field is-grouped is-grouped-centered">
         <div class="control">
           <button class="button is-link" @click="submitClick" :disabled="loading">Login</button>
         </div>
@@ -50,7 +50,7 @@
           </span>
         </div>
       </div>
-      <div class="field">
+      <div class="field is-grouped is-grouped-centered">
         <div class="control">
           <button class="button is-link" @click="submitClick">Login</button>
         </div>

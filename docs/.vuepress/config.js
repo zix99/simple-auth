@@ -65,8 +65,11 @@ module.exports = {
         ],
       },
       {
-        title: 'API Docs',
-        path: 'http://simple-auth.surge.sh/api',
+        title: 'REST API',
+        path: '/api',
+        children: [
+          { title: 'API Docs', path: `${docsUrl}/api`},
+        ],
       },
     ]
   },

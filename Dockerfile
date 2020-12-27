@@ -8,18 +8,23 @@ COPY vue vue
 RUN npm run build
 
 # Build go app
-FROM golang:1.14-alpine AS gobuild
+FROM golang:1.15-alpine AS gobuild
 RUN apk add build-base
 WORKDIR /opt/simple-auth
-COPY --from=nodebuild /opt/simple-auth/dist dist
+COPY go.* ./
+RUN go mod download
 COPY . .
+COPY --from=nodebuild /opt/simple-auth/dist dist
 RUN go generate ./...
-RUN go build -tags box -o simple-auth-server simple-auth/cmd/server
+RUN go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
+RUN go build -tags box,prometheus,swagger -o simple-auth-server simple-auth/cmd/server
+RUN go build -tags boxconfig -o simple-auth-cli simple-auth/cmd/cli
 
 # Final image
 FROM alpine:latest
 WORKDIR /opt/simple-auth
 COPY --from=gobuild /opt/simple-auth/simple-auth-server .
+COPY --from=gobuild /opt/simple-auth/simple-auth-cli .
 
 VOLUME /var/lib/simple-auth
 ENV SA_PRODUCTION=true \
@@ -27,4 +32,5 @@ ENV SA_PRODUCTION=true \
     SA_DB_URL="/var/lib/simple-auth/simpleauth.db"
 
 EXPOSE 80
-CMD ["./simple-auth-server"]
+ENTRYPOINT ["./simple-auth-server"]
+CMD []

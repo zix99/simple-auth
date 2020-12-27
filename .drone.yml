@@ -1,6 +1,8 @@
+# This pipeline runs for every commit/merge/etc.
+# It is intended to be basic and quick sanity-checking
 kind: pipeline
 type: docker
-name: Build
+name: Verify
 
 steps:
   - name: Node Install
@@ -22,41 +24,17 @@ steps:
       - npm audit --audit-level=moderate
     depends_on:
       - Node Install
-  - name: Node Dist
-    image: node:12-slim
-    commands:
-      - npm run build
-    depends_on:
-      - Node Install
-      - Node Lint # Cause why bother if failed
-
-  - name: Server Generate
-    image: golang:1.14
-    volumes:
-    - name: go-cache
-      path: /go
-    commands:
-      - go generate ./...
-      - echo -n "box," >> .buildtags
-      - go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
-      - echo -n "swagger," >> .buildtags
-    when:
-      branch: ['master']
-    depends_on:
-      - Node Dist
 
   - name: Server Test
-    image: golang:1.14
+    image: golang:1.15
     volumes:
     - name: go-cache
       path: /go
     commands:
       - go test -race ./...
       - go vet $(go list ./... | grep -v "vendor")
-    depends_on:
-      - Server Generate
   - name: Server Static Check
-    image: golang:1.14
+    image: golang:1.15
     volumes:
     - name: go-cache
       path: /go
@@ -64,46 +42,24 @@ steps:
       - go run honnef.co/go/tools/cmd/staticcheck ./...
     depends_on:
       - Server Test
-  - name: Server Build
-    image: golang:1.14
+
+  - name: Integration Test Build
+    image: golang:1.15
     volumes:
     - name: go-cache
       path: /go
     commands:
-      - echo -n "prometheus" >> .buildtags
-      - go build -tags $(cat .buildtags) -o simple-auth-server simple-auth/cmd/server
+      - go build -o simple-auth-server simple-auth/cmd/server
     depends_on:
-      - Server Generate
-      - Node Dist
-  - name: CLI Build
-    image: golang:1.14
-    volumes:
-    - name: go-cache
-      path: /go
-    commands:
-      - go build -tags boxconfig -o simple-auth-cli simple-auth/cmd/cli
-    depends_on:
-      - Server Generate
+      - Server Test
 
   - name: Integration Tests
     image: node:12-buster
     commands:
       - ./tests/quicktest.sh --nobuild
     depends_on:
-      - Server Build
-
-  - name: Docker Build
-    image: docker:19
-    volumes:
-    - name: docker-socket
-      path: /var/run/docker.sock
-    commands:
-      - docker build -t ${DRONE_REPO_NAME} -f Dockerfile.drone .
-    when:
-      branch: ['master']
-    depends_on:
-      - Server Build
-      - CLI Build
+      - Integration Test Build
+    
 
 volumes:
   - name: docker-socket
@@ -119,7 +75,114 @@ volumes:
 ---
 kind: pipeline
 type: docker
+name: Docker Build
+
+depends_on:
+  - Verify
+trigger:
+  branch: ['master']
+
+steps:
+  - name: Docker Build
+    image: docker:19
+    volumes:
+    - name: docker-socket
+      path: /var/run/docker.sock
+    commands:
+      - docker build -t ${DRONE_REPO_NAME}-${DRONE_BUILD_NUMBER} .
+
+  - name: Docker Push
+    image: docker:19
+    volumes:
+    - name: docker-socket
+      path: /var/run/docker.sock
+    environment:
+      DOCKER_REGISTRY_USERNAME:
+        from_secret: rdh_user
+      DOCKER_REGISTRY_PASSWORD:
+        from_secret: rdh_pass
+    commands:
+      - docker login -u "$DOCKER_REGISTRY_USERNAME" -p "$DOCKER_REGISTRY_PASSWORD"
+      - docker tag ${DRONE_REPO_NAME}-${DRONE_BUILD_NUMBER} zix99/simple-auth:latest
+      - docker tag ${DRONE_REPO_NAME}-${DRONE_BUILD_NUMBER} zix99/simple-auth:${DRONE_BUILD_NUMBER}
+      - docker push zix99/simple-auth:latest
+    when:
+      branch: ['master']
+    depends_on:
+      - Docker Build
+
+volumes:
+  - name: docker-socket
+    host:
+      path: /var/run/docker.sock
+
+---
+
+kind: pipeline
+type: docker
+name: Binary Build
+
+depends_on:
+  - Verify
+trigger:
+  branch:
+    - master
+
+steps:
+  - name: Node Install
+    image: node:12-slim
+    commands:
+      - npm ci
+    volumes:
+      - name: npm-cache
+        path: /root/.npm
+
+  - name: Node Dist
+    image: node:12-slim
+    commands:
+      - npm run build
+    depends_on:
+      - Node Install
+
+  - name: Server Generate
+    image: golang:1.15-alpine
+    volumes:
+    - name: go-cache
+      path: /go
+    commands:
+      - go generate ./...
+      - go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
+    depends_on:
+      - Node Dist
+
+  - name: Server Build
+    image: golang:1.15-alpine
+    volumes:
+    - name: go-cache
+      path: /go
+    commands:
+      - go build -tags box,swagger,prometheus -o simple-auth-server simple-auth/cmd/server
+    depends_on:
+      - Server Generate
+
+volumes:
+  - name: go-cache
+    host:
+      path: /var/ci/cache/simple-auth-go
+  - name: npm-cache
+    host:
+      path: /var/ci/cache/simple-auth-npm
+
+---
+kind: pipeline
+type: docker
 name: Documentation
+
+trigger:
+  event:
+    - promote
+  target:
+    - docs
 
 steps:
   - name: Node Install
@@ -130,7 +193,7 @@ steps:
       - name: npm-cache
         path: /root/.npm
   - name: Server Generate
-    image: golang:1.14
+    image: golang:1.15-alpine
     volumes:
     - name: go-cache
       path: /go
@@ -153,8 +216,6 @@ steps:
         from_secret: surge_token
     commands:
       - cd docs && npm run deploy
-    when:
-      branch: ['master']
 
 volumes:
   - name: npm-cache
@@ -173,6 +234,9 @@ name: Sync
 trigger:
   branch:
   - master
+
+depends_on:
+  - Verify
 
 steps:
   - name: Push To Github

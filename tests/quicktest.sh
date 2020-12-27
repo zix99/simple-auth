@@ -5,6 +5,9 @@ set +e
 # In order to run integration tests against.  Alternatively you
 # can run it manually with the npm script
 
+SATEST_HOST=${SATEST_HOST:-localhost:9002}
+export SATEST_HOST
+
 if [[ $* != *--nobuild* ]]; then
   echo Building...
   go build -o simple-auth-server simple-auth/cmd/server
@@ -14,7 +17,6 @@ if [[ $* != *--nobuild* ]]; then
   fi
 fi
 
-rm quicktest.db
 ./simple-auth-server --verbose --staticfromdisk \
   --web-login-cookie-jwt-signingkey=this-is-a-test \
   --api-external=true --api-sharedsecret=super-secret \
@@ -30,7 +32,7 @@ echo "PID: $!"
 sleep 0.5
 echo "Waiting for server to come up..."
 for i in `seq 1 50`; do
-  if $(curl -o /dev/null --fail --silent "http://localhost:9002/health"); then
+  if $(curl -o /dev/null --fail --silent "http://${SATEST_HOST}/health"); then
     break
   fi
   printf '.'

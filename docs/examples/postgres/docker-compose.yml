@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   simpleauth:
-    build: ../../../
+    image: zix99/simple-auth:latest
     ports:
       - 8082:80
     environment:
@@ -10,6 +10,7 @@ services:
       SA_DB_URL: "host=db user=postgres dbname=postgres password=test sslmode=disable"
     depends_on:
       - db
+    restart: always
   db:
     image: postgres:13-alpine
     environment:

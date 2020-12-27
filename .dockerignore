@@ -1,6 +1,13 @@
+.vscode/
 node_modules/
-test.db
+docs/
+tests/
+dist/
+
+.drone.yml
+README.md
+simple-auth-server
+simple-auth-cli
 simpleauth.yml
 Dockerfile
-examples/
-docs/
+simpleauth.db

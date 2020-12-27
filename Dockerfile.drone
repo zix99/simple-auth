@@ -1,9 +1,0 @@
-# Simple dockerfile based on drone build
-FROM alpine:latest
-WORKDIR /opt/simple-auth
-
-COPY simple-auth-server .
-
-ENV SA_PRODUCTION=true
-
-CMD ["./simple-auth-server"]

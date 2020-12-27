@@ -145,7 +145,7 @@ steps:
       - Node Install
 
   - name: Server Generate
-    image: golang:1.15-alpine
+    image: golang:1.15
     volumes:
     - name: go-cache
       path: /go
@@ -156,7 +156,7 @@ steps:
       - Node Dist
 
   - name: Server Build
-    image: golang:1.15-alpine
+    image: golang:1.15
     volumes:
     - name: go-cache
       path: /go
@@ -193,7 +193,7 @@ steps:
       - name: npm-cache
         path: /root/.npm
   - name: Server Generate
-    image: golang:1.15-alpine
+    image: golang:1.15
     volumes:
     - name: go-cache
       path: /go

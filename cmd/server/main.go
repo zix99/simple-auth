@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/box"
@@ -33,6 +34,18 @@ func routeHealth(db db.SADB) echo.HandlerFunc {
 
 func simpleAuthServer(config *config.Config) error {
 	log := logrus.New()
+
+	if config.Help {
+		fmt.Println()
+		fmt.Println("Help:")
+		fmt.Println("http://simple-auth.surge.sh/")
+		fmt.Printf("Version: %s:%s\n", version, buildSha)
+		return nil
+	}
+	if config.Version {
+		fmt.Println(version)
+		return nil
+	}
 
 	if config.Production {
 		logrus.Info("Running in production mode")
@@ -113,5 +126,8 @@ func simpleAuthServer(config *config.Config) error {
 }
 
 func main() {
-	logrus.Fatal(simpleAuthServer(config.Load(os.Args[1:]...)))
+	err := simpleAuthServer(config.Load(os.Args[1:]...))
+	if err != nil {
+		logrus.Fatal(err)
+	}
 }

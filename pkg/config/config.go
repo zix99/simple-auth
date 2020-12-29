@@ -193,4 +193,8 @@ type Config struct {
 	Production     bool                   // Production changes how logs are generated and tighter security checks
 	Verbose        bool                   // Turns on additional logging
 	StaticFromDisk bool                   // Checks the disk for static files
+
+	// Meta config
+	Version bool // Show version
+	Help    bool // Show help
 }

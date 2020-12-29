@@ -93,7 +93,7 @@ steps:
     - name: docker-socket
       path: /var/run/docker.sock
     commands:
-      - docker build -t ${DRONE_REPO_NAME}-${DRONE_BUILD_NUMBER} .
+      - docker build --build-arg version=${DRONE_TAG:-head} --build-arg buildSha=${DRONE_COMMIT_SHA} -t ${DRONE_REPO_NAME}-${DRONE_BUILD_NUMBER} .
 
   - name: Docker Push
     image: docker:19
@@ -170,7 +170,7 @@ steps:
       GOOS: linux
       GOARCH: amd64
     commands:
-      - go build -tags box,swagger,prometheus -o bin/simple-auth-server simple-auth/cmd/server
+      - go build -ldflags "-X main.version=${DRONE_TAG:-head} -X main.buildSha=${DRONE_COMMIT_SHA}" -tags box,swagger,prometheus -o bin/simple-auth-server simple-auth/cmd/server
     depends_on:
       - Server Generate
 

@@ -1,3 +1,6 @@
+ARG version=docker
+ARG buildsha=head
+
 # Build node app
 FROM node:12-slim AS nodebuild
 WORKDIR /opt/simple-auth
@@ -17,7 +20,10 @@ COPY . .
 COPY --from=nodebuild /opt/simple-auth/dist dist
 RUN go generate ./...
 RUN go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
-RUN go build -tags box,prometheus,swagger -o simple-auth-server simple-auth/cmd/server
+RUN go build \
+    -ldflags "-X main.version=${version} -X main.buildSha=${buildSha}" \
+    -tags box,prometheus,swagger \
+    -o simple-auth-server simple-auth/cmd/server
 RUN go build -tags boxconfig -o simple-auth-cli simple-auth/cmd/cli
 
 # Final image

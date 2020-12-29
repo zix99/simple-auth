@@ -105,9 +105,10 @@ steps:
       - docker login -u "$DOCKER_REGISTRY_USERNAME" -p "$DOCKER_REGISTRY_PASSWORD"
       - docker tag ${DRONE_REPO_NAME}-${DRONE_BUILD_NUMBER} zix99/simple-auth:latest
       - docker tag ${DRONE_REPO_NAME}-${DRONE_BUILD_NUMBER} zix99/simple-auth:${DRONE_BUILD_NUMBER}
-      - docker push zix99/simple-auth:latest
+      - docker tag ${DRONE_REPO_NAME}-${DRONE_BUILD_NUMBER} "zix99/simple-auth:${DRONE_TAG}"
+      - docker push zix99/simple-auth
     when:
-      branch: ['master']
+      event: ['tag']
     depends_on:
       - Docker Build
 
@@ -152,18 +153,35 @@ steps:
     commands:
       - go generate ./...
       - go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
+      - mkdir -p bin/
     depends_on:
       - Node Dist
 
-  - name: Server Build
+  - name: Server Build (Linux64)
     image: golang:1.15
     volumes:
     - name: go-cache
       path: /go
+    environment:
+      GOOS: linux
+      GOARCH: amd64
     commands:
-      - go build -tags box,swagger,prometheus -o simple-auth-server simple-auth/cmd/server
+      - go build -tags box,swagger,prometheus -o bin/simple-auth-server simple-auth/cmd/server
     depends_on:
       - Server Generate
+
+  - name: Release
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_release_apikey
+      files: bin/*
+      checksum:
+        - sha1
+    depends_on:
+      - Server Build (Linux64)
+    when:
+      event: ['tag']
 
 volumes:
   - name: go-cache

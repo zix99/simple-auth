@@ -1,8 +1,20 @@
 # Simple Auth
 
+<a :href="$themeConfig.repoUrl" target="_blank">
+  <img src="https://img.shields.io/github/stars/zix99/simple-auth?style=social" title="Repo stars">
+  <img src="https://img.shields.io/github/watchers/zix99/simple-auth?style=social" title="Repo Watchers">
+</a>
+
 *Simple-Auth* is a designed to be an easy way to manage users in a multi-usecase scenario.  Unlike large complex solutions, it aims
 to provide **simple login and user-management to a small or medium site**.  It doesn't try to replace global authentication providers
 or enterprise user management (kerberos, active directory, etc...)
+
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/zix99/simple-auth)
+![GitHub all releases](https://img.shields.io/github/downloads/zix99/simple-auth/total)
+![Docker Pulls](https://img.shields.io/docker/pulls/zix99/simple-auth)
+![Docker Image Size (latest)](https://img.shields.io/docker/image-size/zix99/simple-auth/latest)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/zix99/simple-auth)
+![Coverage](./coverage.svg)
 
 ::: tip
 Looking to get started? See [Quickstart](quickstart)

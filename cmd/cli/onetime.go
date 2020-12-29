@@ -35,7 +35,7 @@ func funcOneTime(c *cli.Context) error {
 		return err
 	}
 
-	config := config.Load(false)
+	config := config.Load()
 	db := db.New(config.Db.Driver, config.Db.URL)
 	account, err := db.FindAccountByEmail(email)
 	if err != nil {

@@ -6,6 +6,6 @@ import (
 )
 
 func getDB() db.SADB {
-	config := config.Load(false)
+	config := config.Load()
 	return db.New(config.Db.Driver, config.Db.URL)
 }

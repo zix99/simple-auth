@@ -17,7 +17,13 @@ if [[ $* != *--nobuild* ]]; then
   fi
 fi
 
-./simple-auth-server --verbose --staticfromdisk \
+ARGS_TEST=
+if [[ $* == *--astest* ]]; then
+  echo Running as test...
+  ARGS_TEST=(-test.run '^TestMain$' -test.coverprofile=integration.cover --)
+fi
+
+./simple-auth-server ${ARGS_TEST[@]} --verbose --staticfromdisk \
   --web-login-cookie-jwt-signingkey=this-is-a-test \
   --api-external=true --api-sharedsecret=super-secret \
   --providers-local-twofactor-enabled \
@@ -42,7 +48,7 @@ done
 npm run integration-test
 RET=$?
 
-kill %1
+kill -2 %1
 wait %1
 
 exit $RET

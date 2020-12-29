@@ -1,5 +1,11 @@
 # simple-auth
 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/zix99/simple-auth)
+![GitHub all releases](https://img.shields.io/github/downloads/zix99/simple-auth/total)
+![Docker Pulls](https://img.shields.io/docker/pulls/zix99/simple-auth)
+![Docker Image Size (latest)](https://img.shields.io/docker/image-size/zix99/simple-auth/latest)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/zix99/simple-auth)
+
 Simple-auth is a lightweight, whitelabeled, authentication solution targeting small and medium sites. 
 It allows users to sign-up with a UI, offering various providers.  Then, via various authenticators, allows
 3rd party appliances to authenticate with it.

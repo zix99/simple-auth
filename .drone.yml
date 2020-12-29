@@ -4,6 +4,9 @@ kind: pipeline
 type: docker
 name: Verify
 
+trigger:
+  event: ['push', 'pull_request', 'tag']
+
 steps:
   - name: Node Install
     image: node:12-slim
@@ -81,6 +84,7 @@ depends_on:
   - Verify
 trigger:
   branch: ['master']
+  event: ['push', 'pull_request', 'tag']
 
 steps:
   - name: Docker Build
@@ -126,8 +130,8 @@ name: Binary Build
 depends_on:
   - Verify
 trigger:
-  branch:
-    - master
+  branch: ['master']
+  event: ['push', 'pull_request', 'tag']
 
 steps:
   - name: Node Install
@@ -210,13 +214,29 @@ steps:
     volumes:
       - name: npm-cache
         path: /root/.npm
-  - name: Server Generate
+  - name: Swagger Generate
     image: golang:1.15
     volumes:
     - name: go-cache
       path: /go
     commands:
       - go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
+  - name: Code Coverage Build
+    image: golang:1.15
+    commands:
+      - go test -coverprofile=test.cover ./...
+      - go test -coverpkg="simple-auth/..." -c -tags testmain -o simple-auth-server simple-auth/cmd/server
+  - name: Code Coverage Run
+    image: node:12-buster
+    commands:
+      - npm ci
+      - ./tests/quicktest.sh --nobuild --astest
+      - tail -n +2 integration.cover >> test.cover
+  - name: Code Coverage Analysis
+    image: golang:1.15
+    commands:
+      - ./docs/genbadge.sh $(go tool cover -func=test.cover | grep total | awk -F'[^0-9.]+' '{print $2}') docs/coverage.svg
+
   - name: Docs Build
     image: node:12-slim
     commands:
@@ -250,8 +270,8 @@ type: docker
 name: Sync
 
 trigger:
-  branch:
-  - master
+  branch: ['master']
+  event: ['push', 'pull_request', 'tag']
 
 depends_on:
   - Verify

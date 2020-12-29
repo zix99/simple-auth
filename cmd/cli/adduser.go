@@ -18,7 +18,7 @@ var cmdAddUser = &cli.Command{
 }
 
 func funcAddUser(c *cli.Context) error {
-	config := config.Load(false)
+	config := config.Load()
 
 	name := c.Args().Get(0)
 	email := c.Args().Get(1)

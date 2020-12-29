@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/box"
 	"simple-auth/pkg/box/echobox"
@@ -54,6 +55,8 @@ func simpleAuthServer(config *config.Config) error {
 	e := echo.New()
 	e.Debug = !config.Production
 	e.Validator = NewGoPlaygroundValidator()
+
+	watchForCleanShutdown(e)
 
 	applyHooks(e, config)
 
@@ -110,5 +113,5 @@ func simpleAuthServer(config *config.Config) error {
 }
 
 func main() {
-	logrus.Fatal(simpleAuthServer(config.Load(true)))
+	logrus.Fatal(simpleAuthServer(config.Load(os.Args[1:]...)))
 }

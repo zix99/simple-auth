@@ -43,7 +43,7 @@ func funcDumpDefaultConfig(c *cli.Context) error {
 }
 
 func funcDumpCurrentConfig(c *cli.Context) error {
-	cfg := config.Load(false)
+	cfg := config.Load()
 	b, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err

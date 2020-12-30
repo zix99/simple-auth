@@ -64,6 +64,7 @@ module.exports = {
           '/cookbooks/traefik',
           '/cookbooks/decodejwt',
           '/cookbooks/signingkey-pair',
+          '/cookbooks/login-redirect',
         ],
       },
       {

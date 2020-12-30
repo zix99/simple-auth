@@ -35,3 +35,14 @@ body {
   background-size: cover;
 }
 ```
+
+## Customize Template
+
+While most of *simple-auth*'s frontend is written in VueJS, it is still wrapped in a static template for the content.
+
+You can override this template by providing your own `template/web/layout.tmpl` in the working directory of *simple-auth*
+and setting `staticfromdisk: true`.
+
+**Default layout:**
+
+<<< @/../templates/web/layout.tmpl

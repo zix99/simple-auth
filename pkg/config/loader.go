@@ -83,13 +83,9 @@ func readConfig(args []string) (config *Config) {
 	return
 }
 
-// Global configuration
-var config *Config
-
 // Global reads global configuration
 func Load(args ...string) *Config {
-	if config == nil {
-		config = readConfig(args)
-	}
+	config := readConfig(args)
+	hookAddContinueUrls(config)
 	return config
 }

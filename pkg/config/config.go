@@ -77,10 +77,10 @@ type (
 	}
 
 	ConfigLoginSettings struct {
-		RouteOnLogin              string
-		AllowedContinueUrls       []string // List of allowed regex's
-		allowedContinueUrlsRegexp []*regexp.Regexp
-		ThrottleDuration          string // Parsed as Duration, represents a delay from any major action (Helps mitigate brute-force attacks)
+		RouteOnLogin               string
+		AllowedContinueUrls        []string // List of allowed regex's
+		_allowedContinueUrlsRegexp []*regexp.Regexp
+		ThrottleDuration           string // Parsed as Duration, represents a delay from any major action (Helps mitigate brute-force attacks)
 	}
 
 	OneTimeConfig struct {

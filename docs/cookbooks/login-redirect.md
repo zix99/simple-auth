@@ -35,9 +35,10 @@ By adding the `?continue=` query param to the login route (`/` by default), you
 can request that *simple-auth* send the user to a page post-login.
 
 For security reasons, you must allowlist these URLs ahead of time via the 
-`allowedcontinueurls` setting.
+`allowedcontinueurls` setting.  This is a list of regular expressions. The regex
+is automatically appended/prepended with `^` and `$`, respectively.
 
-If the requested continue URL isn't in the allow-list, the user will be redirected
+If the requested continue URL doesn't match anything on the allowed list, the user will be redirected
 to the default login route.
 
 ```yaml

@@ -27,7 +27,7 @@ web:
     login:
         settings:
             routeonlogin: null              # Where to route to post-login (either login or create)
-            allowedcontinueurls: []         # Urls, in addition to local pages, allowed post-login via ?continue query param
+            allowedcontinueurls: []         # Url regex's, in addition to local pages, allowed post-login via ?continue query param
             throttleduration: 1s            # How often a user can make requests to a throttled API (disrupts brute-force attacks)
         cookie:
             jwt:

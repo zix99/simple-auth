@@ -110,6 +110,7 @@ func simpleAuthServer(config *config.Config) error {
 
 	// Well known routes
 	e.GET("/onetime", redirectHandler("/api/v1/auth/onetime"))
+	e.GET("/oauth2", redirectVue("oauth2"))
 
 	// Start
 	log.Infof("Starting server on http://%v", config.Web.Host)

@@ -29,6 +29,7 @@ const (
 	AuditModuleUI      = "ui"
 	AuditModuleLocal   = "auth:simple"
 	AuditModuleToken   = "auth:token"
+	AuditModuleOAuth2  = "auth:oauth2"
 	AuditModuleOIDC    = "login:oidc"
 	AuditModuleOneTime = "auth:onetime"
 )

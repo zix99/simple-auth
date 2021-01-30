@@ -2,6 +2,8 @@ package services
 
 import "simple-auth/pkg/config"
 
+// Service to provide access to third-party OIDC
+
 type OIDCService interface {
 	GetProvider(id string) *config.ConfigOIDCProvider
 }

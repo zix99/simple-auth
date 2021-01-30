@@ -7,7 +7,7 @@ import (
 )
 
 func hookAddContinueUrls(config *Config) {
-	config.Web.Login.Settings._allowedContinueUrlsRegexp = buildAllowedContinueUrlsRegexp(config.Web.Login.Settings.AllowedContinueUrls)
+	config.Web.Login.Settings._allowedContinueUrlsRegexp = buildAllowedContinueUrlsRegexp(config.Web.Login.Settings.AllowedContinueUrls...)
 }
 
 func makeRegexBound(exp string) string {
@@ -20,7 +20,7 @@ func makeRegexBound(exp string) string {
 	return exp
 }
 
-func buildAllowedContinueUrlsRegexp(urls []string) []*regexp.Regexp {
+func buildAllowedContinueUrlsRegexp(urls ...string) []*regexp.Regexp {
 	out := make([]*regexp.Regexp, 0, len(urls))
 	for _, expStr := range urls {
 		exp, err := regexp.Compile(makeRegexBound(expStr))
@@ -42,9 +42,13 @@ func matchesAny(val string, exps ...*regexp.Regexp) bool {
 	return false
 }
 
+var allowedInternalUrls = buildAllowedContinueUrlsRegexp(
+	"/#/oauth2.*",
+)
+
 func (s *ConfigLoginSettings) ResolveContinueURL(asked string) (continueURL string) {
 	continueURL = s.RouteOnLogin
-	if asked != "" && matchesAny(asked, s._allowedContinueUrlsRegexp...) {
+	if asked != "" && (matchesAny(asked, allowedInternalUrls...) || matchesAny(asked, s._allowedContinueUrlsRegexp...)) {
 		continueURL = asked
 	}
 	return

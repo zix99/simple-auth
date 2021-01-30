@@ -17,6 +17,7 @@ type SADB interface {
 	AccountOIDC
 	AccountAuthOneTime
 	AccountStipulations
+	AccountOAuth
 	WithLogger(logger logrus.FieldLogger) SADB
 	EnableLogging(enable bool)
 	IsAlive() bool
@@ -46,6 +47,7 @@ func New(driver string, args string) SADB {
 	db.AutoMigrate(&accountAuthVerificationToken{})
 	db.AutoMigrate(&accountAuthOneTime{})
 	db.AutoMigrate(&accountStipulation{})
+	db.AutoMigrate(&accountOAuthToken{})
 
 	db.AutoMigrate(&accountOIDC{})
 	db.Model(&accountOIDC{}).AddUniqueIndex("idx_provider_subject", "provider", "subject")

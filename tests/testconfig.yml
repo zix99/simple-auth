@@ -1,0 +1,38 @@
+verbose: true
+staticfromdisk: true
+web:
+  login:
+    cookie:
+      jwt:
+        signingkey: this-is-a-test
+    onetime:
+      allowforgotpassword: true
+api:
+  external: true
+  sharedsecret: super-secret
+providers:
+  local:
+    emailvalidationrequired: false
+    twofactor:
+      enabled: true
+authenticators:
+  simple:
+    enabled: true
+    sharedsecret: your-super-secret-token
+  vouch:
+    enabled: true
+  oauth2:
+    settings:
+      allowcredentials: true
+    clients:
+      testid:
+        secret: client-secret
+        name: Test Client
+        redirecturi: http://example.com/redirect
+        issuerefreshtoken: true
+        author: sa
+        authorurl: http://sa.com
+email:
+  engine: stdout
+db:
+  url: "file::memory:?cache=shared"

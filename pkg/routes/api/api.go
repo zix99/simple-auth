@@ -46,6 +46,10 @@ import (
 func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 	transactional := appcontext.Transaction()
 
+	emailService := email.NewFromConfig(&config.Email)
+	loginService := services.NewLocalLoginService(emailService, &config.Metadata, &config.Providers.Local, config.Web.GetBaseURL())
+	oAuthController := authAPI.NewOAuth2Controller(&config.Authenticators.OAuth2, loginService)
+
 	v1api := e.Group("/v1")
 	{
 		// Public API (eg. from the UI)
@@ -72,6 +76,8 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 				}
 			}
 		}
+
+		// Private auth
 		{
 			privateAuth := buildPrivateAuthMiddleware(&config.Web.Login.Cookie, &config.API)
 			v1api.GET("/account", v1Env.RouteGetAccount, privateAuth)
@@ -85,6 +91,11 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 				v1api.POST("/local/2fa", v1Env.RouteConfirm2FA, privateAuth)
 				v1api.DELETE("/local/2fa", v1Env.RouteDeactivate2FA, privateAuth)
 			}
+
+			v1api.GET("/auth/oauth2", oAuthController.RouteGetTokens, privateAuth)
+			if config.Authenticators.OAuth2.WebGrant {
+				v1api.POST("/auth/oauth2/grant", oAuthController.RouteAuthorizedGrantCode, privateAuth, transactional)
+			}
 		}
 
 		// Attach authenticator routes
@@ -95,13 +106,15 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			}
 			if config.Authenticators.Simple.Enabled {
 				route := v1api.Group("/auth/simple")
-				emailService := email.NewFromConfig(&config.Email)
-				loginService := services.NewLocalLoginService(emailService, &config.Metadata, &config.Providers.Local, config.Web.GetBaseURL())
 				authAPI.NewSimpleAuthController(loginService, &config.Authenticators.Simple).Mount(route)
 			}
 			if config.Authenticators.Vouch.Enabled {
 				route := v1api.Group("/auth/vouch")
 				authAPI.NewVouchAuthController(db, &config.Authenticators.Vouch, &config.Web.Login.Cookie).Mount(route)
+			}
+			{
+				v1api.GET("/auth/oauth2/client/:client_id", oAuthController.RouteClientInfo)
+				v1api.POST("/auth/oauth2/token", oAuthController.RouteTokenGrant, transactional)
 			}
 		}
 	}

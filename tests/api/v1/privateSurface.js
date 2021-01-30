@@ -14,6 +14,7 @@ const routes = [
   ['GET', '/api/v1/local/2fa/qrcode', { secret: tfaSecret }],
   ['POST', '/api/v1/local/2fa', { secret: tfaSecret, code: speakeasy.totp({ secret: tfaSecret, encoding: 'base32' }) }],
   ['DELETE', '/api/v1/local/2fa', { code: speakeasy.totp({ secret: tfaSecret, encoding: 'base32' }) }],
+  ['GET', '/api/v1/auth/oauth2', null],
 ];
 
 describe('route-surface#private', () => {
@@ -66,7 +67,7 @@ describe('route-surface#private', () => {
           url,
           headers: {
             Authorization: `SharedKey ${config.apiSharedKey}`,
-            'X-Account-UUID': 'abcdefg', // FIXME, should be a valid user (but need to port create-user api first)
+            'X-Account-UUID': testUser.id,
           },
         }).then((resp) => {
           assert.equal(resp.status, 400);

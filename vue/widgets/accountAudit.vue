@@ -1,7 +1,7 @@
 <template>
   <div>
     <LoadingBanner :promise="loadingPromise">Fetching Audit...</LoadingBanner>
-    <table class="table" v-if="records">
+    <table class="table is-narrow is-hoverable is-fullwidth" v-if="records">
       <thead>
         <tr>
           <th>Date</th>

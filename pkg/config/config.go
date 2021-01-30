@@ -1,6 +1,8 @@
 package config
 
-import "regexp"
+import (
+	"regexp"
+)
 
 // ConfigDatabase holds database-specific configuration
 type ConfigDatabase struct {
@@ -33,11 +35,39 @@ type (
 		Enabled bool
 	}
 
+	// ConfigOAuth2Client contains specific client settings
+	ConfigOAuth2Client struct {
+		Secret      string
+		Name        string
+		Author      string
+		AuthorURL   string
+		RedirectURI string
+
+		IssueRefreshToken bool
+	}
+
+	// Common settings across all OAuth clients
+	ConfigOAuth2Settings struct {
+		CodeExpiresSeconds  int
+		TokenExpiresSeconds int
+		CodeLength          int
+		AllowAutoGrant      bool
+		AllowCredentials    bool
+		ReuseToken          bool
+	}
+
+	ConfigOAuth2 struct {
+		WebGrant bool
+		Settings ConfigOAuth2Settings
+		Clients  map[string]*ConfigOAuth2Client
+	}
+
 	// Authenticators are how someone external to SA can authenticate with it
 	ConfigAuthenticatorSet struct {
 		Token  ConfigTokenAuthenticator
 		Simple ConfigSimpleAuthenticator
 		Vouch  ConfigVouchAuthenticator
+		OAuth2 ConfigOAuth2
 	}
 )
 

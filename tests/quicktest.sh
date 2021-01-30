@@ -23,16 +23,7 @@ if [[ $* == *--astest* ]]; then
   ARGS_TEST=(-test.run '^TestMain$' -test.coverprofile=integration.cover --)
 fi
 
-./simple-auth-server ${ARGS_TEST[@]} --verbose --staticfromdisk \
-  --web-login-cookie-jwt-signingkey=this-is-a-test \
-  --api-external=true --api-sharedsecret=super-secret \
-  --providers-local-twofactor-enabled \
-  --email-engine=stdout \
-  --providers-local-emailvalidationrequired=false \
-  --authenticators-simple-enabled --authenticators-simple-sharedsecret=your-super-secret-token \
-  --authenticators-vouch-enabled \
-  --web-login-onetime-allowforgotpassword \
-  "--db-url=file::memory:?cache=shared" &
+./simple-auth-server ${ARGS_TEST[@]} --include=tests/testconfig.yml &
 echo "PID: $!"
 
 sleep 0.5

@@ -19,6 +19,7 @@ import ManageAccount from './routes/manageAccount.vue';
 import PageNotFound from './routes/pageNotFound.vue';
 import ForgotPassword from './routes/forgotPassword.vue';
 import ActivateAccount from './routes/activateAccount.vue';
+import OAuth2 from './routes/oauth2.vue';
 
 axios.defaults.headers.common['X-CSRF-TOKEN'] = document.head.querySelector('meta[name="csrf"]').content;
 dayjs.extend(localizedPlugin);
@@ -42,6 +43,18 @@ window.bindRouter = function bindRouter(el, data = {}) {
       { path: '/login-redirect', component: LoginRedirect, props: data },
       { path: '/manage', component: ManageAccount, props: data },
       { path: '/activate', component: ActivateAccount, props: (route) => ({ token: route.query.token, account: route.query.account }) },
+      {
+        path: '/oauth2',
+        component: OAuth2,
+        props: (route) => ({
+          meta: data,
+          client_id: route.query.client_id,
+          redirect_uri: route.query.redirect_uri,
+          response_type: route.query.response_type,
+          state: route.query.state,
+          scope: route.query.scope,
+        }),
+      },
       { path: '*', component: PageNotFound },
     ],
   });

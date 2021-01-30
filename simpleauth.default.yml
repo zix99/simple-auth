@@ -112,6 +112,23 @@ authenticators:
         sharedsecret: null
     vouch: # An endpoint intended to use for nginx auth_request
         enabled: false
+    oauth2:
+        webgrant: true # Whether to allow web-grant (UI) or not
+        settings:
+            codeexpiresseconds: 60 # How soon a code will expire
+            tokenexpiresseconds: 21600 # 6 hours
+            codelength: 6           # Length of "code" in the authorization_code grant
+            allowautogrant: true    # if true, will auto grant a new request if it matches a previous and authenticated request
+            reusetoken: true        # if true, will reuse an existing token instead of creating a new one when possible
+            allowcredentials: false # If the `password` grant_type is supported
+        clients: {}
+            #client-id:
+            #    secret: client-secret
+            #    name: Client Name
+            #    author: Author name
+            #    authorurl: http://example.com  # Link to client website
+            #    redirecturi: http://example.com/auth-callback
+            #    issuerefreshtoken: false
 
 # All of the API endpoints that the UI uses are also available for API calls
 # if this is enabled

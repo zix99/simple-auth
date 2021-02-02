@@ -2,6 +2,19 @@ const { assert } = require('chai');
 const http = require('../../http');
 const config = require('../../config');
 
+function isRejectedWith(errCode, p) {
+  return p.then(() => {
+    assert.fail('Promise must be rejected');
+  }).catch((err) => {
+    if (!err.response) {
+      assert.fail(err);
+    } else {
+      assert.equal(err.response.status, 400);
+      assert.equal(err.response.data.error, errCode);
+    }
+  });
+}
+
 describe('oauth', () => {
   let testUser = null;
   let headers = {};
@@ -72,6 +85,16 @@ describe('oauth', () => {
       assert.lengthOf(resp.data.code, 6);
       code = resp.data.code;
     });
+  });
+
+  it('should not allow granting a token with bad scopes', () => {
+    return isRejectedWith('invalid_scope', http.post('/api/v1/auth/oauth2/grant', {
+      client_id: 'testid',
+      response_type: 'code',
+      scope: 'a c',
+      redirect_uri: 'http://example.com/redirect',
+      state: 'statetoken',
+    }, { headers }));
   });
 
   it('should not trade token for bad client', () => {
@@ -188,6 +211,17 @@ describe('oauth', () => {
     });
   });
 
+  it('should fail granting via credentials when bad scope', () => {
+    return isRejectedWith('invalid_scope', http.post('/api/v1/auth/oauth2/token', {
+      grant_type: 'password',
+      username: 'oauthtest',
+      password: 'test-pass',
+      scope: 'a c',
+      client_id: 'testid',
+      client_secret: 'client-secret',
+    }));
+  });
+
   it('should fail granting token for bad credentials', () => {
     return assert.isRejected(http.post('/api/v1/auth/oauth2/token', {
       grant_type: 'password',
@@ -199,7 +233,7 @@ describe('oauth', () => {
     }));
   });
 
-  it('should fail granting token for bad secret', () => {
+  it('should fail granting token for credentials with bad secret', () => {
     return assert.isRejected(http.post('/api/v1/auth/oauth2/token', {
       grant_type: 'password',
       username: 'oauthtest',

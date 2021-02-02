@@ -187,6 +187,10 @@ func (s *OAuth2Controller) RouteAuthorizedGrantCode(c echo.Context) error {
 	oauthService := s.oauthServices[req.ClientID].WithContext(c)
 	scopes := db.NewOAuthScope(req.Scope)
 
+	if !oauthService.ValidateScopes(scopes) {
+		return oauthError(c, InvalidScope, "Invalid scopes")
+	}
+
 	if req.Auto {
 		if !s.config.Settings.AllowAutoGrant {
 			return oauthError(c, InvalidRequest, "Auto granting not allowed")
@@ -279,6 +283,11 @@ func (s *OAuth2Controller) RouteTokenGrant(c echo.Context) error {
 // routeTokenGrantPassword allows oauth2 grant via username, password (and totp)
 func (s *OAuth2Controller) routeTokenGrantPassword(c echo.Context, clientService services.AuthOAuthService, req *grantTokenRequest) error {
 	scopes := db.NewOAuthScope(req.Scope)
+
+	if !clientService.ValidateScopes(db.NewOAuthScope(req.Scope)) {
+		return oauthError(c, InvalidScope, "Invald scopes")
+	}
+
 	retToken, err := clientService.TradeCredentialsForToken(req.ClientSecret, req.Username, req.Password, req.Totp, scopes)
 	if err != nil {
 		return oauthError(c, InvalidRequest, err.Error())

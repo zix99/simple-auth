@@ -28,7 +28,12 @@ type AuthOAuthService interface {
 	FindExistingToken(account *db.Account, tokenType db.OAuthTokenType, scopes db.OAuthScope) (IssuedToken, error)
 
 	ValidateRedirectURI(uri string) bool
+	ValidateScopes(scopes db.OAuthScope) bool
 }
+
+var (
+	ErrInvalidScopes = errors.New("invalid scope")
+)
 
 type authOAuthService struct {
 	clientID string
@@ -57,7 +62,9 @@ func (s *authOAuthService) WithContext(ctx appcontext.Context) AuthOAuthService 
 }
 
 func (s *authOAuthService) CreateAccessCode(account *db.Account, scopes db.OAuthScope) (string, error) {
-	// TODO: Validate scopes (across entire file)
+	if !s.ValidateScopes(scopes) {
+		return "", ErrInvalidScopes
+	}
 
 	code, err := genAccessCode(s.common.CodeLength)
 	if err != nil {
@@ -106,7 +113,12 @@ func (s *authOAuthService) TradeCredentialsForToken(secret, username, password s
 	return
 }
 
-func (s *authOAuthService) issueToken(account *db.Account, scopes []string) (ret IssuedToken, err error) {
+func (s *authOAuthService) issueToken(account *db.Account, scopes db.OAuthScope) (ret IssuedToken, err error) {
+	if !s.ValidateScopes(scopes) {
+		err = ErrInvalidScopes
+		return
+	}
+
 	if s.common.ReuseToken {
 		if tokens, vtErr := s.dbOAuth.GetValidOAuthTokens(s.clientID, account); vtErr == nil {
 			for _, t := range tokens {
@@ -191,6 +203,10 @@ func (s *authOAuthService) FindExistingToken(account *db.Account, tokenType db.O
 
 func (s *authOAuthService) ValidateRedirectURI(uri string) bool {
 	return uri == s.config.RedirectURI
+}
+
+func (s *authOAuthService) ValidateScopes(scopes db.OAuthScope) bool {
+	return db.OAuthScope(s.config.Scopes).ContainsAll(scopes...)
 }
 
 func (s *authOAuthService) InspectToken(sToken string) (*db.OAuthToken, error) {

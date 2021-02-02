@@ -31,6 +31,7 @@ func init() {
 		Secret:            "test-secret",
 		IssueRefreshToken: true,
 		RedirectURI:       "http://example.com/redirect",
+		Scopes:            []string{"email", "user"},
 	}, &config.ConfigOAuth2Settings{
 		CodeExpiresSeconds:  10,
 		TokenExpiresSeconds: 20,
@@ -104,12 +105,20 @@ func TestAutoRevokeTokenOnNew(t *testing.T) {
 }
 
 func TestOAuthScopes(t *testing.T) {
-	scope := db.NewOAuthScope("email user admin")
+	scope := db.NewOAuthScope("email user")
 	code, _ := testOAuthService.CreateAccessCode(testOAuthAccount, scope)
 
 	token, err := testOAuthService.TradeCodeForToken("test-secret", code)
 	assert.NoError(t, err)
 	assert.True(t, token.Scope.Matches(scope))
+}
+
+func TestOAuthScopesFail(t *testing.T) {
+	scope := db.NewOAuthScope("email user admin")
+	code, err := testOAuthService.CreateAccessCode(testOAuthAccount, scope)
+
+	assert.Error(t, err)
+	assert.Empty(t, code)
 }
 
 func TestOAuthTradeForCredentials(t *testing.T) {
@@ -128,11 +137,18 @@ func TestOAuthTradeForCredentials(t *testing.T) {
 	}
 
 	{
-		token, err := testOAuthService.TradeCredentialsForToken("test-secret", "oauth-user", "oauth-pass", nil, nil)
+		token, err := testOAuthService.TradeCredentialsForToken("test-secret", "oauth-user", "oauth-pass", nil, db.NewOAuthScope("email"))
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token.AccessToken)
 		assert.NotEmpty(t, token.RefreshToken)
 		assert.Greater(t, token.Expires, 0)
+	}
+
+	{
+		token, err := testOAuthService.TradeCredentialsForToken("test-secret", "oauth-user", "oauth-pass", nil, db.NewOAuthScope("email bad-scope"))
+		assert.Error(t, err)
+		assert.Empty(t, token.AccessToken)
+		assert.Empty(t, token.RefreshToken)
 	}
 }
 
@@ -161,4 +177,13 @@ func TestFindToken(t *testing.T) {
 func TestVerifyRedirectURL(t *testing.T) {
 	assert.True(t, testOAuthService.ValidateRedirectURI("http://example.com/redirect"))
 	assert.False(t, testOAuthService.ValidateRedirectURI("http://example.com/redirect2"))
+}
+
+func TestValidateScopes(t *testing.T) {
+	assert.True(t, testOAuthService.ValidateScopes(db.NewOAuthScope("email")))
+	assert.True(t, testOAuthService.ValidateScopes(db.NewOAuthScope("user")))
+	assert.True(t, testOAuthService.ValidateScopes(db.NewOAuthScope("user email")))
+
+	assert.False(t, testOAuthService.ValidateScopes(db.NewOAuthScope("admin")))
+	assert.False(t, testOAuthService.ValidateScopes(db.NewOAuthScope("admin email")))
 }

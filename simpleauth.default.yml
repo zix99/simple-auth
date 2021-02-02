@@ -129,6 +129,7 @@ authenticators:
             #    authorurl: http://example.com  # Link to client website
             #    redirecturi: http://example.com/auth-callback
             #    issuerefreshtoken: false
+            #    scopes: [] # List of valid (grantable) scopes
 
 # All of the API endpoints that the UI uses are also available for API calls
 # if this is enabled

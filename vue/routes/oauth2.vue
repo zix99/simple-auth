@@ -55,6 +55,7 @@ import LoadingBanner from '../components/loadingBanner.vue';
 
 const errorCodes = {
   invalid_client: 'Unknown client',
+  invalid_scope: 'Invalid scopes',
 };
 
 export default {

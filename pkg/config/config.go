@@ -42,6 +42,7 @@ type (
 		Author      string
 		AuthorURL   string
 		RedirectURI string
+		Scopes      []string // Valid scopes
 
 		IssueRefreshToken bool
 	}

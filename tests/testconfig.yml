@@ -32,6 +32,7 @@ authenticators:
         issuerefreshtoken: true
         author: sa
         authorurl: http://sa.com
+        scopes: ['a', 'b']
 email:
   engine: stdout
 db:

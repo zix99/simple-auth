@@ -84,6 +84,7 @@ type oauth2GetTokenResponseToken struct {
 	ClientID   string    `json:"client_id"`
 	ClientName string    `json:"client_name"`
 	ShortToken string    `json:"short_token"` // A short/obfuscated version of the full token for identification purposes
+	Type       string    `json:"type"`
 	Created    time.Time `json:"created"`
 	Expires    time.Time `json:"expires"`
 }
@@ -120,6 +121,7 @@ func (s *OAuth2Controller) RouteGetTokens(c echo.Context) error {
 			ClientID:   t.ClientID,
 			ClientName: s.config.Clients[t.ClientID].Name,
 			ShortToken: t.Token[:5],
+			Type:       string(t.Type),
 			Created:    t.Created,
 			Expires:    t.Expires,
 		}

@@ -30,6 +30,9 @@
       <div v-if="account" class="box">
         <strong>You are currently logged in as:</strong><br />
         {{account.email}}
+        <div class="my-2">
+          <button class="button is-small is-outlined" @click="switchAccountClick">Not you? Switch Account</button>
+        </div>
       </div>
       <div v-if="noaccount" class="box">
         <p>You are not currently logged in</p>
@@ -41,7 +44,7 @@
 
       <div class="buttons is-right">
         <button class="button is-light" @click="cancelClick">Cancel</button>
-        <button class="button is-primary" :disabled="!account" @click="grantClick">Grant</button>
+        <button class="button is-primary" :class="{ 'is-loading': fetchingGrant }" :disabled="!account || fetchingGrant" @click="grantClick">Grant</button>
       </div>
     </div>
   </CenterCard>
@@ -74,6 +77,7 @@ export default {
       error: null,
       loadingPromise: null,
       fetchingMeta: true,
+      fetchingGrant: true,
       account: null,
       noaccount: false,
       client: {},
@@ -108,8 +112,7 @@ export default {
           .catch(() => { this.fetchingMeta = false; });
       }).catch(() => {
         this.noaccount = true;
-        const continueURL = `/${window.location.hash}${window.location.search}`;
-        window.location = `/?continue=${encodeURIComponent(continueURL)}`;
+        this.redirectToLogin();
       });
 
     axios.get(`api/v1/auth/oauth2/client/${this.client_id}`)
@@ -126,7 +129,22 @@ export default {
     grantClick() {
       this.loadingPromise = this.grant();
     },
+    switchAccountClick() {
+      this.account = null;
+      this.noaccount = true;
+      axios.delete('api/v1/auth/session')
+        .catch(() => {})
+        .then(() => {
+          this.redirectToLogin();
+        });
+    },
+    redirectToLogin() {
+      const continueURL = `/${window.location.hash}${window.location.search}`;
+      window.location = `/?continue=${encodeURIComponent(continueURL)}`;
+    },
     grant(auto = false) {
+      this.fetchingGrant = true;
+
       const data = {
         client_id: this.client_id,
         response_type: this.response_type,
@@ -148,11 +166,11 @@ export default {
             window.location = redirectURL.toString();
           }, 1500);
         }).catch((err) => {
+          this.fetchingGrant = false;
           if (!this.auto) this.error = errorCodes[err.response.data.error];
           throw err;
         });
     },
-
   },
 };
 </script>

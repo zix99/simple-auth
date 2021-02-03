@@ -132,6 +132,34 @@ func (s *OAuth2Controller) RouteGetTokens(c echo.Context) error {
 	})
 }
 
+// @Summary Revoke Token
+// @Description Revoke tokens for a given client_id
+// @Tags Auth
+// @Param client_id query string true "Client ID to revoke"
+// @Success 200 {object} oauth2GetTokensResponse
+// @Failure 400,404,500 {object} common.ErrorResponse
+// @Router /auth/oauth2/token [delete]
+func (s *OAuth2Controller) RouteRevokeToken(c echo.Context) error {
+	clientID := c.QueryParam("client_id")
+	if clientID == "" {
+		return oauthError(c, InvalidRequest, "Missing client_id")
+	}
+
+	accountUUID := auth.MustGetAccountUUID(c)
+	sadb := appcontext.GetSADB(c)
+
+	account, err := sadb.FindAccount(accountUUID)
+	if err != nil {
+		return common.HttpInternalError(c, err)
+	}
+
+	if err := sadb.InvalidateAllOAuth(clientID, account); err != nil {
+		return common.HttpInternalError(c, err)
+	}
+
+	return common.HttpOK(c)
+}
+
 type authorizedGrantRequest struct {
 	ClientID     string `json:"client_id" validate:"required"`
 	ResponseType string `json:"response_type" validate:"required"`

@@ -1,20 +1,21 @@
 <template>
   <div>
     <LoadingBanner :promise="loadingPromise">Fetching Tokens...</LoadingBanner>
-    <div v-for="token in this.tokens" :key="token.short_token" class="card my-2">
+    <div class="card my-2" v-for="(tokenGroup, clientId) in this.groupedTokens" :key="clientId">
       <div class="card-content">
-        <div class="media">
+        <p class="title is-6">{{tokenGroup[0].client_name}} ({{clientId}})</p>
+        <div class="media" v-for="token in tokenGroup" :key="token.short_token">
           <div class="media-left">
             <fa-icon icon="key" size="lg" />
           </div>
           <div class="media-content">
-            <p class="title is-6">{{token.client_name}} ({{token.client_id}})</p>
             <div><strong>Key Type:</strong> <em>{{typeName(token.type)}}</em></div>
             <div><strong>Key Prefix:</strong> <code>{{token.short_token}}</code></div>
+            <div class="light is-size-7">Added on <ShortDate :date="token.created" />, and expires on <ShortDate :date="token.expires" /></div>
           </div>
         </div>
-        <div class="content">
-          <div class="light is-size-7">Added on <ShortDate :date="token.created" />, and expires on <ShortDate :date="token.expires" /></div>
+        <div class="buttons is-right">
+          <button class="button is-danger is-small is-outlined" @click="revokeClientTokens(clientId)">Revoke {{tokenGroup[0].client_name}}'s Tokens</button>
         </div>
       </div>
     </div>
@@ -40,6 +41,16 @@ export default {
   created() {
     this.fetchData();
   },
+  computed: {
+    groupedTokens() {
+      if (!this.tokens) return {};
+      return this.tokens.reduce((memo, val) => {
+        const k = val.client_id;
+        (memo[k] = memo[k] || []).push(val); // eslint-disable-line no-param-reassign
+        return memo;
+      }, {});
+    },
+  },
   methods: {
     fetchData() {
       this.loadingPromise = axios.get('api/v1/auth/oauth2')
@@ -47,10 +58,15 @@ export default {
           this.tokens = resp.data.tokens;
         });
     },
+    revokeClientTokens(clientId) {
+      this.loadingPromise = axios.delete('api/v1/auth/oauth2/token', { params: { client_id: clientId } })
+        .then(() => this.fetchData());
+    },
     typeName(t) {
       switch (t) {
         case 'access_token': return 'Access Token';
         case 'refresh_token': return 'Refresh Token';
+        case 'code': return 'Temporary Code';
         default: return 'Unknown';
       }
     },

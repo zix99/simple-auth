@@ -93,6 +93,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			}
 
 			v1api.GET("/auth/oauth2", oAuthController.RouteGetTokens, privateAuth)
+			v1api.DELETE("/auth/oauth2/token", oAuthController.RouteRevokeToken, privateAuth)
 			if config.Authenticators.OAuth2.WebGrant {
 				v1api.POST("/auth/oauth2/grant", oAuthController.RouteAuthorizedGrantCode, privateAuth, transactional)
 			}

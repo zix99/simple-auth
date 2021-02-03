@@ -197,6 +197,17 @@ describe('oauth', () => {
     });
   });
 
+  it('Should successfully revoke all tokens', () => {
+    return http.delete('/api/v1/auth/oauth2/token', { params: { client_id: 'testid' }, headers });
+  });
+
+  it('Should have no visible tokens after revoking', () => {
+    return http.get('/api/v1/auth/oauth2', { headers })
+      .then((resp) => {
+        assert.equal(resp.data.tokens.length, 0);
+      });
+  });
+
   it('should allow granting token via credentials', () => {
     return http.post('/api/v1/auth/oauth2/token', {
       grant_type: 'password',

@@ -15,6 +15,8 @@ const routes = [
   ['POST', '/api/v1/local/2fa', { secret: tfaSecret, code: speakeasy.totp({ secret: tfaSecret, encoding: 'base32' }) }],
   ['DELETE', '/api/v1/local/2fa', { code: speakeasy.totp({ secret: tfaSecret, encoding: 'base32' }) }],
   ['GET', '/api/v1/auth/oauth2', null],
+  ['POST', '/api/v1/auth/oauth2/grant', { client_id: 'testid', response_type: 'code', redirect_uri: 'http://example.com/redirect' }],
+  ['DELETE', '/api/v1/auth/oauth2/token', { client_id: 'testid' }],
 ];
 
 describe('route-surface#private', () => {

@@ -1,9 +1,9 @@
 <template>
   <div>
-    <CenterCard title="Manage Account">
+    <CenterCard title="Your Account">
       <AccountInfo />
     </CenterCard>
-    <CenterCard title="OAuth Tokens">
+    <CenterCard title="Connected Apps (OAuth)">
       <AccountOAuth />
     </CenterCard>
     <CenterCard title="Audit Log">

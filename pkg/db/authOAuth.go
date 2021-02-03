@@ -10,6 +10,7 @@ import (
 type AccountOAuth interface {
 	CreateOAuthToken(account *Account, clientID string, tokenType OAuthTokenType, token string, scopes OAuthScope, expiresIn time.Duration) error
 	AssertOAuthToken(token string, tokenType OAuthTokenType, consume bool) (*OAuthToken, error)
+	InvalidateToken(clientId string, account *Account, token string) error
 	InvalidateAllOAuth(clientId string, account *Account) error
 
 	GetValidOAuthTokens(clientID string, account *Account) ([]*OAuthToken, error)
@@ -151,6 +152,20 @@ func (s *sadb) GetAllValidOAuthTokens(account *Account) ([]*OAuthToken, error) {
 		}
 	}
 	return ret, nil
+}
+
+func (s *sadb) InvalidateToken(clientId string, account *Account, token string) error {
+	if clientId == "" {
+		return errors.New("invalid clientId")
+	}
+	if account == nil {
+		return errors.New("invalid account")
+	}
+	if token == "" {
+		return errors.New("invalid token")
+	}
+
+	return s.db.Model(&accountOAuthToken{}).Where("client_id = ? and account_id = ? and token = ?", clientId, account.ID, token).Update("invalidated", true).Error
 }
 
 func (s *sadb) InvalidateAllOAuth(clientId string, account *Account) error {

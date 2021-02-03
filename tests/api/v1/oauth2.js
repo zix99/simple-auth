@@ -208,6 +208,30 @@ describe('oauth', () => {
       });
   });
 
+  it('Should allow revoking single token', () => {
+    let tk = null;
+    return http.post('/api/v1/auth/oauth2/token', {
+      grant_type: 'password',
+      username: 'oauthtest',
+      password: 'test-pass',
+      scope: 'a',
+      client_id: 'testid',
+      client_secret: 'client-secret',
+    }).then((resp) => {
+      tk = resp.data;
+      const params = {
+        client_id: 'testid',
+        token: tk.refresh_token,
+      };
+      return http.delete('/api/v1/auth/oauth2/token', { params, headers });
+    }).then(() => http.get('/api/v1/auth/oauth2', { headers }))
+      .then((resp) => {
+        const tokens = resp.data.tokens.map((x) => x.short_token);
+        assert.include(tokens, tk.access_token.substring(0, 5));
+        assert.notInclude(tokens, tk.refresh_token.substring(0, 5));
+      });
+  });
+
   it('should allow granting token via credentials', () => {
     return http.post('/api/v1/auth/oauth2/token', {
       grant_type: 'password',

@@ -131,7 +131,7 @@ func (s *authOAuthService) issueToken(account *db.Account, scopes db.OAuthScope)
 					ret.RefreshToken = t.Token
 				}
 			}
-			if ret.AccessToken != "" {
+			if ret.AccessToken != "" && (ret.RefreshToken != "" || !s.config.IssueRefreshToken) {
 				return
 			}
 		}

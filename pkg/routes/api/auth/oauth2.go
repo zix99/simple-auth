@@ -136,11 +136,13 @@ func (s *OAuth2Controller) RouteGetTokens(c echo.Context) error {
 // @Description Revoke tokens for a given client_id
 // @Tags Auth
 // @Param client_id query string true "Client ID to revoke"
+// @Param token query string false "Optional specific token to revoke"
 // @Success 200 {object} oauth2GetTokensResponse
 // @Failure 400,404,500 {object} common.ErrorResponse
 // @Router /auth/oauth2/token [delete]
 func (s *OAuth2Controller) RouteRevokeToken(c echo.Context) error {
 	clientID := c.QueryParam("client_id")
+	token := c.QueryParam("token")
 	if clientID == "" {
 		return oauthError(c, InvalidRequest, "Missing client_id")
 	}
@@ -153,8 +155,14 @@ func (s *OAuth2Controller) RouteRevokeToken(c echo.Context) error {
 		return common.HttpInternalError(c, err)
 	}
 
-	if err := sadb.InvalidateAllOAuth(clientID, account); err != nil {
-		return common.HttpInternalError(c, err)
+	if token != "" {
+		if err := sadb.InvalidateToken(clientID, account, token); err != nil {
+			return common.HttpInternalError(c, err)
+		}
+	} else {
+		if err := sadb.InvalidateAllOAuth(clientID, account); err != nil {
+			return common.HttpInternalError(c, err)
+		}
 	}
 
 	return common.HttpOK(c)

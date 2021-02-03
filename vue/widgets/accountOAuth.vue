@@ -56,6 +56,7 @@ export default {
       this.loadingPromise = axios.get('api/v1/auth/oauth2')
         .then((resp) => {
           this.tokens = resp.data.tokens;
+          this.$emit('hasTokens', this.tokens.length !== 0);
         });
     },
     revokeClientTokens(clientId) {

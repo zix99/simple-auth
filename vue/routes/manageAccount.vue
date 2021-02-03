@@ -3,8 +3,8 @@
     <CenterCard title="Your Account">
       <AccountInfo />
     </CenterCard>
-    <CenterCard title="Connected Apps (OAuth)">
-      <AccountOAuth />
+    <CenterCard title="Connected Apps (OAuth)" v-show="hasOAuthTokens">
+      <AccountOAuth @hasTokens="hasOAuthTokens = $event" />
     </CenterCard>
     <CenterCard title="Audit Log">
       <AccountAudit />
@@ -24,6 +24,11 @@ export default {
     AccountInfo,
     AccountOAuth,
     AccountAudit,
+  },
+  data() {
+    return {
+      hasOAuthTokens: false,
+    };
   },
 };
 </script>

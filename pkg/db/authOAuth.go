@@ -27,13 +27,12 @@ const (
 
 type accountOAuthToken struct {
 	gorm.Model
-	AccountID   uint `gorm:"index; not null"`
-	ClientID    string
-	Type        OAuthTokenType
-	Token       string `gorm:"uniqueIndex; not null"`
-	Scope       string
-	Expires     time.Time
-	Invalidated bool
+	AccountID uint `gorm:"index; not null"`
+	ClientID  string
+	Type      OAuthTokenType
+	Token     string `gorm:"uniqueIndex; not null"`
+	Scope     string
+	Expires   time.Time
 }
 
 type OAuthToken struct {
@@ -52,13 +51,12 @@ func (s *sadb) CreateOAuthToken(account *Account, clientID string, tokenType OAu
 	}
 
 	oauth := &accountOAuthToken{
-		AccountID:   account.ID,
-		ClientID:    clientID,
-		Type:        tokenType,
-		Token:       token,
-		Scope:       scopes.String(),
-		Expires:     time.Now().Add(expiresIn),
-		Invalidated: false,
+		AccountID: account.ID,
+		ClientID:  clientID,
+		Type:      tokenType,
+		Token:     token,
+		Scope:     scopes.String(),
+		Expires:   time.Now().Add(expiresIn),
 	}
 
 	if err := s.db.Create(oauth).Error; err != nil {
@@ -83,9 +81,6 @@ func (s *sadb) AssertOAuthToken(token string, tokenType OAuthTokenType, consume 
 		return nil, err
 	}
 
-	if oauth.Invalidated {
-		return nil, errors.New("invalidated token")
-	}
 	if time.Now().After(oauth.Expires) {
 		return nil, errors.New("expired token")
 	}
@@ -100,10 +95,7 @@ func (s *sadb) AssertOAuthToken(token string, tokenType OAuthTokenType, consume 
 	}
 
 	if consume {
-		err := s.db.Model(&oauth).Update(&accountOAuthToken{
-			Invalidated: true,
-		}).Error
-		if err != nil {
+		if err := s.db.Delete(&oauth).Error; err != nil {
 			return nil, err
 		}
 	}
@@ -120,14 +112,14 @@ func (s *sadb) GetValidOAuthTokens(clientID string, account *Account) ([]*OAuthT
 	}
 
 	var tokens []*accountOAuthToken
-	if err := s.db.Where("account_id = ? AND client_id = ? AND invalidated = false", account.ID, clientID).Find(&tokens).Error; err != nil {
+	if err := s.db.Where("account_id = ? AND client_id = ?", account.ID, clientID).Find(&tokens).Error; err != nil {
 		return nil, err
 	}
 
 	now := time.Now()
 	ret := make([]*OAuthToken, 0, len(tokens))
 	for _, token := range tokens {
-		if !token.Invalidated && token.Expires.After(now) {
+		if token.Expires.After(now) {
 			ret = append(ret, dbTokenToOAuthToken(account, token))
 		}
 	}
@@ -140,14 +132,14 @@ func (s *sadb) GetAllValidOAuthTokens(account *Account) ([]*OAuthToken, error) {
 	}
 
 	var tokens []*accountOAuthToken
-	if err := s.db.Where("account_id = ? AND invalidated = false", account.ID).Find(&tokens).Error; err != nil {
+	if err := s.db.Where("account_id = ?", account.ID).Find(&tokens).Error; err != nil {
 		return nil, err
 	}
 
 	now := time.Now()
 	ret := make([]*OAuthToken, 0, len(tokens))
 	for _, token := range tokens {
-		if !token.Invalidated && token.Expires.After(now) {
+		if token.Expires.After(now) {
 			ret = append(ret, dbTokenToOAuthToken(account, token))
 		}
 	}
@@ -165,7 +157,7 @@ func (s *sadb) InvalidateToken(clientId string, account *Account, token string) 
 		return errors.New("invalid token")
 	}
 
-	return s.db.Model(&accountOAuthToken{}).Where("client_id = ? and account_id = ? and token = ?", clientId, account.ID, token).Update("invalidated", true).Error
+	return s.db.Where("client_id = ? and account_id = ? and token = ?", clientId, account.ID, token).Delete(&accountOAuthToken{}).Error
 }
 
 func (s *sadb) InvalidateAllOAuth(clientId string, account *Account) error {
@@ -175,7 +167,8 @@ func (s *sadb) InvalidateAllOAuth(clientId string, account *Account) error {
 	if account == nil {
 		return errors.New("invalid account")
 	}
-	return s.db.Model(&accountOAuthToken{}).Where("client_id = ? and account_id = ?", clientId, account.ID).Update("invalidated", true).Error
+
+	return s.db.Where("client_id = ? and account_id = ?", clientId, account.ID).Delete(&accountOAuthToken{}).Error
 }
 
 func dbTokenToOAuthToken(account *Account, token *accountOAuthToken) *OAuthToken {

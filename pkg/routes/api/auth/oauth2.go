@@ -16,6 +16,12 @@ import (
 
 type OAuth2Error string
 
+// Common scopes
+const (
+	ScopeEmail    = "email"
+	ScopeUsername = "username"
+)
+
 const (
 	InvalidRequest       OAuth2Error = "invalid_request"
 	InvalidClient        OAuth2Error = "invalid_client"
@@ -101,7 +107,7 @@ type oauth2GetTokensResponse struct {
 // @Success 200 {object} oauth2GetTokensResponse
 // @Failure 400,404,500 {object} common.ErrorResponse
 // @Router /auth/oauth2/client [get]
-func (s *OAuth2Controller) RouteGetTokens(c echo.Context) error {
+func (s *OAuth2Controller) RouteGetTokensForUser(c echo.Context) error {
 	accountUUID := auth.MustGetAccountUUID(c)
 	sadb := appcontext.GetSADB(c)
 
@@ -130,6 +136,81 @@ func (s *OAuth2Controller) RouteGetTokens(c echo.Context) error {
 	return c.JSON(http.StatusOK, oauth2GetTokensResponse{
 		Tokens: ret,
 	})
+}
+
+type oauth2TokenIntrospectRequest struct {
+	Token string `form:"token" json:"token" query:"token" validate:"required"`
+}
+
+type oauth2TokenIntrospectResponse struct {
+	// OAuth2 fields
+	Active    bool   `json:"active"`
+	Scope     string `json:"scope,omitempty"`
+	ClientID  string `json:"client_id,omitempty"`
+	TokenType string `json:"token_type,omitempty"`
+	Username  string `json:"username,omitempty"` // Username, if has 'username' scope
+
+	// JWT extension fields
+	IssuedAt   int64  `json:"iat,omitempty"` // Unix issued time
+	Expiration int64  `json:"exp,omitempty"` // Unix timestamp expiration
+	Subject    string `json:"sub,omitempty"`
+	Audience   string `json:"aud,omitempty"`
+	Issuer     string `json:"iss,omitempty"`
+
+	// Custom fields
+	Email string `json:"email,omitempty"` // Email, if has 'email' scope
+}
+
+// @Summary Introspect Token
+// @Description Get information about an OAuth2 token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param oauth2TokenIntrospectRequest body oauth2TokenIntrospectRequest true "body"
+// @Success 200 {object} oauth2TokenIntrospectResponse
+// @Failure 400,404,500 {object} oauth2Error
+// @Router /auth/oauth2/token_info [post]
+func (s *OAuth2Controller) RouteIntrospectToken(c echo.Context) error {
+	var req oauth2TokenIntrospectRequest
+	if err := c.Bind(&req); err != nil {
+		return oauthError(c, InvalidRequest, err.Error())
+	}
+	if err := c.Validate(&req); err != nil {
+		return oauthError(c, InvalidRequest, err.Error())
+	}
+
+	db := appcontext.GetSADB(c)
+
+	token, err := db.GetValidOAuthToken(req.Token)
+	if err != nil {
+		return oauthError(c, InternalError, err.Error())
+	}
+	if token == nil {
+		return c.JSON(http.StatusOK, &oauth2TokenIntrospectResponse{
+			Active: false,
+		})
+	}
+
+	ret := oauth2TokenIntrospectResponse{
+		Active:     true,
+		Scope:      token.Scopes.String(),
+		ClientID:   token.ClientID,
+		TokenType:  string(token.Type),
+		IssuedAt:   token.Created.Unix(),
+		Expiration: token.Expires.Unix(),
+		Subject:    token.Account.UUID,
+		Audience:   token.ClientID,
+		Issuer:     s.config.Settings.Issuer,
+	}
+
+	if token.Scopes.Contains(ScopeEmail) {
+		ret.Email = token.Account.Email
+	}
+	if token.Scopes.Contains(ScopeUsername) {
+		ret.Username = token.Account.Name
+	}
+
+	return c.JSON(http.StatusOK, &ret)
 }
 
 // @Summary Revoke Token
@@ -378,7 +459,7 @@ func (s *OAuth2Controller) routeTokenGrantRefreshToken(c echo.Context, clientSer
 func oauthError(c echo.Context, code OAuth2Error, msg string, args ...interface{}) error {
 	log := appcontext.GetLogger(c)
 	fullMsg := fmt.Sprintf(msg, args...)
-	log.Warnf("Error issuing OAuth2 token '%s': %s", code, fullMsg)
+	log.Warnf("OAuth2 error '%s': %s", code, fullMsg)
 	return c.JSON(http.StatusBadRequest, &oauth2Error{
 		Error:       code,
 		Description: fullMsg,

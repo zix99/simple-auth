@@ -13,6 +13,9 @@ type AccountOAuth interface {
 	InvalidateToken(clientId string, account *Account, token string) error
 	InvalidateAllOAuth(clientId string, account *Account) error
 
+	// Missing will return nil,nil
+	GetValidOAuthToken(token string) (*OAuthToken, error)
+
 	GetValidOAuthTokens(clientID string, account *Account) ([]*OAuthToken, error)
 	GetAllValidOAuthTokens(account *Account) ([]*OAuthToken, error)
 }
@@ -35,6 +38,10 @@ type accountOAuthToken struct {
 	Expires   time.Time
 }
 
+func (s *accountOAuthToken) Expired() bool {
+	return time.Now().After(s.Expires)
+}
+
 type OAuthToken struct {
 	Account  *Account
 	Scopes   OAuthScope
@@ -43,6 +50,10 @@ type OAuthToken struct {
 	Type     OAuthTokenType
 	Created  time.Time
 	Expires  time.Time
+}
+
+func (s *OAuthToken) Expired() bool {
+	return time.Now().After(s.Expires)
 }
 
 func (s *sadb) CreateOAuthToken(account *Account, clientID string, tokenType OAuthTokenType, token string, scopes OAuthScope, expiresIn time.Duration) error {
@@ -81,7 +92,7 @@ func (s *sadb) AssertOAuthToken(token string, tokenType OAuthTokenType, consume 
 		return nil, err
 	}
 
-	if time.Now().After(oauth.Expires) {
+	if oauth.Expired() {
 		return nil, errors.New("expired token")
 	}
 
@@ -144,6 +155,31 @@ func (s *sadb) GetAllValidOAuthTokens(account *Account) ([]*OAuthToken, error) {
 		}
 	}
 	return ret, nil
+}
+
+func (s *sadb) GetValidOAuthToken(token string) (*OAuthToken, error) {
+	if token == "" {
+		return nil, errors.New("missing token")
+	}
+
+	var oauth accountOAuthToken
+	if err := s.db.Where("token = ?", token).Find(&oauth).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if oauth.Expired() {
+		return nil, nil
+	}
+
+	var account Account
+	if err := s.db.Model(&oauth).Related(&account).Error; err != nil {
+		return nil, err
+	}
+
+	return dbTokenToOAuthToken(&account, &oauth), nil
 }
 
 func (s *sadb) InvalidateToken(clientId string, account *Account, token string) error {

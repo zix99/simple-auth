@@ -141,6 +141,29 @@ describe('oauth', () => {
       });
   });
 
+  it('should allow inspecting token', () => {
+    return http.post('/api/v1/auth/oauth2/token_info', { token: token.access_token })
+      .then((resp) => {
+        assert.isTrue(resp.data.active);
+        assert.equal(resp.data.token_type, 'access_token');
+        assert.equal(resp.data.scope, 'a');
+        assert.notEmpty(resp.data.sub);
+        assert.isNumber(resp.data.exp);
+        assert.isNumber(resp.data.iat);
+        assert.equal(resp.data.client_id, 'testid');
+        assert.equal(resp.data.aud, 'testid');
+        assert.equal(resp.data.iss, 'simple-auth');
+      });
+  });
+
+  it('Should return non-active when bad token', () => {
+    return http.post('/api/v1/auth/oauth2/token_info', { token: 'fake' })
+      .then((resp) => {
+        assert.equal(200, resp.status);
+        assert.isFalse(resp.data.active);
+      });
+  });
+
   it('should allow auto-granting when token already exists, and re-use token', () => {
     return http.post('/api/v1/auth/oauth2/grant', {
       client_id: 'testid',
@@ -161,10 +184,6 @@ describe('oauth', () => {
     }).then((resp) => {
       assert.equal(resp.data.access_token, token.access_token);
     });
-  });
-
-  it('should allow inspecting token', () => {
-    // TODO
   });
 
   it('should reject refresh token with bad secret', () => {
@@ -231,7 +250,9 @@ describe('oauth', () => {
         assert.notInclude(tokens, tk.refresh_token.substring(0, 5));
       });
   });
+});
 
+describe('oauth2#credentials', () => {
   it('should allow granting token via credentials', () => {
     return http.post('/api/v1/auth/oauth2/token', {
       grant_type: 'password',

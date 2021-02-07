@@ -16,6 +16,7 @@ func init() {
 	createAuthTokenMock()
 	createAuditMock()
 	createOIDCMock()
+	createOAuthMock()
 }
 
 func TestIsAlive(t *testing.T) {

@@ -39,9 +39,9 @@ app.get('/auth-callback', (req, res) => {
   const { code } = req.query;
 
   tradeCodeForAccessToken(code)
-    .then((token) => {
-      res.send(token);
-    })
+    .then((token) => axios.post(config.introspectEndpoint, { token: token.access_token })
+      .then((resp) => ({ token, introspect: resp.data })))
+    .then((data) => res.send(data))
     .catch((err) => {
       console.log(err);
       res.redirect('/');

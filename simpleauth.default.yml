@@ -121,6 +121,7 @@ authenticators:
             allowautogrant: true    # if true, will auto grant a new request if it matches a previous and authenticated request
             reusetoken: true        # if true, will reuse an existing token instead of creating a new one when possible
             allowcredentials: false # If the `password` grant_type is supported
+            issuer: "simple-auth"   # Name of the OAuth2 token issuer
         clients: {}
             #client-id:
             #    secret: client-secret

@@ -92,7 +92,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 				v1api.DELETE("/local/2fa", v1Env.RouteDeactivate2FA, privateAuth)
 			}
 
-			v1api.GET("/auth/oauth2", oAuthController.RouteGetTokens, privateAuth)
+			v1api.GET("/auth/oauth2", oAuthController.RouteGetTokensForUser, privateAuth)
 			v1api.DELETE("/auth/oauth2/token", oAuthController.RouteRevokeToken, privateAuth)
 			if config.Authenticators.OAuth2.WebGrant {
 				v1api.POST("/auth/oauth2/grant", oAuthController.RouteAuthorizedGrantCode, privateAuth, transactional)
@@ -116,6 +116,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			{
 				v1api.GET("/auth/oauth2/client/:client_id", oAuthController.RouteClientInfo)
 				v1api.POST("/auth/oauth2/token", oAuthController.RouteTokenGrant, transactional)
+				v1api.POST("/auth/oauth2/token_info", oAuthController.RouteIntrospectToken)
 			}
 		}
 	}

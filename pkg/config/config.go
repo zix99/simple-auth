@@ -55,6 +55,7 @@ type (
 		AllowAutoGrant      bool
 		AllowCredentials    bool
 		ReuseToken          bool
+		Issuer              string
 	}
 
 	ConfigOAuth2 struct {

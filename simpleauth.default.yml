@@ -131,6 +131,7 @@ authenticators:
             #    redirecturi: http://example.com/auth-callback
             #    issuerefreshtoken: false
             #    scopes: [] # List of valid (grantable) scopes
+            #    NOTE: Allow `settings` are allowed here as overrides to common settings
 
 # All of the API endpoints that the UI uses are also available for API calls
 # if this is enabled

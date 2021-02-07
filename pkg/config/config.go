@@ -44,18 +44,19 @@ type (
 		RedirectURI string
 		Scopes      []string // Valid scopes
 
-		IssueRefreshToken bool
+		Overrides ConfigOAuth2Settings `yaml:",inline"` // Overrides any "common" settings
 	}
 
 	// Common settings across all OAuth clients
 	ConfigOAuth2Settings struct {
-		CodeExpiresSeconds  int
-		TokenExpiresSeconds int
-		CodeLength          int
-		AllowAutoGrant      bool
-		AllowCredentials    bool
-		ReuseToken          bool
-		Issuer              string
+		IssueRefreshToken   *bool
+		CodeExpiresSeconds  *int
+		TokenExpiresSeconds *int
+		CodeLength          *int
+		AllowAutoGrant      *bool
+		AllowCredentials    *bool
+		ReuseToken          *bool
+		Issuer              *string
 	}
 
 	ConfigOAuth2 struct {

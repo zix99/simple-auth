@@ -28,15 +28,18 @@ func init() {
 	)
 
 	testOAuthService = NewAuthOAuthService("test-client", &config.ConfigOAuth2Client{
-		Secret:            "test-secret",
-		IssueRefreshToken: true,
-		RedirectURI:       "http://example.com/redirect",
-		Scopes:            []string{"email", "user"},
+		Secret:      "test-secret",
+		RedirectURI: "http://example.com/redirect",
+		Scopes:      []string{"email", "user"},
 	}, &config.ConfigOAuth2Settings{
-		CodeExpiresSeconds:  10,
-		TokenExpiresSeconds: 20,
-		CodeLength:          6,
-		AllowCredentials:    true,
+		CodeExpiresSeconds:  config.IntPtr(10),
+		TokenExpiresSeconds: config.IntPtr(20),
+		CodeLength:          config.IntPtr(6),
+		AllowCredentials:    config.TruePtr,
+		IssueRefreshToken:   config.TruePtr,
+		AllowAutoGrant:      config.TruePtr,
+		ReuseToken:          config.FalsePtr,
+		Issuer:              config.StrPtr("simple-auth"),
 	}, localLoginService).WithContext(ctx)
 
 	testOAuthAccount, _ = sadb.CreateAccount("test-oauth", "test-oauth@example.com")

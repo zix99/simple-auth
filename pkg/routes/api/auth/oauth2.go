@@ -200,9 +200,11 @@ func (s *OAuth2Controller) RouteIntrospectToken(c echo.Context) error {
 		Expiration: token.Expires.Unix(),
 		Subject:    token.Account.UUID,
 		Audience:   token.ClientID,
-		Issuer:     s.config.Settings.Issuer,
 	}
 
+	if service, ok := s.oauthServices[token.ClientID]; ok {
+		ret.Issuer = service.IssuerName()
+	}
 	if token.Scopes.Contains(ScopeEmail) {
 		ret.Email = token.Account.Email
 	}
@@ -311,11 +313,10 @@ func (s *OAuth2Controller) RouteAuthorizedGrantCode(c echo.Context) error {
 	}
 
 	if req.Auto {
-		if !s.config.Settings.AllowAutoGrant {
-			return oauthError(c, InvalidRequest, "Auto granting not allowed")
-		}
-		_, err := oauthService.FindExistingToken(account, db.OAuthTypeAccessToken, scopes)
-		if err != nil {
+		if err := oauthService.CanAutoGrant(account, scopes); err != nil {
+			if err == services.ErrAutoGrantDisabled {
+				return oauthError(c, InvalidRequest, "Auto granting not allowed")
+			}
 			return oauthError(c, InvalidGrant, "no existing token")
 		}
 		// Otherwise, fall-through to generate access token

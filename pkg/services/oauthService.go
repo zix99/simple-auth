@@ -21,6 +21,7 @@ type IssuedToken struct {
 type AuthOAuthService interface {
 	WithContext(ctx appcontext.Context) AuthOAuthService
 	CreateAccessCode(account *db.Account, scopes db.OAuthScope) (string, error)
+	CanAutoGrant(account *db.Account, scopes db.OAuthScope) error
 	TradeCodeForToken(secret, code string) (ret IssuedToken, err error)
 	TradeRefreshTokenForAccessToken(secret, refreshToken string) (ret IssuedToken, err error)
 	TradeCredentialsForToken(secret, username, password string, totp *string, scopes db.OAuthScope) (ret IssuedToken, err error)
@@ -29,6 +30,7 @@ type AuthOAuthService interface {
 
 	ValidateRedirectURI(uri string) bool
 	ValidateScopes(scopes db.OAuthScope) bool
+	IssuerName() string
 }
 
 var (
@@ -38,17 +40,18 @@ var (
 type authOAuthService struct {
 	clientID string
 	config   *config.ConfigOAuth2Client
-	common   *config.ConfigOAuth2Settings
+	settings *config.ConfigOAuth2Settings
 
 	dbOAuth    db.AccountOAuth
 	localLogin LocalLoginService
 }
 
 func NewAuthOAuthService(clientID string, config *config.ConfigOAuth2Client, common *config.ConfigOAuth2Settings, localLoginService LocalLoginService) AuthOAuthService {
+	settings := config.Overrides.Coalesce(common)
 	return &authOAuthService{
 		clientID,
 		config,
-		common,
+		settings,
 		nil,
 		localLoginService,
 	}
@@ -66,16 +69,34 @@ func (s *authOAuthService) CreateAccessCode(account *db.Account, scopes db.OAuth
 		return "", ErrInvalidScopes
 	}
 
-	code, err := genAccessCode(s.common.CodeLength)
+	code, err := genAccessCode(*s.settings.CodeLength)
 	if err != nil {
 		return "", err
 	}
 
-	if err := s.dbOAuth.CreateOAuthToken(account, s.clientID, db.OAuthTypeCode, code, scopes, time.Duration(s.common.CodeExpiresSeconds)*time.Second); err != nil {
+	if err := s.dbOAuth.CreateOAuthToken(account, s.clientID, db.OAuthTypeCode, code, scopes, time.Duration(*s.settings.CodeExpiresSeconds)*time.Second); err != nil {
 		return "", err
 	}
 
 	return code, nil
+}
+
+var (
+	ErrAutoGrantDisabled = errors.New("auto-grant disabled")
+	ErrAutoGrantNoToken  = errors.New("auto-grant no token")
+)
+
+func (s *authOAuthService) CanAutoGrant(account *db.Account, scopes db.OAuthScope) error {
+	if !*s.settings.AllowAutoGrant {
+		return ErrAutoGrantDisabled
+	}
+
+	_, err := s.FindExistingToken(account, db.OAuthTypeAccessToken, scopes)
+	if err != nil {
+		return ErrAutoGrantNoToken
+	}
+
+	return nil
 }
 
 func (s *authOAuthService) TradeCodeForToken(secret, code string) (ret IssuedToken, err error) {
@@ -95,7 +116,7 @@ func (s *authOAuthService) TradeCodeForToken(secret, code string) (ret IssuedTok
 }
 
 func (s *authOAuthService) TradeCredentialsForToken(secret, username, password string, totp *string, scopes db.OAuthScope) (ret IssuedToken, err error) {
-	if !s.common.AllowCredentials {
+	if !*s.settings.AllowCredentials {
 		err = errors.New("trading credentials for token is disabled")
 		return
 	}
@@ -119,7 +140,7 @@ func (s *authOAuthService) issueToken(account *db.Account, scopes db.OAuthScope)
 		return
 	}
 
-	if s.common.ReuseToken {
+	if *s.settings.ReuseToken {
 		if tokens, vtErr := s.dbOAuth.GetValidOAuthTokens(s.clientID, account); vtErr == nil {
 			for _, t := range tokens {
 				if ret.AccessToken == "" && t.Type == db.OAuthTypeAccessToken && t.Scopes.Matches(scopes) {
@@ -127,11 +148,11 @@ func (s *authOAuthService) issueToken(account *db.Account, scopes db.OAuthScope)
 					ret.Expires = int(time.Until(t.Expires).Seconds())
 					ret.Scope = t.Scopes
 				}
-				if ret.RefreshToken == "" && t.Type == db.OAuthTypeRefreshToken && s.config.IssueRefreshToken {
+				if ret.RefreshToken == "" && t.Type == db.OAuthTypeRefreshToken && *s.settings.IssueRefreshToken {
 					ret.RefreshToken = t.Token
 				}
 			}
-			if ret.AccessToken != "" && (ret.RefreshToken != "" || !s.config.IssueRefreshToken) {
+			if ret.AccessToken != "" && (ret.RefreshToken != "" || !*s.settings.IssueRefreshToken) {
 				return
 			}
 		}
@@ -140,14 +161,14 @@ func (s *authOAuthService) issueToken(account *db.Account, scopes db.OAuthScope)
 	s.dbOAuth.InvalidateAllOAuth(s.clientID, account)
 
 	ret.AccessToken = uuid.New().String()
-	ret.Expires = s.common.TokenExpiresSeconds
+	ret.Expires = *s.settings.TokenExpiresSeconds
 	ret.Scope = scopes
-	err = s.dbOAuth.CreateOAuthToken(account, s.clientID, db.OAuthTypeAccessToken, ret.AccessToken, scopes, time.Duration(s.common.TokenExpiresSeconds)*time.Second)
+	err = s.dbOAuth.CreateOAuthToken(account, s.clientID, db.OAuthTypeAccessToken, ret.AccessToken, scopes, time.Duration(*s.settings.TokenExpiresSeconds)*time.Second)
 	if err != nil {
 		return
 	}
 
-	if s.config.IssueRefreshToken {
+	if *s.settings.IssueRefreshToken {
 		ret.RefreshToken = uuid.New().String()
 		const oneHundredYears = 100 * 365 * 24 * time.Hour
 		err = s.dbOAuth.CreateOAuthToken(account, s.clientID, db.OAuthTypeRefreshToken, ret.RefreshToken, scopes, oneHundredYears)
@@ -172,9 +193,9 @@ func (s *authOAuthService) TradeRefreshTokenForAccessToken(secret, refreshToken 
 	}
 
 	ret.AccessToken = uuid.New().String()
-	ret.Expires = s.common.TokenExpiresSeconds
+	ret.Expires = *s.settings.TokenExpiresSeconds
 	ret.Scope = token.Scopes
-	err = s.dbOAuth.CreateOAuthToken(token.Account, s.clientID, db.OAuthTypeAccessToken, ret.AccessToken, token.Scopes, time.Duration(s.common.TokenExpiresSeconds)*time.Second)
+	err = s.dbOAuth.CreateOAuthToken(token.Account, s.clientID, db.OAuthTypeAccessToken, ret.AccessToken, token.Scopes, time.Duration(*s.settings.TokenExpiresSeconds)*time.Second)
 	if err != nil {
 		return
 	}
@@ -212,6 +233,10 @@ func (s *authOAuthService) ValidateScopes(scopes db.OAuthScope) bool {
 func (s *authOAuthService) InspectToken(sToken string) (*db.OAuthToken, error) {
 	token, err := s.dbOAuth.AssertOAuthToken(sToken, db.OAuthTypeAccessToken, false)
 	return token, err
+}
+
+func (s *authOAuthService) IssuerName() string {
+	return *s.settings.Issuer
 }
 
 func genAccessCode(digits int) (string, error) {

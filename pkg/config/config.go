@@ -43,8 +43,14 @@ type (
 		AuthorURL   string
 		RedirectURI string
 		Scopes      []string // Valid scopes
+		OIDC        *OAuth2OIDCConfig
 
 		Overrides ConfigOAuth2Settings `yaml:",inline"` // Overrides any "common" settings
+	}
+
+	OAuth2OIDCConfig struct {
+		SigningMethod string // As defined by go-jwt. Commonly HS256, HS512, RS256, RS512
+		SigningKey    string // Key used to sign JWT. If RS based, will be parsed as PEM
 	}
 
 	// Common settings across all OAuth clients

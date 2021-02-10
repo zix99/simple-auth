@@ -16,12 +16,6 @@ import (
 
 type OAuth2Error string
 
-// Common scopes
-const (
-	ScopeEmail    = "email"
-	ScopeUsername = "username"
-)
-
 const (
 	InvalidRequest       OAuth2Error = "invalid_request"
 	InvalidClient        OAuth2Error = "invalid_client"
@@ -205,10 +199,10 @@ func (s *OAuth2Controller) RouteIntrospectToken(c echo.Context) error {
 	if service, ok := s.oauthServices[token.ClientID]; ok {
 		ret.Issuer = service.IssuerName()
 	}
-	if token.Scopes.Contains(ScopeEmail) {
+	if token.Scopes.Contains(services.ScopeEmail) {
 		ret.Email = token.Account.Email
 	}
-	if token.Scopes.Contains(ScopeUsername) {
+	if token.Scopes.Contains(services.ScopeName) {
 		ret.Username = token.Account.Name
 	}
 
@@ -361,6 +355,7 @@ type grantTokenResponse struct {
 	TokenType    string `json:"token_type"`
 	ExpiresIn    int    `json:"expires_in,omitempty"` // Seconds access token expires in
 	RefreshToken string `json:"refresh_token,omitempty"`
+	IDToken      string `json:"id_token,omitempty"`
 	Scope        string `json:"scope,omitempty"`
 }
 
@@ -416,6 +411,7 @@ func (s *OAuth2Controller) routeTokenGrantPassword(c echo.Context, clientService
 	return c.JSON(http.StatusOK, &grantTokenResponse{
 		AccessToken:  retToken.AccessToken,
 		RefreshToken: retToken.RefreshToken,
+		IDToken:      retToken.IDToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    retToken.Expires,
 		Scope:        retToken.Scope.String(),
@@ -436,6 +432,7 @@ func (s *OAuth2Controller) routeTokenGrantAuthorizationCode(c echo.Context, clie
 	return c.JSON(http.StatusOK, &grantTokenResponse{
 		AccessToken:  retToken.AccessToken,
 		RefreshToken: retToken.RefreshToken,
+		IDToken:      retToken.IDToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    retToken.Expires,
 		Scope:        retToken.Scope.String(),
@@ -451,6 +448,7 @@ func (s *OAuth2Controller) routeTokenGrantRefreshToken(c echo.Context, clientSer
 
 	return c.JSON(http.StatusOK, &grantTokenResponse{
 		AccessToken: retToken.AccessToken,
+		IDToken:     retToken.IDToken,
 		TokenType:   "Bearer",
 		ExpiresIn:   retToken.Expires,
 		Scope:       retToken.Scope.String(),

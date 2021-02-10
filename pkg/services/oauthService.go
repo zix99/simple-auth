@@ -3,18 +3,29 @@ package services
 import (
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/config"
 	"simple-auth/pkg/db"
+	"strings"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
+)
+
+// Common scopes
+const (
+	ScopeEmail = "email"
+	ScopeName  = "username"
 )
 
 type IssuedToken struct {
 	AccessToken  string
 	Expires      int
 	RefreshToken string
+	IDToken      string
 	Scope        db.OAuthScope
 }
 
@@ -37,30 +48,60 @@ var (
 	ErrInvalidScopes = errors.New("invalid scope")
 )
 
+type openIDConnectClaims struct {
+	jwt.StandardClaims
+	Email string `json:"email,omitempty"`
+	Name  string `json:"name,omitempty"`
+}
+
 type authOAuthService struct {
 	clientID string
 	config   *config.ConfigOAuth2Client
 	settings *config.ConfigOAuth2Settings
 
+	// Cached config
+	jwtSigningMethod jwt.SigningMethod
+	jwtSigningKey    interface{}
+
+	// Contextual
 	dbOAuth    db.AccountOAuth
 	localLogin LocalLoginService
+	log        logrus.FieldLogger
 }
 
 func NewAuthOAuthService(clientID string, config *config.ConfigOAuth2Client, common *config.ConfigOAuth2Settings, localLoginService LocalLoginService) AuthOAuthService {
 	settings := config.Overrides.Coalesce(common)
-	return &authOAuthService{
+	ret := &authOAuthService{
 		clientID,
 		config,
 		settings,
 		nil,
+		nil,
+		nil,
 		localLoginService,
+		nil,
 	}
+
+	if config.OIDC != nil {
+		ret.jwtSigningMethod = jwt.GetSigningMethod(strings.ToUpper(config.OIDC.SigningMethod))
+		if ret.jwtSigningMethod == nil {
+			logrus.Fatalf("Unable to parse OIDC signing method: %s", config.OIDC.SigningMethod)
+		}
+		if signingKey, err := parseSigningKey(config.OIDC.SigningMethod, config.OIDC.SigningKey); err != nil {
+			logrus.Fatalf("Unable to parse signing key: %v", err)
+		} else {
+			ret.jwtSigningKey = signingKey
+		}
+	}
+
+	return ret
 }
 
 func (s *authOAuthService) WithContext(ctx appcontext.Context) AuthOAuthService {
 	copy := *s
 	copy.dbOAuth = appcontext.GetSADB(ctx)
 	copy.localLogin = s.localLogin.WithContext(ctx)
+	copy.log = appcontext.GetLogger(ctx)
 	return &copy
 }
 
@@ -138,6 +179,31 @@ func (s *authOAuthService) issueToken(account *db.Account, scopes db.OAuthScope)
 	if !s.ValidateScopes(scopes) {
 		err = ErrInvalidScopes
 		return
+	}
+
+	if s.jwtSigningKey != nil && s.jwtSigningMethod != nil {
+		claims := openIDConnectClaims{
+			StandardClaims: jwt.StandardClaims{
+				Issuer:    *s.settings.Issuer,
+				Subject:   account.UUID,
+				Audience:  s.clientID,
+				ExpiresAt: time.Now().Add(time.Duration(*s.settings.TokenExpiresSeconds) * time.Second).Unix(),
+			},
+		}
+
+		if scopes.Contains(ScopeEmail) {
+			claims.Email = account.Email
+		}
+		if scopes.Contains(ScopeName) {
+			claims.Name = account.Name
+		}
+
+		jwtToken := jwt.NewWithClaims(s.jwtSigningMethod, claims)
+		if idToken, err := jwtToken.SignedString(s.jwtSigningKey); err == nil {
+			ret.IDToken = idToken
+		} else {
+			s.log.Warn(err)
+		}
 	}
 
 	if *s.settings.ReuseToken {
@@ -250,4 +316,22 @@ func genAccessCode(digits int) (string, error) {
 		ret[i] = table[int(ret[i])%len(table)]
 	}
 	return string(ret), nil
+}
+
+func parseSigningKey(method, key string) (interface{}, error) {
+	lm := strings.ToUpper(method)
+	if jwt.GetSigningMethod(lm) == nil {
+		return nil, errors.New("invalid method")
+	}
+	if strings.HasPrefix(lm, "HS") {
+		return []byte(key), nil
+	}
+	if strings.HasPrefix(lm, "RS") {
+		key, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(key))
+		if err != nil {
+			return nil, err
+		}
+		return key, nil
+	}
+	return nil, fmt.Errorf("unable to parse key for %s", method)
 }

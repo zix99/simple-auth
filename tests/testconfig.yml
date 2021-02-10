@@ -33,6 +33,9 @@ authenticators:
         author: sa
         authorurl: http://sa.com
         scopes: ['a', 'b', 'username']
+        oidc:
+          signingmethod: HS256
+          signingkey: this-is-a-test-key
 email:
   engine: stdout
 db:

@@ -31,6 +31,10 @@ func init() {
 		Secret:      "test-secret",
 		RedirectURI: "http://example.com/redirect",
 		Scopes:      []string{"email", "user"},
+		OIDC: &config.OAuth2OIDCConfig{
+			SigningMethod: "HS256",
+			SigningKey:    "abcdef721yu4uih",
+		},
 	}, &config.ConfigOAuth2Settings{
 		CodeExpiresSeconds:  config.IntPtr(10),
 		TokenExpiresSeconds: config.IntPtr(20),
@@ -80,6 +84,7 @@ func TestOAuthTradeAccessCode(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, token.AccessToken)
 	assert.NotEmpty(t, token.RefreshToken)
+	assert.NotEmpty(t, token.IDToken)
 	assert.Greater(t, token.Expires, 0)
 }
 
@@ -145,6 +150,7 @@ func TestOAuthTradeForCredentials(t *testing.T) {
 		assert.NotEmpty(t, token.AccessToken)
 		assert.NotEmpty(t, token.RefreshToken)
 		assert.Greater(t, token.Expires, 0)
+		assert.NotEmpty(t, token.IDToken)
 	}
 
 	{

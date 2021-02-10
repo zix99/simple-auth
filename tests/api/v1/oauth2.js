@@ -1,4 +1,5 @@
 const { assert } = require('chai');
+const jwt = require('jsonwebtoken');
 const http = require('../../http');
 const config = require('../../config');
 
@@ -117,7 +118,18 @@ describe('oauth', () => {
     }).then((resp) => {
       token = resp.data;
       console.dir(token);
+
+      assert.notEmpty(token.access_token);
+      assert.notEmpty(token.refresh_token);
+      assert.notEmpty(token.id_token);
     });
+  });
+
+  it('should now have a valid id token', () => {
+    const decoded = jwt.verify(token.id_token, 'this-is-a-test-key');
+    assert.notEmpty(decoded.sub);
+    assert.notEmpty(decoded.aud);
+    assert.equal(decoded.iss, 'simple-auth');
   });
 
   it('should not allow trading the code twice', () => {
@@ -264,6 +276,7 @@ describe('oauth2#credentials', () => {
     }).then((resp) => {
       assert.notEmpty(resp.data.access_token);
       assert.notEmpty(resp.data.refresh_token);
+      assert.notEmpty(resp.data.id_token);
     });
   });
 

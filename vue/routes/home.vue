@@ -7,6 +7,7 @@
         <div v-if="appdata.login.continue">
           <h2 class="subtitle">{{appdata.company}} Login</h2>
           <p v-if="isRemoteContinue">After logging in, you will be redirected to:<br /><strong>{{appdata.login.continue}}</strong></p>
+          <p v-if="isOAuth2Continue">After logging in, you will redirect back to the Application Login Page</p>
         </div>
 
         <div class="box has-text-left">
@@ -64,6 +65,9 @@ export default {
   computed: {
     isRemoteContinue() {
       return this.appdata.login.continue && this.appdata.login.continue.startsWith('http');
+    },
+    isOAuth2Continue() {
+      return this.appdata.login.continue && this.appdata.login.continue.startsWith('/#/oauth2');
     },
   },
 };

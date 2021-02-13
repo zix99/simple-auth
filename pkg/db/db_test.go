@@ -13,7 +13,6 @@ func init() {
 	sadb = db.New("sqlite3", "file::memory:?cache=shared")
 	sadb.EnableLogging(true)
 	createAuthSimpleMock()
-	createAuthTokenMock()
 	createAuditMock()
 	createOIDCMock()
 	createOAuthMock()

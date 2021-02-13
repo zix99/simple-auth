@@ -20,12 +20,6 @@ type ConfigMetadata struct {
 
 // Authenticators
 type (
-	ConfigTokenAuthenticator struct {
-		Enabled                    bool
-		SessionExpiresMinutes      int
-		VerificationExpiresSeconds int
-	}
-
 	ConfigSimpleAuthenticator struct {
 		Enabled      bool
 		SharedSecret string // If non-empty, will be required as a Bearer token in the Authorization header. If empty, anyone can use this endpoint (if enabled)
@@ -74,7 +68,6 @@ type (
 
 	// Authenticators are how someone external to SA can authenticate with it
 	ConfigAuthenticatorSet struct {
-		Token  ConfigTokenAuthenticator
 		Simple ConfigSimpleAuthenticator
 		Vouch  ConfigVouchAuthenticator
 		OAuth2 ConfigOAuth2

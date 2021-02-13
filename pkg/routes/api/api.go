@@ -101,10 +101,6 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 
 		// Attach authenticator routes
 		{
-			if config.Authenticators.Token.Enabled {
-				route := v1api.Group("/auth/token")
-				authAPI.NewTokenAuthController(db, &config.Authenticators.Token).Mount(route)
-			}
 			if config.Authenticators.Simple.Enabled {
 				route := v1api.Group("/auth/simple")
 				authAPI.NewSimpleAuthController(loginService, &config.Authenticators.Simple).Mount(route)

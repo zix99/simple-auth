@@ -10,7 +10,6 @@ type sadb struct {
 }
 
 type SADB interface {
-	AccountAuthToken
 	AccountAuthLocal
 	AccountStore
 	AccountAudit
@@ -43,8 +42,6 @@ func New(driver string, args string) SADB {
 	db.AutoMigrate(&Account{})
 	db.AutoMigrate(&AccountAuditRecord{})
 	db.AutoMigrate(&accountAuthLocal{})
-	db.AutoMigrate(&accountAuthSessionToken{})
-	db.AutoMigrate(&accountAuthVerificationToken{})
 	db.AutoMigrate(&accountAuthOneTime{})
 	db.AutoMigrate(&accountStipulation{})
 	db.AutoMigrate(&accountOAuthToken{})

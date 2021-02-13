@@ -103,10 +103,6 @@ providers:
 
 # Different ways a remote service can check a user is authenticated
 authenticators:
-    token:
-        enabled: true
-        sessionexpiresminutes: 720 # 12 hours
-        verificationexpiresseconds: 15
     simple: # An endpoint that allows checking a username/password/totp. See docs for more details
         enabled: false
         sharedsecret: null

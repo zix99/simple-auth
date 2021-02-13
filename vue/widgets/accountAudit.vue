@@ -21,7 +21,7 @@
     </table>
     <div class="has-text-right">
       <button class="button is-light" @click="prevPage">Previous</button>
-      <button class="button is-light" @click="nextPage">Next</button>
+      <button class="button is-light" @click="nextPage" :disabled="!hasNextButton">Next</button>
     </div>
   </div>
 </template>
@@ -53,6 +53,11 @@ export default {
     },
     limit() {
       this.fetchData();
+    },
+  },
+  computed: {
+    hasNextButton() {
+      return this.records.length >= this.limit;
     },
   },
   methods: {

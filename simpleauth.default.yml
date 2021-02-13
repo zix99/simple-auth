@@ -121,7 +121,9 @@ authenticators:
             allowautogrant: true    # if true, will auto grant a new request if it matches a previous and authenticated request
             reusetoken: true        # if true, will reuse an existing token instead of creating a new one when possible
             allowcredentials: false # If the `password` grant_type is supported
-            issuer: "simple-auth"   # Name of the OAuth2 token issuer
+            issuer: "simple-auth"   # Name of the OAuth2 token issuer (Using in token and JWT)
+            issuerefreshtoken: false # Whether or not to issue a refresh token
+            revokeoldtokens: true   # When issuing a new token, revoke all previously issued tokens of a lessor type
         clients: {}
             #client-id:
             #    secret: client-secret
@@ -129,7 +131,6 @@ authenticators:
             #    author: Author name
             #    authorurl: http://example.com  # Link to client website
             #    redirecturi: http://example.com/auth-callback
-            #    issuerefreshtoken: false
             #    scopes: [] # List of valid (grantable) scopes
             #    NOTE: Allow `settings` are allowed here as overrides to common settings
 

@@ -19,6 +19,7 @@ func (s *ConfigOAuth2Settings) Coalesce(other *ConfigOAuth2Settings) *ConfigOAut
 		CoalesceBool(s.AllowAutoGrant, other.AllowAutoGrant),
 		CoalesceBool(s.AllowCredentials, other.AllowCredentials),
 		CoalesceBool(s.ReuseToken, other.ReuseToken),
+		CoalesceBool(s.RevokeOldTokens, other.RevokeOldTokens),
 		CoalesceString(s.Issuer, other.Issuer),
 	}
 }

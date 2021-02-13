@@ -237,7 +237,7 @@ func (s *OAuth2Controller) RouteRevokeToken(c echo.Context) error {
 			return common.HttpInternalError(c, err)
 		}
 	} else {
-		if err := sadb.InvalidateAllOAuth(clientID, account); err != nil {
+		if err := sadb.InvalidateAllOAuth(clientID, account, nil); err != nil {
 			return common.HttpInternalError(c, err)
 		}
 	}

@@ -36,7 +36,18 @@ authenticators:
         oidc:
           signingmethod: HS256
           signingkey: this-is-a-test-key
+      singleissue:
+        secret: si-secret
+        name: Single Issue Client
+        author: sa
+        authorurl: http://sa.com
+        scopes: ['name']
+        issuerefreshtoken: true
+        tokenexpiresseconds: 1
+        reusetoken: false
+
 email:
   engine: stdout
 db:
   url: "file::memory:?cache=shared"
+  debug: true

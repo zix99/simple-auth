@@ -147,7 +147,7 @@ func (s *authOAuthService) TradeCodeForToken(secret, code string) (ret IssuedTok
 	}
 
 	var token *db.OAuthToken
-	token, err = s.dbOAuth.AssertOAuthToken(code, db.OAuthTypeCode, true)
+	token, err = s.dbOAuth.AssertOAuthToken(s.clientID, code, db.OAuthTypeCode, true)
 	if err != nil {
 		return
 	}
@@ -224,7 +224,11 @@ func (s *authOAuthService) issueToken(account *db.Account, scopes db.OAuthScope)
 		}
 	}
 
-	s.dbOAuth.InvalidateAllOAuth(s.clientID, account)
+	if *s.settings.RevokeOldTokens {
+		if err = s.dbOAuth.InvalidateAllOAuth(s.clientID, account, nil); err != nil {
+			return
+		}
+	}
 
 	ret.AccessToken = uuid.New().String()
 	ret.Expires = *s.settings.TokenExpiresSeconds
@@ -253,9 +257,16 @@ func (s *authOAuthService) TradeRefreshTokenForAccessToken(secret, refreshToken 
 	}
 
 	var token *db.OAuthToken
-	token, err = s.dbOAuth.AssertOAuthToken(refreshToken, db.OAuthTypeRefreshToken, false)
+	token, err = s.dbOAuth.AssertOAuthToken(s.clientID, refreshToken, db.OAuthTypeRefreshToken, false)
 	if err != nil {
 		return
+	}
+
+	if *s.settings.RevokeOldTokens {
+		s.log.Infof("Invalidating all tokens for %s client %s...", token.Account.UUID, s.clientID)
+		if err = s.dbOAuth.InvalidateAllOAuth(s.clientID, token.Account, []db.OAuthTokenType{db.OAuthTypeRefreshToken}); err != nil {
+			return
+		}
 	}
 
 	ret.AccessToken = uuid.New().String()
@@ -294,11 +305,6 @@ func (s *authOAuthService) ValidateRedirectURI(uri string) bool {
 
 func (s *authOAuthService) ValidateScopes(scopes db.OAuthScope) bool {
 	return db.OAuthScope(s.config.Scopes).ContainsAll(scopes...)
-}
-
-func (s *authOAuthService) InspectToken(sToken string) (*db.OAuthToken, error) {
-	token, err := s.dbOAuth.AssertOAuthToken(sToken, db.OAuthTypeAccessToken, false)
-	return token, err
 }
 
 func (s *authOAuthService) IssuerName() string {

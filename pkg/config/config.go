@@ -62,6 +62,7 @@ type (
 		AllowAutoGrant      *bool
 		AllowCredentials    *bool
 		ReuseToken          *bool
+		RevokeOldTokens     *bool
 		Issuer              *string
 	}
 

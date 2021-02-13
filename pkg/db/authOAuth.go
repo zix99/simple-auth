@@ -9,9 +9,9 @@ import (
 
 type AccountOAuth interface {
 	CreateOAuthToken(account *Account, clientID string, tokenType OAuthTokenType, token string, scopes OAuthScope, expiresIn time.Duration) error
-	AssertOAuthToken(token string, tokenType OAuthTokenType, consume bool) (*OAuthToken, error)
+	AssertOAuthToken(clientID, token string, tokenType OAuthTokenType, consume bool) (*OAuthToken, error)
 	InvalidateToken(clientId string, account *Account, token string) error
-	InvalidateAllOAuth(clientId string, account *Account) error
+	InvalidateAllOAuth(clientId string, account *Account, exceptType []OAuthTokenType) error
 
 	// Missing will return nil,nil
 	GetValidOAuthToken(token string) (*OAuthToken, error)
@@ -79,16 +79,19 @@ func (s *sadb) CreateOAuthToken(account *Account, clientID string, tokenType OAu
 	return nil
 }
 
-func (s *sadb) AssertOAuthToken(token string, tokenType OAuthTokenType, consume bool) (*OAuthToken, error) {
+func (s *sadb) AssertOAuthToken(clientID, token string, tokenType OAuthTokenType, consume bool) (*OAuthToken, error) {
 	if token == "" {
 		return nil, errors.New("no token")
 	}
 	if tokenType == "" {
 		return nil, errors.New("no token type")
 	}
+	if clientID == "" {
+		return nil, errors.New("no client_id")
+	}
 
 	var oauth accountOAuthToken
-	if err := s.db.Where("token = ? AND type = ?", token, tokenType).First(&oauth).Error; err != nil {
+	if err := s.db.Where("token = ? AND type = ? AND client_id = ?", token, tokenType, clientID).First(&oauth).Error; err != nil {
 		return nil, err
 	}
 
@@ -164,7 +167,7 @@ func (s *sadb) GetValidOAuthToken(token string) (*OAuthToken, error) {
 
 	var oauth accountOAuthToken
 	if err := s.db.Where("token = ?", token).Find(&oauth).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
@@ -196,7 +199,7 @@ func (s *sadb) InvalidateToken(clientId string, account *Account, token string) 
 	return s.db.Where("client_id = ? and account_id = ? and token = ?", clientId, account.ID, token).Delete(&accountOAuthToken{}).Error
 }
 
-func (s *sadb) InvalidateAllOAuth(clientId string, account *Account) error {
+func (s *sadb) InvalidateAllOAuth(clientId string, account *Account, exceptType []OAuthTokenType) error {
 	if clientId == "" {
 		return errors.New("invalid clientId")
 	}
@@ -204,7 +207,12 @@ func (s *sadb) InvalidateAllOAuth(clientId string, account *Account) error {
 		return errors.New("invalid account")
 	}
 
-	return s.db.Where("client_id = ? and account_id = ?", clientId, account.ID).Delete(&accountOAuthToken{}).Error
+	q := s.db.Where("client_id = ? and account_id = ?", clientId, account.ID)
+	if len(exceptType) > 0 {
+		q = q.Not("type in (?)", exceptType)
+	}
+
+	return q.Delete(&accountOAuthToken{}).Error
 }
 
 func dbTokenToOAuthToken(account *Account, token *accountOAuthToken) *OAuthToken {

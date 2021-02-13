@@ -43,6 +43,7 @@ func init() {
 		IssueRefreshToken:   config.TruePtr,
 		AllowAutoGrant:      config.TruePtr,
 		ReuseToken:          config.FalsePtr,
+		RevokeOldTokens:     config.TruePtr,
 		Issuer:              config.StrPtr("simple-auth"),
 	}, localLoginService).WithContext(ctx)
 

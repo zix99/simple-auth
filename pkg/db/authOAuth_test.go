@@ -41,11 +41,30 @@ func TestGetToken(t *testing.T) {
 func TestRevokeGetToken(t *testing.T) {
 	token := uuid.New().String()
 	sadb.CreateOAuthToken(oauthTestAccount, oauthTestClientID, db.OAuthTypeAccessToken, token, nil, 1*time.Hour)
-	sadb.InvalidateAllOAuth(oauthTestClientID, oauthTestAccount)
+	sadb.InvalidateAllOAuth(oauthTestClientID, oauthTestAccount, nil)
 
 	got, err := sadb.GetValidOAuthToken(token)
 	assert.NoError(t, err)
 	assert.Nil(t, got)
+}
+
+func TestRevokeGetTokenOnlyAccess(t *testing.T) {
+	refreshToken := uuid.New().String()
+	accessToken := uuid.New().String()
+	sadb.CreateOAuthToken(oauthTestAccount, oauthTestClientID, db.OAuthTypeRefreshToken, refreshToken, nil, 1*time.Hour)
+	sadb.CreateOAuthToken(oauthTestAccount, oauthTestClientID, db.OAuthTypeAccessToken, accessToken, nil, 1*time.Hour)
+	sadb.InvalidateAllOAuth(oauthTestClientID, oauthTestAccount, []db.OAuthTokenType{db.OAuthTypeRefreshToken})
+
+	{
+		got, err := sadb.GetValidOAuthToken(accessToken)
+		assert.NoError(t, err)
+		assert.Nil(t, got)
+	}
+	{
+		got, err := sadb.GetValidOAuthToken(refreshToken)
+		assert.NoError(t, err)
+		assert.NotNil(t, got)
+	}
 }
 
 func TestExpiredGetToken(t *testing.T) {

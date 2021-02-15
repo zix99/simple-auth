@@ -3,16 +3,18 @@
     <div class="field">
       <label class="label">{{title}}</label>
       <div class="control has-icons-left has-icons-right">
-        <input class="input" type="password" placeholder="Password" v-model="password1" @keypress.enter="enterPress" />
+        <input class="input" :class="strengthClass" type="password" placeholder="Password" v-model="password1" @keypress.enter="enterPress" />
         <span class="icon is-small is-left">
           <fa-icon icon="lock" />
         </span>
       </div>
-      <p class="help is-danger" v-if="!validPassword">
-        Expected password to be between {{minlength}} and {{maxlength}} long,
-        and a score greater than {{minstrength}} (Currently {{strength.score || 0}})
+      <p class="help is-danger" v-if="!validPasswordLength">
+        Expected password to be between {{minlength}} and {{maxlength}} long.
       </p>
-      <p class="help" v-if="strength.feedback">
+      <p class="help is-danger" v-if="!validPasswordStrength && validPasswordLength">
+        Password not strong enough.
+      </p>
+      <p class="help" v-if="strength.feedback && validPasswordLength">
         {{strength.feedback.warning}}
         <ul>
           <li v-for="suggestion in strength.feedback.suggestions" :key="suggestion">{{suggestion}}</li>
@@ -21,7 +23,7 @@
     </div>
     <div class="field">
       <div class="control has-icons-left has-icons-right">
-        <input class="input" type="password" placeholder="Re-Enter Password" v-model="password2" @keypress.enter="enterPress" />
+        <input class="input" :class="{ 'is-success': passwordMatch }" type="password" placeholder="Re-Enter Password" v-model="password2" @keypress.enter="enterPress" />
         <span class="icon is-small is-left">
           <fa-icon icon="lock" />
         </span>
@@ -53,10 +55,21 @@ export default {
     passwordMatch() {
       return this.password1 === this.password2;
     },
-    validPassword() {
+    validPasswordLength() {
       return this.password1.length >= this.minlength
-        && this.password1.length <= this.maxlength
-        && this.strength.score >= this.minstrength;
+        && this.password1.length <= this.maxlength;
+    },
+    validPasswordStrength() {
+      return this.strength.score >= this.minstrength;
+    },
+    validPassword() {
+      return this.validPasswordLength && this.validPasswordStrength;
+    },
+    strengthClass() {
+      if (this.strength.score < this.minstrength) return 'is-danger';
+      if (this.strength.score === 4) return 'is-success';
+      if (this.strength.score === 3) return 'is-warning';
+      return 'is-warning';
     },
   },
   watch: {

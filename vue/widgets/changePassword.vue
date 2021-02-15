@@ -13,7 +13,7 @@
         </div>
       </div>
 
-      <ValidatedPasswordInput title="New Password" v-model="password" @valid="validPassword = $event" @enter="submitClick" />
+      <ValidatedPasswordField title="New Password" v-model="password" @valid="validPassword = $event" @enter="submitClick" />
       <div class="field is-grouped">
         <div class="control">
           <button class="button is-link" @click="submitClick" :disabled="!validInput">Update</button>
@@ -25,13 +25,13 @@
 
 <script>
 import axios from 'axios';
-import ValidatedPasswordInput from '../components/validatedPasswordInput.vue';
+import ValidatedPasswordField from '../components/fields/validatedPassword.vue';
 import LoadingBanner from '../components/loadingBanner.vue';
 import Message from '../components/message.vue';
 
 export default {
   components: {
-    ValidatedPasswordInput,
+    ValidatedPasswordField,
     LoadingBanner,
     Message,
   },

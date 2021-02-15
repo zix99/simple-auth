@@ -61,7 +61,7 @@
         </p>
       </div>
 
-      <ValidatedPasswordInput
+      <ValidatedPasswordField
         :minlength="appdata.requirements.PasswordMinLength"
         :maxlength="appdata.requirements.PasswordMaxLength"
         v-model="password"
@@ -101,7 +101,7 @@ import validator from 'validator';
 import axios from 'axios';
 import CenterCard from '../components/centerCard.vue';
 import RecaptchaV2 from '../components/recaptchav2.vue';
-import ValidatedPasswordInput from '../components/validatedPasswordInput.vue';
+import ValidatedPasswordField from '../components/fields/validatedPassword.vue';
 import debounce from '../lib/debounce';
 
 const errorCodes = {
@@ -153,7 +153,7 @@ export default {
   components: {
     CenterCard,
     RecaptchaV2,
-    ValidatedPasswordInput,
+    ValidatedPasswordField,
   },
   computed: {
     validEmail() {

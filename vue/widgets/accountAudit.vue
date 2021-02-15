@@ -57,7 +57,7 @@ export default {
   },
   computed: {
     hasNextButton() {
-      return this.records.length >= this.limit;
+      return this.records && this.records.length >= this.limit;
     },
   },
   methods: {

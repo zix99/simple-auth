@@ -1,6 +1,6 @@
 <template>
     <div class="card my-3">
-        <header class="card-header">
+        <header class="card-header" v-if="title">
             <p class="card-header-title">{{title}}</p>
         </header>
         <div class="card-content">

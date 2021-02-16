@@ -8,6 +8,7 @@ simple-auth-server
 *.gen.go
 pkg/swagdocs
 /*.cover
+/bin/
 
 # Logs
 logs

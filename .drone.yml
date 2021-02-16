@@ -34,15 +34,15 @@ steps:
     - name: go-cache
       path: /go
     commands:
-      - go test -race ./...
-      - go vet $(go list ./... | grep -v "vendor")
+      - make unittest
+      - make vet
   - name: Server Static Check
     image: golang:1.15
     volumes:
     - name: go-cache
       path: /go
     commands:
-      - go run honnef.co/go/tools/cmd/staticcheck ./...
+      - make staticcheck
     depends_on:
       - Server Test
 
@@ -155,8 +155,8 @@ steps:
     - name: go-cache
       path: /go
     commands:
-      - go generate ./...
-      - go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
+      - make generate
+      - make swagger
       - mkdir -p bin/
     depends_on:
       - Node Dist
@@ -169,8 +169,25 @@ steps:
     environment:
       GOOS: linux
       GOARCH: amd64
+      TAG: ${DRONE_TAG}
+      COMMIT_SHA: ${DRONE_COMMIT_SHA}
     commands:
-      - go build -ldflags "-X main.version=${DRONE_TAG:-head} -X main.buildSha=${DRONE_COMMIT_SHA}" -tags box,swagger,prometheus -o bin/simple-auth-server simple-auth/cmd/server
+      - make server
+    depends_on:
+      - Server Generate
+
+  - name: CLI Build (Linux64)
+    image: golang:1.15
+    volumes:
+    - name: go-cache
+      path: /go
+    environment:
+      GOOS: linux
+      GOARCH: amd64
+      TAG: ${DRONE_TAG}
+      COMMIT_SHA: ${DRONE_COMMIT_SHA}
+    commands:
+      - make cli
     depends_on:
       - Server Generate
 
@@ -184,6 +201,7 @@ steps:
         - sha1
     depends_on:
       - Server Build (Linux64)
+      - CLI Build (Linux64)
     when:
       event: ['tag']
 

@@ -11,7 +11,6 @@ const (
 
 	// authOneTime
 	SAOneTimeInvalidToken saerrors.ErrorCode = "invalid-token"
-	SAOneTimeConsumed     saerrors.ErrorCode = "consumed"
 	SAOneTimeExpired      saerrors.ErrorCode = "expired"
 
 	// authLocal

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,7 +18,6 @@ type accountAuthOneTime struct {
 	AccountID uint   `gorm:"index;not null"`
 	Token     string `gorm:"index;not null"`
 	Expires   time.Time
-	Consumed  bool
 }
 
 func (s *sadb) CreateAccountOneTimeToken(account *Account, maxAge time.Duration) (string, error) {
@@ -32,7 +32,6 @@ func (s *sadb) CreateAccountOneTimeToken(account *Account, maxAge time.Duration)
 		AccountID: account.ID,
 		Token:     uuid.New().String(),
 		Expires:   time.Now().Add(maxAge),
-		Consumed:  false,
 	}
 
 	if err := s.db.Create(&token).Error; err != nil {
@@ -50,18 +49,18 @@ func (s *sadb) AssertOneTimeToken(token string) (*Account, error) {
 
 	var oneTimeToken accountAuthOneTime
 	if err := s.db.Where(&accountAuthOneTime{Token: token}).First(&oneTimeToken).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, SAOneTimeInvalidToken.New()
+		}
 		return nil, err
 	}
 
-	if oneTimeToken.Consumed {
-		return nil, SAOneTimeConsumed.New()
-	}
 	if time.Now().After(oneTimeToken.Expires) {
 		return nil, SAOneTimeExpired.New()
 	}
 
 	// consume the token
-	if err := s.db.Model(&oneTimeToken).Update(accountAuthOneTime{Consumed: true}).Error; err != nil {
+	if err := s.db.Delete(&oneTimeToken).Error; err != nil {
 		return nil, InternalError.Wrapf(err, "Error consuming token")
 	}
 

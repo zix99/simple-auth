@@ -29,7 +29,6 @@ type accountStipulation struct {
 	AccountID     uint `gorm:"index;not null"`
 	Type          StipulationType
 	Specification string
-	Satisfied     bool
 }
 
 func (s *sadb) AddStipulation(account *Account, spec IStipulation) error {
@@ -42,7 +41,6 @@ func (s *sadb) AddStipulation(account *Account, spec IStipulation) error {
 		AccountID:     account.ID,
 		Type:          spec.Type(),
 		Specification: string(specBytes),
-		Satisfied:     false,
 	}
 
 	return s.db.Create(stip).Error
@@ -50,7 +48,7 @@ func (s *sadb) AddStipulation(account *Account, spec IStipulation) error {
 
 func (s *sadb) findStipulations(account *Account, t StipulationType) ([]accountStipulation, error) {
 	var stips []accountStipulation
-	if err := s.db.Where("account_id = ? AND type = ? AND satisfied != 1", account.ID, t).Find(&stips).Error; err != nil {
+	if err := s.db.Where("account_id = ? AND type = ?", account.ID, t).Find(&stips).Error; err != nil {
 		return nil, err
 	}
 	return stips, nil
@@ -74,7 +72,7 @@ func (s *sadb) SatisfyStipulation(account *Account, satisfy IStipulation) error 
 			continue
 		}
 		if spec.IsSatisfiedBy(satisfy) {
-			err := s.db.Model(&st).Update(accountStipulation{Satisfied: true}).Error
+			err := s.db.Delete(&st).Error
 			if err != nil {
 				return err
 			}
@@ -90,7 +88,7 @@ func (s *sadb) SatisfyStipulation(account *Account, satisfy IStipulation) error 
 
 func (s *sadb) AccountHasUnsatisfiedStipulations(account *Account) bool {
 	var count int
-	if err := s.db.Model(&accountStipulation{}).Where("account_id = ? and not satisfied", account.ID).Count(&count).Error; err != nil {
+	if err := s.db.Model(&accountStipulation{}).Where("account_id = ?", account.ID).Count(&count).Error; err != nil {
 		return true
 	}
 
@@ -102,5 +100,5 @@ func (s *sadb) AccountHasUnsatisfiedStipulations(account *Account) bool {
 }
 
 func (s *sadb) ForceSatisfyStipulations(account *Account) error {
-	return s.db.Model(&accountStipulation{AccountID: account.ID}).Update(&accountStipulation{Satisfied: true}).Error
+	return s.db.Where("account_id = ?", account.ID).Delete(&accountStipulation{}).Error
 }

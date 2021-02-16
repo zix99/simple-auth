@@ -1,6 +1,3 @@
-ARG version=docker
-ARG buildsha=head
-
 # Build node app
 FROM node:12-slim AS nodebuild
 WORKDIR /opt/simple-auth
@@ -12,25 +9,22 @@ RUN npm run build
 
 # Build go app
 FROM golang:1.15-alpine AS gobuild
+ARG version=docker
+ARG buildSha=head
+
 RUN apk add build-base
 WORKDIR /opt/simple-auth
 COPY go.* ./
 RUN go mod download
 COPY . .
 COPY --from=nodebuild /opt/simple-auth/dist dist
-RUN go generate ./...
-RUN go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
-RUN go build \
-    -ldflags "-X main.version=${version} -X main.buildSha=${buildSha}" \
-    -tags box,prometheus,swagger \
-    -o simple-auth-server simple-auth/cmd/server
-RUN go build -tags boxconfig -o simple-auth-cli simple-auth/cmd/cli
+RUN TAG=${version} COMMIT_SHA=${buildSha} make build
 
 # Final image
 FROM alpine:latest
 WORKDIR /opt/simple-auth
-COPY --from=gobuild /opt/simple-auth/simple-auth-server .
-COPY --from=gobuild /opt/simple-auth/simple-auth-cli .
+COPY --from=gobuild /opt/simple-auth/bin/simple-auth-server .
+COPY --from=gobuild /opt/simple-auth/bin/simple-auth-cli .
 
 VOLUME /var/lib/simple-auth
 ENV SA_PRODUCTION=true \

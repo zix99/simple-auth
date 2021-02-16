@@ -1,15 +1,23 @@
 TAG ?= head
 COMMIT_SHA ?= devel
+OUT ?= bin/
 
-all: build
+all: vue build
 
-build: generate swagger server
+vue:
+	npm run build
+
+# GO Binary (May depend on npm commands first)
+
+build: generate swagger bin
+
+bin: server cli
 
 server:
-	go build -ldflags "-X main.version=${TAG} -X main.buildSha=${COMMIT_SHA}" -tags box,swagger,prometheus -o bin/simple-auth-server simple-auth/cmd/server
+	go build -ldflags "-X main.version=${TAG} -X main.buildSha=${COMMIT_SHA}" -tags box,swagger,prometheus -o ${OUT}simple-auth-server simple-auth/cmd/server
 
 cli:
-	go build -ldflags "-X main.version=${TAG} -X main.buildSha=${COMMIT_SHA}" -tags boxconfig -o bin/simple-auth-cli simple-auth/cmd/cli
+	go build -ldflags "-X main.version=${TAG} -X main.buildSha=${COMMIT_SHA}" -tags boxconfig -o ${OUT}simple-auth-cli simple-auth/cmd/cli
 
 rundev:
 	go run -tags swagger,prometheus simple-auth/cmd/server --include=simpleauth.yml

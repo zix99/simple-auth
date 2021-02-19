@@ -5,6 +5,9 @@ const repoUrl = "https://github.com/zix99/simple-auth/tree/master";
 module.exports = {
   title: "Simple Auth",
   description: "Simple White-Labeled Authentication Provider",
+  head: [
+    ['link', { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+  ],
   themeConfig: {
     repo,
     docsDir: 'docs',

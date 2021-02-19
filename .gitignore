@@ -4,7 +4,6 @@ simpleauth.yml
 /*.db-journal
 /dist/
 simple-auth-server
-/static/
 *.gen.go
 pkg/swagdocs
 /*.cover

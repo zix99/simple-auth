@@ -1,3 +1,4 @@
+const repo = 'zix99/simple-auth';
 const docsUrl = "https://simple-auth.surge.sh";
 const repoUrl = "https://github.com/zix99/simple-auth/tree/master";
 
@@ -5,13 +6,16 @@ module.exports = {
   title: "Simple Auth",
   description: "Simple White-Labeled Authentication Provider",
   themeConfig: {
+    repo,
+    docsDir: 'docs',
+    editLinks: true,
+    editLinkText: 'Help us improve this page!',
     repoUrl,
     docsUrl,
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Quickstart', link: '/quickstart' },
       { text: 'API Docs', link: `${docsUrl}/api` },
-      { text: 'Source', link: repoUrl },
     ],
     sidebar: [
       {
@@ -44,6 +48,7 @@ module.exports = {
         children: [
           '/authenticators/simple',
           '/authenticators/vouch',
+          '/authenticators/oauth2',
         ],
       },
       {

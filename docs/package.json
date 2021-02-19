@@ -20,7 +20,7 @@
     "mermaid": "^8.8.4",
     "spectacle-docs": "^1.1.0",
     "surge": "^0.21.7",
-    "vuepress": "^1.7.1"
+    "vuepress": "^1.8.1"
   },
   "devDependencies": {
     "broken-link-checker": "^0.7.8",

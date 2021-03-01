@@ -85,6 +85,7 @@ export default {
         'invalid-credentials': 'Your username or password is invalid',
         'unsatisfied-stipulations': 'Your account has a hold on it',
         inactive: 'Your account is marked as inactive. Please contact an administrator if this is a mistake',
+        'session-disabled': 'Login has been disabled for this host. Please contact administrator',
       },
     };
   },

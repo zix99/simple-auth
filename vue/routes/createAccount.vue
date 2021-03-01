@@ -222,8 +222,10 @@ export default {
             setTimeout(() => {
               this.$router.push('/login-redirect');
             }, 2.5 * 1000);
+          } else if (resp.data.hasStipulations) {
+            this.successMessage = 'Account created, but needs verification before logging in. Please check your email for instructions.';
           } else {
-            this.successMessage = 'Account created, but needs email verification before logging in. Please check your email.';
+            this.successMessage = 'Account created';
           }
         }).catch((err) => {
           if (err.response.data && err.response.data.reason && errorCodes[err.response.data.reason]) {

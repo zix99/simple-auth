@@ -238,7 +238,7 @@ steps:
     - name: go-cache
       path: /go
     commands:
-      - go run github.com/swaggo/swag/cmd/swag init -o pkg/swagdocs -g pkg/routes/api/api.go
+      - make swagger
   - name: Code Coverage Build
     image: golang:1.15
     commands:

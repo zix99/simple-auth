@@ -54,6 +54,10 @@ This is an example setup using a docker-compose file to specify the config for a
 
 If you use a standalone applicable, you only need to set `SA_DB_DRIVER` and `SA_DB_URL`
 
+<<< @/examples/postgres/docker-compose.yml#pgconfig
+
+#### Docker-Compose
+
 <<< @/examples/postgres/docker-compose.yml
 
 ### Mysql
@@ -61,5 +65,9 @@ If you use a standalone applicable, you only need to set `SA_DB_DRIVER` and `SA_
 ::: warning
 Make sure to set `?charset=utf8&parseTime=True&loc=Local` on the connection, otherwise you will receive errors
 :::
+
+<<< @/examples/mysql/docker-compose.yml#myconfig
+
+#### Docker-Compose
 
 <<< @/examples/mysql/docker-compose.yml

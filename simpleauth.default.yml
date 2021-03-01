@@ -21,7 +21,8 @@ web:
         keyfile: null    # Key file, if enabled (and not auto)
         # AutoTLS (and cache) are used to leverage LetsEncrypt to acquire certificate
         # Needs to be internet-facing to work
-        auto: true
+        auto: true       # If false, will use certfile and keyfile instead of letsencrypt
+        autohosts: []    # Optional list of hosts that we're allowed to issue a cert for
         cache: ./
     # Login section for setting different ways a user is allowed to login
     login:

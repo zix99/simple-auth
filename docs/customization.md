@@ -12,6 +12,7 @@ The relevant configuration section is `metadata`:
 metadata:
     company: "My Company"
     footer: ""
+    tagline: null
     bucket: {} # Not used by default. Can be used to customize
 ```
 

@@ -116,6 +116,9 @@ func simpleAuthServer(config *config.Config) error {
 	log.Infof("Starting server on http://%v", config.Web.Host)
 	if config.Web.TLS.Enabled {
 		if config.Web.TLS.Auto {
+			if len(config.Web.TLS.AutoHosts) > 0 {
+				e.AutoTLSManager.HostPolicy = autocert.HostWhitelist(config.Web.TLS.AutoHosts...)
+			}
 			e.AutoTLSManager.Cache = autocert.DirCache(config.Web.TLS.Cache)
 			return e.StartAutoTLS(config.Web.Host)
 		} else {

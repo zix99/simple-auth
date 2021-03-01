@@ -30,7 +30,7 @@ authenticators:
 
 The following example will set up a docker-compose stack that has a static page sit behind simple-auth's security.
 
-#### docker-compose
+#### docker-compose.yml
 
 <<< @/examples/docker-nginx/docker-compose.yml
 

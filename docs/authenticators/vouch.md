@@ -14,3 +14,7 @@ authenticators:
 ## Making a request
 
 From the same-domain (making sure cookies are passed) make a **GET** request to `/api/v1/auth/vouch`.  It will return 200 on success, otherwise 401
+
+## See Also
+
+- [nginx auth_request](/cookbooks/nginx-auth-request.md) - Using vouch with nginx

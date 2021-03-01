@@ -10,7 +10,7 @@ more security, please consider using an [RSA Key-Pair](/cookbooks/signingkey-pai
 
 ## Setting up for same-domain
 
-The biggest thing for setting-up for same-domain is making sure that the cookie is on the correct
+The most important item for setting-up for same-domain is making sure that the cookie is on the correct
 top-level domain.  For this example, we'll have our content on `example.com` and *simple-auth* will
 be on `auth.example.com`
 
@@ -36,10 +36,28 @@ web:
             domain: example.com
 ```
 
-## Validating the JWT
+## Cookie
+
+::: tip
+The cookie name can be set by `web.login.cookie.name`, and by default it is `auth`.
+:::
+
+::: danger
+You must validate the cookie using a JWT library and the `signingkey`.  If you don't, it's possible for anyone to forge the cookie!
+:::
+
+Once logged-in, the cookie will be set according to the config in `web.login.cooke` as a JWT.  This cookie is also used to login and display the *simple-auth* management UI.
+
+
+### Validating the JWT
 
 Because anyone can form a JWT (not encrypted, just signed), you need to make sure to check the signature
 in your application before processing any data.
 
 Since there are so many languages, I'll refer you to [jwt.io](https://jwt.io/) which has numerous implementations and
 examples.  You can also check out [RFC7519](https://tools.ietf.org/html/rfc7519)
+
+## See Also
+
+* [jwt.io](https://jwt.io/)
+* [Same Domain Cookie Auth using Traefik](/cookbooks/traefik.md)

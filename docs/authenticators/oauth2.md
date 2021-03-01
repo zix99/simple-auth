@@ -354,6 +354,10 @@ authenticators:
 
 <<< @/examples/oidctest/index.js
 
+**config.js**
+
+<<< @/examples/oidctest/config.js
+
 ## See Also
 
 - [Learn about OAuth on OAuth.com](https://www.oauth.com/)

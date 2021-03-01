@@ -11,7 +11,7 @@ look at [nginx auth request](/cookbooks/nginx-auth-request).
 :::
 
 ::: warning
-If *simple-auth* acts as a reverse proxy to your site, that depends on you securing your site in a different way (firewall rules, etc).
+If *simple-auth* acts as a reverse proxy to your site, that depends on you securing your site in a different way (firewall rules, docker network, etc).
 :::
 
 <mermaid>
@@ -20,16 +20,28 @@ A{User} -- Web Request --> B[Simple-Auth]
 B -- Proxies --> C[Backend]
 </mermaid>
 
+## Config
+
 ```yaml
 web:
   gateway:
-    enabled: true
+    enabled: false
     logoutpath: "/logout"  # Special path that will act as "logout" (clear session).  Shouldn't conflict with any downstream URLs
-    targets:
-      - example.com
-    host: example.com
+    targets: []            # One or more downstream servers that SA will proxy to
+    host: null             # Override the host header
+    rewrite: null          # Rewrite URLs upon proxying eg "/old"->"/new" or "/api/*"->"/$1"
+    headers: null          # Write additional headers (excluding host header)
     nocache: true          # If true, will attempt to disable caching to gateway target
 ```
+
+For example:
+
+<<< @/examples/sh/gateway.sh
+
+::: tip
+If you aren't seeing the downstream page you expect, you might need to set the `host` header
+via the `web.gateway.host` config.
+:::
 
 ## Headers
 

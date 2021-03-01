@@ -18,8 +18,9 @@ type createAccountRequest struct {
 }
 
 type createAccountResponse struct {
-	ID             string `json:"id"`                       // ID of the created user
-	CreatedSession bool   `json:"createdSession,omitempty"` // Did create session
+	ID              string `json:"id"`                        // ID of the created user
+	CreatedSession  bool   `json:"createdSession,omitempty"`  // Did create session
+	HasStipulations bool   `json:"hasStipulations,omitempty"` // Upon success creating, whether or not account needs email
 }
 
 // RouteCreateAccount creates a new account from echo context
@@ -63,10 +64,11 @@ func (env *Environment) RouteCreateAccount(c echo.Context) error {
 	}
 
 	ret := &createAccountResponse{
-		ID: account.UUID,
+		ID:              account.UUID,
+		HasStipulations: accountService.HasUnsatisfiedStipulations(account),
 	}
 
-	if createSession && !accountService.HasUnsatisfiedStipulations(account) {
+	if createSession && !ret.HasStipulations {
 		if err := auth.CreateSession(c, env.loginConfig, account, auth.SourceLogin); err == nil {
 			ret.CreatedSession = true
 		} else {

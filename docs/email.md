@@ -7,9 +7,12 @@ Email is optional for *simple-auth*, though it does enable some useful features 
 
 ## Engines
 
-Simple-auth has the ability to support multiple engines, but the only one that sends out email right now is `SMTP`
+::: warning
+The default email engine is `noop`, which won't send any emails. In order to enable features like *Forgot Password*,
+you must configure an engine that will send emails to the user.
+:::
 
-The default engine is `noop`
+Simple-auth has the ability to support multiple engines, but the only one that sends out email right now is `SMTP`
 
 ```yaml
 email:
@@ -22,7 +25,7 @@ No emails, no logging. Default.
 
 ### Stdout
 
-Outputs the emails to the log. Useful mostly for debugging
+Outputs the email body to the log. Useful mostly for debugging.
 
 ### SMTP
 

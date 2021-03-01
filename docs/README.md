@@ -24,21 +24,28 @@ Looking to get started? See [Quickstart](quickstart)
 
 **Common use-cases include:**
 
-- Stand-alone user management (signup), and [credential validation via API](/authenticators/simple)
-- Reverse proxy to downstream service blocked by login ([gateway](/access/gateway))
-- Per-request [vouching](/authenticators/vouch) (eg. for NGINX `auth_request` to act as a validator for login), to act as an authentication portal
-- [Same-domain/subdomain login](/access/cookie) provider via cookie validation
-- Various API implementations to [authenticate a user](/login) (Simple username/password, OIDC, etc)
+- Local user management (create account, login, [TOTP two-factor](/login/local.md#totp-2fa))
+- [Credential validation via API](/authenticators/simple.md) and [OAuth2 / OIDC](/authenticators/oauth2.md)
+- Reverse proxy to downstream service blocked by login ([gateway](/access/gateway.md))
+- Per-request [vouching](/authenticators/vouch.md) (eg. for NGINX `auth_request` to act as a validator for login), to act as an authentication portal
+- [Same-domain/subdomain login](/access/cookie.md) provider via cookie validation
+- Various API implementations to [authenticate a user](/login) (Local username/password, third-party OIDC, etc)
 
 **And it providers the common functionality:**
 
-- "Simple" credentials (Username, password, and optionally TOTP/2FA)
-- [OpenID Connect Login](/login/oidc) (OIDC) eg. Google Auth
-- Welcome email, and optional user email verification
+- [OpenID Connect Login](/login/oidc.md) (OIDC) eg. Google Auth
+- Optional [welcome email and email-verification](/email.md)
 - Forgot/lost password
 - Login/access-attempt auditing
 - <a :href="`${$themeConfig.docsUrl}/api`">REST API</a> to all underlying functionality
 - Mobile friendly
+- Whitelabel the deployment using [customizations](/customization.md)
+
+## Why Not...
+
+There are plenty of other authentication providers out there.  You can always roll your own, or use another open-source one like [Okta](https://www.okta.com/), [Gluu](https://www.gluu.org/) or [Keycloak](https://www.keycloak.org/).  While these services are perfectly fine (they're great, infact), *simple-auth* tries to be ***simple***.  Our [quickstart](quickstart.md) is incredibly short, and the hosting modes allow **zero-to-fully setup in less than 5 minutes**.
+
+Long story short, if you have the usecase and time to look at another provider, please do! If you're looking for something simple and easy to get started with, *simple-auth* may be for you.
 
 ## Concepts
 
@@ -53,7 +60,8 @@ graph TD
 A[Account]
 A --> B[Local Auth]
 B --> B2[TOTP/2FA]
-A --> C[OIDC Provider]
+A --> C[OAuth2]
+A --> E[One-Time Auth]
 A --> D{Audit Log}
 </mermaid>
 
@@ -62,10 +70,10 @@ A --> D{Audit Log}
 By default, simple-auth is split into three layers:
 
 1. **Login Providers**: The mechanisms that allow creating an account object
-1. **Authentication Providers (API)**: How dowstream apps can query
+1. **Authentication Providers (API)**: How dowstream apps can authenticate
 1. **Access Layer**: How web applications can authenticate with simple-auth
 
-You can find more information on all three layers on the left.
+You can find more information on all three layers on the left. Not all 3 layers are required for a functional setup.
 
 ## Login Providers
 

@@ -1,6 +1,7 @@
 const repo = 'zix99/simple-auth';
 const docsUrl = "https://simple-auth.surge.sh";
-const repoUrl = "https://github.com/zix99/simple-auth/tree/master";
+const repoUrl = `https://github.com/${repo}`;
+const fileUrl = `${repoUrl}/tree/master`
 
 module.exports = {
   title: "Simple Auth",
@@ -14,6 +15,7 @@ module.exports = {
     editLinks: true,
     editLinkText: 'Help us improve this page!',
     repoUrl,
+    fileUrl,
     docsUrl,
     nav: [
       { text: 'Home', link: '/' },
@@ -28,6 +30,7 @@ module.exports = {
         sidebarDepth: 2,
         children: [
           '/quickstart',
+          '/download',
           '/config',
           '/customization',
           '/email',
@@ -73,6 +76,8 @@ module.exports = {
           '/cookbooks/decodejwt',
           '/cookbooks/signingkey-pair',
           '/cookbooks/login-redirect',
+          '/cookbooks/restrictcreateuser',
+          '/cookbooks/letsencrypt',
         ],
       },
       {

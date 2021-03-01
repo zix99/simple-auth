@@ -20,7 +20,7 @@
       </tbody>
     </table>
     <div class="has-text-right">
-      <button class="button is-light" @click="prevPage">Previous</button>
+      <button class="button is-light" @click="prevPage" :disabled="!hasPrevButton">Previous</button>
       <button class="button is-light" @click="nextPage" :disabled="!hasNextButton">Next</button>
     </div>
   </div>
@@ -58,6 +58,9 @@ export default {
   computed: {
     hasNextButton() {
       return this.records && this.records.length >= this.limit;
+    },
+    hasPrevButton() {
+      return this.offset > 0;
     },
   },
   methods: {

@@ -1,6 +1,6 @@
 # Access Layer
 
-The access layer allows users to access contents via *simple-auth*.
+The access layer allows users to access content via *simple-auth*.
 
 This primarily takes two forms:
 * [Same-domain cookie](cookie)

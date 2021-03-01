@@ -4,7 +4,7 @@
       <div class="box has-text-centered">
         <h2 class="subtitle" v-if="!appdata.login.continue">{{appdata.company}} Account Management</h2>
 
-        <div v-if="appdata.login.continue">
+        <div v-if="appdata.login.continue" class="content">
           <h2 class="subtitle">{{appdata.company}} Login</h2>
           <p v-if="isRemoteContinue">After logging in, you will be redirected to:<br /><strong>{{appdata.login.continue}}</strong></p>
           <p v-if="isOAuth2Continue">After logging in, you will redirect back to the Application Login Page</p>

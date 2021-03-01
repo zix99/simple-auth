@@ -131,11 +131,12 @@ type (
 	}
 
 	ConfigWebTLS struct {
-		Enabled  bool
-		Auto     bool   // Auto get certificate via Let's Encrypt
-		Cache    string // If auto TLS, directory certs to be stored
-		CertFile string // If not auto, cert
-		KeyFile  string // If not auto, key
+		Enabled   bool
+		Auto      bool     // Auto get certificate via Let's Encrypt
+		AutoHosts []string // Hosts allowed to issue cert for (optional)
+		Cache     string   // If auto TLS, directory certs to be stored
+		CertFile  string   // If not auto, cert
+		KeyFile   string   // If not auto, key
 	}
 
 	ConfigWeb struct {

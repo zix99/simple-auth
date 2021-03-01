@@ -6,6 +6,7 @@ import (
 	"simple-auth/pkg/instrumentation"
 	"simple-auth/pkg/routes/common"
 	"simple-auth/pkg/routes/middleware/selector/auth"
+	"simple-auth/pkg/saerrors"
 
 	"github.com/labstack/echo/v4"
 )
@@ -17,6 +18,14 @@ type loginRequest struct {
 	Password string  `json:"password" validate:"required"`
 	Totp     *string `json:"totp"`
 }
+
+type loginResponse struct {
+	ID string `json:"id"` // Account ID
+}
+
+const (
+	ErrSessionDisabled saerrors.ErrorCode = "session-disabled"
+)
 
 // @Summary Session Login
 // @Description Login to a session with username and password, and set cookie
@@ -48,13 +57,13 @@ func (env *Environment) RouteSessionLogin(c echo.Context) error {
 	logger.Infof("Login for user '%s' accepted", req.Username)
 
 	if err := env.sessionService.IssueSession(c, authLocal, auth.SourceLogin); err != nil {
-		return common.HttpError(c, http.StatusInternalServerError, err)
+		return common.HttpError(c, http.StatusInternalServerError, ErrSessionDisabled.Wrap(err))
 	}
 
 	loginCounter.Inc(true)
 
-	return c.JSON(http.StatusOK, common.Json{
-		"ok": true,
+	return c.JSON(http.StatusOK, loginResponse{
+		ID: authLocal.Account().UUID,
 	})
 }
 

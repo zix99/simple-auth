@@ -13,7 +13,7 @@ For added security, you can provide a list of hostnames that we're allowed to is
 ```yaml
 web:
     tls:
-        enabled: false
+        enabled: true
         certfile: null   # Certificate file, if enabled (and not auto)
         keyfile: null    # Key file, if enabled (and not auto)
         # AutoTLS (and cache) are used to leverage LetsEncrypt to acquire certificate

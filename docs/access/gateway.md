@@ -25,10 +25,11 @@ B -- Proxies --> C[Backend]
 ```yaml
 web:
   gateway:
-    enabled: false
+    enabled: true
     logoutpath: "/logout"  # Special path that will act as "logout" (clear session).  Shouldn't conflict with any downstream URLs
-    targets: []            # One or more downstream servers that SA will proxy to
-    host: null             # Override the host header
+    targets:               # One or more downstream servers that SA will proxy to
+      - example.com
+    host: example.com      # Override the host header
     rewrite: null          # Rewrite URLs upon proxying eg "/old"->"/new" or "/api/*"->"/$1"
     headers: null          # Write additional headers (excluding host header)
     nocache: true          # If true, will attempt to disable caching to gateway target

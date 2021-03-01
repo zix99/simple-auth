@@ -16,7 +16,7 @@ A -- auth.example.com --> C[Simple-auth]
 In this case, we use a same-domain cookie sharing technique, described [here](/access/cookie)
 
 ::: danger
-This is an example config, and doesn't have SSL enabled by default. [Traefik supports SSL](https://doc.traefik.io/traefik-subdomain/https/overview/).
+This is an example config, and doesn't have SSL enabled by default. [Traefik supports SSL](https://doc.traefik.io/traefik/https/overview/).
 Make sure to enable it so that username and password are encrypted in transit!
 :::
 

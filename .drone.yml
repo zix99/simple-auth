@@ -83,7 +83,9 @@ name: Docker Build
 depends_on:
   - Verify
 trigger:
-  branch: ['master']
+  ref:
+    - refs/heads/master
+    - refs/tags/*
   event: ['push', 'pull_request', 'tag']
 
 steps:
@@ -130,7 +132,9 @@ name: Binary Build
 depends_on:
   - Verify
 trigger:
-  branch: ['master']
+  ref:
+    - refs/heads/master
+    - refs/tags/*
   event: ['push', 'pull_request', 'tag']
 
 steps:
@@ -288,7 +292,9 @@ type: docker
 name: Sync
 
 trigger:
-  branch: ['master']
+  ref:
+    - refs/heads/master
+    - refs/tags/*
   event: ['push', 'pull_request', 'tag']
 
 depends_on:

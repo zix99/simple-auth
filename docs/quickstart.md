@@ -63,7 +63,7 @@ Read more in the [Gateway](/access/gateway.md) docs
 
 ## TLS
 
-If *simple-auth* is exposed to the public interenet, you should use TLS encryption.  If you use a proxy, it might provide TLS for you.  If not, *simple-auth* has the ability to issue a valid certificate via [Let's Encrypt](https://letsencrypt.org/)
+If *simple-auth* is exposed to the public internet, you should use TLS encryption.  If you use a proxy, it might provide TLS for you.  If not, *simple-auth* has the ability to issue a valid certificate via [Let's Encrypt](https://letsencrypt.org/)
 
 To enable, simply set `web.tls.enabled` to `true`.
 

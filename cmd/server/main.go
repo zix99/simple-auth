@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"simple-auth/pkg/appcontext"
 	"simple-auth/pkg/box"
@@ -131,7 +133,7 @@ func simpleAuthServer(config *config.Config) error {
 
 func main() {
 	err := simpleAuthServer(config.Load(os.Args[1:]...))
-	if err != nil {
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logrus.Fatal(err)
 	}
 }

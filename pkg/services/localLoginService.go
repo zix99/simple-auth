@@ -19,7 +19,6 @@ type LocalLoginService interface {
 	Create(account *db.Account, username, password string) (*db.AuthLocal, error)
 	UsernameExists(username string) (bool, error)
 
-	AssertLoginCredentialsOnly(username, password string) (*db.AuthLocal, error)
 	AssertLogin(usernameOrEmail, password string, totpCode *string) (*db.AuthLocal, error)
 
 	ActivateTOTP(authLocal *db.AuthLocal, otp *totp.Totp, code string) error
@@ -189,19 +188,6 @@ func (s *localLoginService) AssertLogin(usernameOrEmail, password string, totpCo
 	}
 
 	s.dbAudit.CreateAuditRecord(localAuth, db.AuditModuleLocal, db.AuditLevelInfo, "Login Successful")
-
-	return localAuth, nil
-}
-
-func (s *localLoginService) AssertLoginCredentialsOnly(username, password string) (*db.AuthLocal, error) {
-	localAuth, err := s.dbAuth.FindAuthLocalByUsername(username)
-	if err != nil {
-		return nil, LocalInvalidCredentials.Wrap(err)
-	}
-
-	if err := s.assertLoginCredentials(localAuth, password); err != nil {
-		return nil, err
-	}
 
 	return localAuth, nil
 }

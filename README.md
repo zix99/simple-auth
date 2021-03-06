@@ -30,14 +30,13 @@ Two commands need to be run to dev:
 npm run dev
 
 # Runs the server
-go run simple-auth/cmd/server
+make rundev
 ```
 
 ## Building
 
 ```
-go build -o simple-auth-server simple-auth/cmd/server
-npm run build
+make
 ```
 
 OR with docker

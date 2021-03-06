@@ -295,7 +295,7 @@ trigger:
   ref:
     - refs/heads/master
     - refs/tags/*
-  event: ['push', 'pull_request', 'tag']
+  event: ['push', 'pull_request']
 
 depends_on:
   - Verify

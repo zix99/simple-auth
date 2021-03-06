@@ -37,7 +37,11 @@ func setFromString(v *reflect.Value, val string) error {
 // setDeeply sets a struct object to a value given a named-path
 func setDeeply(obj interface{}, val string, path ...string) error {
 	v := reflect.Indirect(reflect.ValueOf(obj))
+
 	for _, s := range path {
+		if v.Kind() != reflect.Struct {
+			return fmt.Errorf("%s is not an object", s)
+		}
 		v = v.FieldByNameFunc(func(fName string) bool {
 			return strings.ToLower(fName) == s
 		})

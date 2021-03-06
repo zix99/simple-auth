@@ -40,13 +40,14 @@ func (env *SimpleAuthController) Mount(group *echo.Group) {
 }
 
 type simpleAuthRequest struct {
-	Username string  `json:"username" form:"username"`
+	Username string  `json:"username" form:"username"` // Username or email
 	Password string  `json:"password" form:"password"`
 	TOTP     *string `json:"totp" form:"totp"`
 }
 
 type simpleAuthResponse struct {
-	ID string `json:"id"` // Account ID
+	ID       string `json:"id"`       // Account ID
+	Username string `json:"username"` // Username of the account
 }
 
 // @Summary Authenticate
@@ -90,6 +91,7 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 	incAuthCounterSuccess(metricName)
 
 	return c.JSON(http.StatusOK, simpleAuthResponse{
-		ID: authLocal.Account().UUID,
+		ID:       authLocal.Account().UUID,
+		Username: authLocal.Username(),
 	})
 }

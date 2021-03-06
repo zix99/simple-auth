@@ -265,10 +265,25 @@ describe('oauth', () => {
 });
 
 describe('oauth2#credentials', () => {
-  it('should allow granting token via credentials', () => {
+  it('should allow granting token via credentials using username', () => {
     return http.post('/api/v1/auth/oauth2/token', {
       grant_type: 'password',
       username: 'oauthtest',
+      password: 'test-pass',
+      scope: 'a',
+      client_id: 'testid',
+      client_secret: 'client-secret',
+    }).then((resp) => {
+      assert.notEmpty(resp.data.access_token);
+      assert.notEmpty(resp.data.refresh_token);
+      assert.notEmpty(resp.data.id_token);
+    });
+  });
+
+  it('should allow granting token via credentials using email', () => {
+    return http.post('/api/v1/auth/oauth2/token', {
+      grant_type: 'password',
+      username: 'oauth@example.com',
       password: 'test-pass',
       scope: 'a',
       client_id: 'testid',

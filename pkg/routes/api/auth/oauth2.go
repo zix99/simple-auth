@@ -337,7 +337,7 @@ type grantTokenRequest struct {
 	RedirectURI string `form:"redirect_uri" json:"redirect_uri"`
 
 	// grantType == "password"
-	Username string  `form:"username" json:"username"`
+	Username string  `form:"username" json:"username"` // Email will work here as well
 	Password string  `form:"password" json:"password"`
 	Totp     *string `form:"totp" json:"totp"`
 	Scope    string  `form:"scope" json:"scope"`

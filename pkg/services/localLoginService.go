@@ -20,7 +20,7 @@ type LocalLoginService interface {
 	UsernameExists(username string) (bool, error)
 
 	AssertLoginCredentialsOnly(username, password string) (*db.AuthLocal, error)
-	AssertLogin(username, password string, totpCode *string) (*db.AuthLocal, error)
+	AssertLogin(usernameOrEmail, password string, totpCode *string) (*db.AuthLocal, error)
 
 	ActivateTOTP(authLocal *db.AuthLocal, otp *totp.Totp, code string) error
 	DeactivateTOTP(authLocal *db.AuthLocal, code string) error
@@ -165,10 +165,13 @@ func (s *localLoginService) validatePassword(password string) error {
 	return nil
 }
 
-func (s *localLoginService) AssertLogin(username, password string, totpCode *string) (*db.AuthLocal, error) {
-	localAuth, err := s.dbAuth.FindAuthLocalByUsername(username)
+func (s *localLoginService) AssertLogin(usernameOrEmail, password string, totpCode *string) (*db.AuthLocal, error) {
+	localAuth, err := s.dbAuth.FindAuthLocalByEmail(usernameOrEmail)
 	if err != nil {
-		return nil, LocalInvalidCredentials.Wrap(err)
+		localAuth, err = s.dbAuth.FindAuthLocalByUsername(usernameOrEmail)
+		if err != nil {
+			return nil, LocalInvalidCredentials.Wrap(err)
+		}
 	}
 
 	if err := s.assertLoginCredentials(localAuth, password); err != nil {

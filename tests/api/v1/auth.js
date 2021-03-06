@@ -35,6 +35,15 @@ describe('auth-endpoints', () => {
         });
     });
 
+    it('Should allow login with email/password', () => {
+      const payload = { username: 'tps2@example.com', password: 'test-pass' };
+      return http.post('/api/v1/auth/simple', payload, defaultOpts)
+        .then((resp) => {
+          assert.equal(resp.status, 200);
+          assert.equal(resp.data.id, testUser.id);
+        });
+    });
+
     it('Should return 403 if error logging in', () => {
       const payload = { username: 'authtest', password: 'bad-pass' };
       return http.post('/api/v1/auth/simple', payload, defaultOpts)

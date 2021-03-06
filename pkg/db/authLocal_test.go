@@ -66,6 +66,19 @@ func TestFindByUsernameFail(t *testing.T) {
 	assert.Nil(t, authLocal)
 }
 
+func TestSimpleAuthLookupByEmail(t *testing.T) {
+	authLocal, err := sadb.FindAuthLocalByEmail(authSimpleEmail)
+	assert.NoError(t, err)
+	assert.NotNil(t, authLocal)
+	assert.Equal(t, authSimpleEmail, authLocal.Account().Email)
+}
+
+func TestSimpleAuthLookupByEmailFail(t *testing.T) {
+	authLocal, err := sadb.FindAuthLocalByEmail("bad-email@bad.com")
+	assert.Error(t, err)
+	assert.Nil(t, authLocal)
+}
+
 func TestCreateDupeUsername(t *testing.T) {
 	authLocal, err := sadb.CreateAuthLocal(authSimpleAccount, authSimpleUsername, authSimplePassword)
 	assert.Error(t, err)

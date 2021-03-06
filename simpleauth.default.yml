@@ -1,4 +1,4 @@
-production: false           # Production-level optimization
+production: true           # Production-level optimization
 verbose: false              # Enable debug-level logging
 staticfromdisk: false       # Before looking at internal storage for static content, check disk (primarily for debugging)
 include: []                 # Other files that should be loaded as config
@@ -23,7 +23,7 @@ web:
         # Needs to be internet-facing to work
         auto: true       # If false, will use certfile and keyfile instead of letsencrypt
         autohosts: []    # Optional list of hosts that we're allowed to issue a cert for
-        cache: ./
+        cache: ./tlscache # Path to cache certificates in. Will be created if doesn't exist
     # Login section for setting different ways a user is allowed to login
     login:
         settings:
@@ -82,7 +82,7 @@ providers:
     local:
         emailvalidationrequired: false  # If email validation is required before login
         requirements:
-            usernameregex: '^[a-z][a-z0-9.]+$'
+            usernameregex: '^[a-z][a-z0-9.]+$' # Valid characters for username.  Make sure not to include '@', or might compete with email addresses
             passwordminlength: 3
             passwordmaxlength: 30
             usernameminlength: 5
@@ -134,7 +134,7 @@ authenticators:
 # All of the API endpoints that the UI uses are also available for API calls
 # if this is enabled
 api:
-    external: false
+    external: false       # If true, will allow access to the API via external (non-ui) requests
     sharedsecret: ""      # A shared-key secret that allows making API calls via the Authorization header (see docs for more detail)
     throttleduration: 1s  # Throttle on public-facing APIs (even if non-external)
 

@@ -12,6 +12,7 @@ import (
 type AccountAuthLocal interface {
 	FindAuthLocal(account *Account) (*AuthLocal, error)
 	FindAuthLocalByUsername(username string) (*AuthLocal, error)
+	FindAuthLocalByEmail(email string) (*AuthLocal, error)
 
 	CreateAuthLocal(belongsTo *Account, username, password string) (*AuthLocal, error)
 
@@ -96,6 +97,23 @@ func (s *sadb) FindAuthLocalByUsername(username string) (*AuthLocal, error) {
 	return &AuthLocal{
 		auth:    &localAuth,
 		account: &account,
+	}, nil
+}
+
+func (s *sadb) FindAuthLocalByEmail(email string) (*AuthLocal, error) {
+	account, err := s.FindAccountByEmail(email)
+	if err != nil {
+		return nil, InvalidAccount.Wrap(err)
+	}
+
+	var localAuth accountAuthLocal
+	if err := s.db.Model(account).Related(&localAuth).Error; err != nil {
+		return nil, InvalidAccount.Wrap(err)
+	}
+
+	return &AuthLocal{
+		auth:    &localAuth,
+		account: account,
 	}, nil
 }
 

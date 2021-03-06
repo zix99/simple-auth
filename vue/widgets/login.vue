@@ -10,9 +10,9 @@
 
     <div v-if="state === 'login'">
       <div class="field">
-        <label class="label">Username</label>
+        <label class="label">Username or Email</label>
         <div class="control has-icons-left">
-          <input class="input" type="text" placeholder="Text Input" v-model="username" @keypress.enter="submitClick" v-focus />
+          <input class="input" type="text" placeholder="Username" v-model="username" @keypress.enter="submitClick" v-focus />
           <span class="icon is-small is-left">
             <fa-icon icon="user" />
           </span>

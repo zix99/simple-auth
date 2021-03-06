@@ -6,6 +6,7 @@ const routes = [
   ['POST', '/api/v1/account', { username: 'skeediddle', password: 'test-pass', email: 'test-create@example.com' }],
   ['POST', '/api/v1/account/check', { username: 'skeedoo' }],
   ['POST', '/api/v1/auth/session', { username: 'skeediddle', password: 'test-pass' }],
+  ['POST', '/api/v1/auth/session', { username: 'test-create@example.com', password: 'test-pass' }],
   ['DELETE', '/api/v1/auth/session'],
   ['POST', '/api/v1/auth/onetime', { email: 'test-create@example.com' }],
 ];

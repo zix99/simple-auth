@@ -22,7 +22,7 @@ authenticators:
 **Body:**
 ```json
 {
-  "username": "chris",
+  "username": "chris", // email can also be used here
   "password": "super-secret",
   "totp": "123456" // Optional
 }

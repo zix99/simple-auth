@@ -224,7 +224,7 @@ Please note, this will **only work for local accounts** (and not 3rd party accou
 ```json
 {
   "grant_type": "password",
-  "username": "oauthtest",
+  "username": "oauthtest", // This can also be an email
   "password": "test-pass",
   // If the user has TOTP enabled, a code will need to be provided.
   // It also must be enabled on the server

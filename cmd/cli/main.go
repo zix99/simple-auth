@@ -20,6 +20,7 @@ func cliMain(args ...string) error {
 			cmdOneTime,
 			cmdStipulation,
 			cmdConfig,
+			cmdQuery,
 		},
 		Copyright: `simple-auth  Copyright (C) 2020 Chris LaPointe
 		This program comes with ABSOLUTELY NO WARRANTY.

@@ -12,6 +12,8 @@ type AccountStore interface {
 	CreateAccount(name, email string) (*Account, error)
 	FindAccount(uuid string) (*Account, error)
 	FindAccountByEmail(email string) (*Account, error)
+
+	GetAllAccounts(itr func(account *Account) bool) error
 }
 
 type AccountProvider interface {
@@ -75,4 +77,22 @@ func (s *sadb) FindAccountByEmail(email string) (*Account, error) {
 		return nil, err
 	}
 	return &account, err
+}
+
+func (s *sadb) GetAllAccounts(itr func(account *Account) bool) error {
+	rows, err := s.db.Model(&Account{}).Rows()
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var account Account
+		s.db.ScanRows(rows, &account)
+		if itr(&account) {
+			break
+		}
+	}
+
+	return nil
 }

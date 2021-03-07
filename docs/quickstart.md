@@ -67,6 +67,15 @@ If *simple-auth* is exposed to the public internet, you should use TLS encryptio
 
 To enable, simply set `web.tls.enabled` to `true`.
 
+```bash
+SA_WEB_TLS_ENABLED=true
+```
+
+or by adding
+```bash
+./simple-auth-server --web-tls-enabled ...
+```
+
 For more information, see [TLS Cookbook](/cookbooks/letsencrypt.md)
 
 ## Next Steps

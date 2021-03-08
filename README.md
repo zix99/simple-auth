@@ -22,6 +22,8 @@ View examples in /docs/examples
 
 # Development
 
+First, make sure to have `go` >= 1.15.3, and use [nvm](https://github.com/nvm-sh/nvm) to use the correct version from `.nvmrc`
+
 ## Dev-Mode
 
 Two commands need to be run to dev:

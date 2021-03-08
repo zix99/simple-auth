@@ -13,6 +13,10 @@ When translating from *yaml* to other formats (eg. `metadata.company`):
 1. When an environment variable, separate with a `_`, eg `SA_METADATA_COMPANY`
 :::
 
+::: tip
+For boolean flags, when setting via argument, you can shorthand it by not providing a value (eg `--web-prometheus`)
+:::
+
 ## Include Config
 
 To specify another location to look for a **yaml config file**, you can use the `include` config.  This can be added in the following standard ways:

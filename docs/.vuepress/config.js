@@ -77,7 +77,8 @@ module.exports = {
           '/cookbooks/signingkey-pair',
           '/cookbooks/login-redirect',
           '/cookbooks/restrictcreateuser',
-          '/cookbooks/letsencrypt',
+          '/cookbooks/tls',
+          '/cookbooks/prometheus',
         ],
       },
       {

@@ -5,7 +5,7 @@ Simple authentication provides a mechanism for simple-auth to store username and
 **Passwords are stored as a hash** using the [bcrypt](https://pkg.go.dev/golang.org/x/crypto/bcrypt) algorithm.
 
 ::: warning
-If you are accepting user credentials, please make sure your server is using TLS, so that secure information is not passed in clear-text.  Info on how to setup TLS can be found on [LetsEncrypt Cookbook](/cookbooks/letsencrypt.md).
+If you are accepting user credentials, please make sure your server is using TLS, so that secure information is not passed in clear-text.  Info on how to setup TLS can be found on [LetsEncrypt Cookbook](/cookbooks/tls.md).
 :::
 
 ## Configuration

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"simple-auth/pkg/appcontext"
@@ -24,6 +25,13 @@ const (
 	UnauthorizedClient   OAuth2Error = "unauthorized_client"
 	UnsupportedGrantType OAuth2Error = "unsupported_grant_type"
 	InternalError        OAuth2Error = "server_error"
+)
+
+const (
+	MetricOAuth2Code     string = "oauth2:code"
+	MetricOAuth2Password string = "oauth2:password"
+	MetricOAuth2Token    string = "oauth2:token"
+	MetricOAuth2Refresh  string = "oauth2:refresh"
 )
 
 type oauth2Error struct {
@@ -303,6 +311,7 @@ func (s *OAuth2Controller) RouteAuthorizedGrantCode(c echo.Context) error {
 	scopes := db.NewOAuthScope(req.Scope)
 
 	if !oauthService.ValidateScopes(scopes) {
+		incAuthCounterError(MetricOAuth2Code, errors.New("scopes"))
 		return oauthError(c, InvalidScope, "Invalid scopes")
 	}
 
@@ -323,6 +332,7 @@ func (s *OAuth2Controller) RouteAuthorizedGrantCode(c echo.Context) error {
 	}
 
 	log.Infof("Issued code to %s", account.UUID)
+	incAuthCounterSuccess(MetricOAuth2Code)
 	return c.JSON(http.StatusOK, &authorizedGrantResponse{
 		Code:  code,
 		State: req.State,
@@ -400,14 +410,17 @@ func (s *OAuth2Controller) routeTokenGrantPassword(c echo.Context, clientService
 	scopes := db.NewOAuthScope(req.Scope)
 
 	if !clientService.ValidateScopes(db.NewOAuthScope(req.Scope)) {
+		incAuthCounterError(MetricOAuth2Password, errors.New("scopes"))
 		return oauthError(c, InvalidScope, "Invald scopes")
 	}
 
 	retToken, err := clientService.TradeCredentialsForToken(req.ClientSecret, req.Username, req.Password, req.Totp, scopes)
 	if err != nil {
+		incAuthCounterError(MetricOAuth2Password, err)
 		return oauthError(c, InvalidRequest, err.Error())
 	}
 
+	incAuthCounterSuccess(MetricOAuth2Password)
 	return c.JSON(http.StatusOK, &grantTokenResponse{
 		AccessToken:  retToken.AccessToken,
 		RefreshToken: retToken.RefreshToken,
@@ -426,9 +439,11 @@ func (s *OAuth2Controller) routeTokenGrantAuthorizationCode(c echo.Context, clie
 
 	retToken, err := clientService.TradeCodeForToken(req.ClientSecret, req.Code)
 	if err != nil {
+		incAuthCounterError(MetricOAuth2Token, err)
 		return oauthError(c, InternalError, err.Error())
 	}
 
+	incAuthCounterSuccess(MetricOAuth2Token)
 	return c.JSON(http.StatusOK, &grantTokenResponse{
 		AccessToken:  retToken.AccessToken,
 		RefreshToken: retToken.RefreshToken,
@@ -443,9 +458,11 @@ func (s *OAuth2Controller) routeTokenGrantAuthorizationCode(c echo.Context, clie
 func (s *OAuth2Controller) routeTokenGrantRefreshToken(c echo.Context, clientService services.AuthOAuthService, req *grantTokenRequest) error {
 	retToken, err := clientService.TradeRefreshTokenForAccessToken(req.ClientSecret, req.RefreshToken)
 	if err != nil {
+		incAuthCounterError(MetricOAuth2Refresh, err)
 		return oauthError(c, InternalError, err.Error())
 	}
 
+	incAuthCounterSuccess(MetricOAuth2Refresh)
 	return c.JSON(http.StatusOK, &grantTokenResponse{
 		AccessToken: retToken.AccessToken,
 		IDToken:     retToken.IDToken,

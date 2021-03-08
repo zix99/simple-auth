@@ -76,7 +76,7 @@ or by adding
 ./simple-auth-server --web-tls-enabled ...
 ```
 
-For more information, see [TLS Cookbook](/cookbooks/letsencrypt.md)
+For more information, see [TLS Cookbook](/cookbooks/tls.md)
 
 ## Next Steps
 

@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"io"
 	"simple-auth/pkg/lib/multitemplate"
+	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -13,6 +15,9 @@ var helpers = template.FuncMap{
 	"json": func(obj interface{}) template.JS {
 		jsonBytes, _ := json.Marshal(obj)
 		return template.JS(jsonBytes)
+	},
+	"year": func() template.HTML {
+		return template.HTML(strconv.Itoa(time.Now().Year()))
 	},
 }
 

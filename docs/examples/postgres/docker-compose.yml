@@ -5,7 +5,7 @@ services:
     ports:
       - 8082:80
     environment:
-      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: ra9etioahtjkj2345 # REPLACE THIS WITH SOMETHING UNIQUE!!!!
+      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: a-unqiue-signing-key # REPLACE THIS WITH SOMETHING UNIQUE!!!!
       #region pgconfig
       SA_DB_DRIVER: postgres
       SA_DB_URL: "host=db user=postgres dbname=postgres password=test sslmode=disable"

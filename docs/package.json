@@ -1,7 +1,7 @@
 {
   "name": "simple-auth-docs",
   "version": "1.0.0",
-  "description": "*Simple-Auth* is a designed to be an easy way to manage users in a multi-usecase scenario.",
+  "description": "*Simple-Auth* is a designed to be an easy way to manage users and authentication on your site.",
   "main": "index.js",
   "scripts": {
     "dev": "vuepress dev ./",

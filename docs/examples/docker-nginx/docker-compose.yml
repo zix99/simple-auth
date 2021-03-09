@@ -11,7 +11,7 @@ services:
   simpleauth:
     image: zix99/simple-auth:latest
     environment:
-      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: ra9etioahtjkj2345
+      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: a-unqiue-signing-key
       SA_VERBOSE: 'true'
       SA_WEB_LOGIN_SETTINGS_ROUTEONLOGIN: "/"
       # SA_WEB_LOGIN_SETTINGS_CREATEACCOUNTENABLED: 'false'

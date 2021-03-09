@@ -19,7 +19,7 @@ services:
   simpleauth:
     build: zix99/simple-auth:latest
     environment:
-      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: ra9etioahtjkj2345 # CHANGE ME!!
+      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: a-unqiue-signing-key # CHANGE ME!!
       SA_VERBOSE: 'true'
       SA_WEB_LOGIN_SETTINGS_ROUTEONLOGIN: "http://${DOMAIN}:88"
       SA_WEB_LOGIN_COOKIE_DOMAIN: ${DOMAIN} # IMPORTANT: Higher-level domain
@@ -35,7 +35,7 @@ services:
     build: ./testapp
     environment:
       AUTHURL: "http://auth.${DOMAIN}:88"
-      JWTKEY: ra9etioahtjkj2345 # This should match the signing key for simpleauth
+      JWTKEY: a-unqiue-signing-key # This should match the signing key for simpleauth
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.testapp.rule=Host(`${DOMAIN}`)" # Fill in with your own domain

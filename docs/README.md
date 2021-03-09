@@ -3,7 +3,7 @@
 <a :href="$themeConfig.repoUrl" target="_blank"><img src="https://img.shields.io/github/stars/zix99/simple-auth?style=social" title="Repo stars"></a>
 <a :href="$themeConfig.repoUrl" target="_blank"><img src="https://img.shields.io/github/watchers/zix99/simple-auth?style=social" title="Repo Watchers"></a>
 
-*Simple-Auth* is a designed to be an easy way to manage users in a multi-usecase scenario.  Unlike large complex solutions, it aims
+*Simple-Auth* is a designed to be an easy way to manage your site's users.  Unlike large complex solutions, it aims
 to provide **simple login and user-management to a small or medium site**.  It doesn't try to replace global authentication providers
 or enterprise user management (kerberos, active directory, etc...)
 
@@ -22,7 +22,7 @@ Looking to get started? See [Quickstart](quickstart)
 
 ![Simpleauth](./simpleauth.png)
 
-**Common use-cases include:**
+**Features include:**
 
 - Local user management (create account, login, [TOTP two-factor](/login/local.md#totp-2fa))
 - [Credential validation via API](/authenticators/simple.md) and [OAuth2 / OIDC](/authenticators/oauth2.md)
@@ -30,22 +30,19 @@ Looking to get started? See [Quickstart](quickstart)
 - Per-request [vouching](/authenticators/vouch.md) (eg. for NGINX `auth_request` to act as a validator for login), to act as an authentication portal
 - [Same-domain/subdomain login](/access/cookie.md) provider via cookie validation
 - Various API implementations to [authenticate a user](/login) (Local username/password, third-party OIDC, etc)
-
-**And it providers the common functionality:**
-
 - [OpenID Connect Login](/login/oidc.md) (OIDC) eg. Google Auth
 - Optional [welcome email and email-verification](/email.md)
 - Forgot/lost password
 - Login/access-attempt auditing
 - <a :href="`${$themeConfig.docsUrl}/api`">REST API</a> to all underlying functionality
 - Mobile friendly
-- Whitelabel the deployment using [customizations](/customization.md)
+- White-label deployment using [customizations](/customization.md)
 
 ## Why Not...
 
-There are plenty of other authentication providers out there.  You can always roll your own, or use another open-source one like [Okta](https://www.okta.com/), [Gluu](https://www.gluu.org/) or [Keycloak](https://www.keycloak.org/).  While these services are perfectly fine (they're great, infact), *simple-auth* tries to be ***simple***.  Our [quickstart](quickstart.md) is incredibly short, and the hosting modes allow **zero-to-fully setup in less than 5 minutes**.
+There are plenty of other authentication providers out there.  You can always roll your own or use another solution like [Okta](https://www.okta.com/), [Gluu](https://www.gluu.org/) or [Keycloak](https://www.keycloak.org/).  While these services are perfectly fine (they're great, infact), *simple-auth* tries to be ***simple***.  Our [quickstart](quickstart.md) is incredibly short and the hosting modes allow **zero-to-fully setup in less than 5 minutes**.
 
-Long story short, if you have the usecase and time to look at another provider, please do! If you're looking for something simple and easy to get started with, *simple-auth* may be for you.
+Long story short, if you have the use case and time to look at another provider, please do! If you're looking for something simple and easy to get started with, *simple-auth* may be for you.
 
 ## Concepts
 
@@ -57,41 +54,23 @@ an authentication object associated with it.
 
 <mermaid>
 graph TD
-A[Account]
-A --> B[Local Auth]
-B --> B2[TOTP/2FA]
-A --> C[OAuth2]
-A --> E[One-Time Auth]
-A --> D{Audit Log}
+A[Account] --> AA{User Authenticates}
+subgraph Authenticators
+  AA --> B[Local Auth]
+  B --> B2[TOTP/2FA]
+  AA --> C[OAuth2]
+  AA --> E[One-Time Auth]
+end
+A --> D[Audit Log]
 </mermaid>
-
-### Layers
 
 By default, simple-auth is split into three layers:
 
-1. **Login Providers**: The mechanisms that allow creating an account object
-1. **Authentication Providers (API)**: How dowstream apps can authenticate
+1. **Login Providers**: The mechanisms that allow creating an account object, and how a user logs in.  For example, a Local account or OIDC (OAuth2)
+1. **Authenticators (API)**: How dowstream apps can authenticate with *simple-auth*. Usually via API or requests
 1. **Access Layer**: How web applications can authenticate with simple-auth
 
 You can find more information on all three layers on the left. Not all 3 layers are required for a functional setup.
-
-## Login Providers
-
-Login providers are how the user logs into simple-auth.  For example, they could be a "Local" account (Username and password) or OpenID Connect (OAuth 2)
-
-## Authentication Providers
-
-Authentication providers are generally APIs where a downstream service can authenticate against *simple-auth* via API/redirect requests.
-
-## Access Layer
-
-### Cookie
-
-**Login-mode** is when *simple-auth* acts as a login-provider, and a downstream service validates the user via signed cookie or other API mechanism
-
-
-### Gateway
-**Gateway-mode** is when *simple-auth* sits between the user and what they're trying to access as a portal
 
 # Next Steps
 

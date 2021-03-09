@@ -44,6 +44,6 @@ While most of *simple-auth*'s frontend is written in VueJS, it is still wrapped 
 You can override this template by providing your own `template/web/layout.tmpl` in the working directory of *simple-auth*
 and setting `staticfromdisk: true`.
 
-**Default layout:**
-
+::: details Default Layout
 <<< @/../templates/web/layout.tmpl
+:::

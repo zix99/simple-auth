@@ -1,8 +1,8 @@
 # Config
 
-Config can be loaded into `simple-auth` in the following ways (in-order):
+Config is loaded into `simple-auth` in the following ways (in-order):
 
-1. YAML configuration file, starting with `simpleauth.default.yml` (embedded)
+1. YAML configuration file, starting with `simpleauth.default.yml` (embedded, as seen below)
 1. Environment configuration prefixed with `SA_`, eg `SA_PRODUCTION=true` or `SA_METADATA_COMPANY=SuperCorp`
 1. Command line argument flags. eg `--metadata-company=SuperCorp`
 1. Any additional configuration specified in the `include` field (see below)
@@ -13,7 +13,7 @@ When translating from *yaml* to other formats (eg. `metadata.company`):
 1. When an environment variable, separate with a `_`, eg `SA_METADATA_COMPANY`
 :::
 
-::: tip
+::: tip TIP: Boolean Flags
 For boolean flags, when setting via argument, you can shorthand it by not providing a value (eg `--web-prometheus`)
 :::
 

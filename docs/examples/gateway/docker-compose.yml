@@ -7,7 +7,7 @@ services:
     ports:
       - 8082:80
     environment:
-      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: ra9etioahtjkj2345 # REPLACE THIS WITH SOMETHING UNIQUE!!!!
+      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: a-unqiue-signing-key # REPLACE THIS WITH SOMETHING UNIQUE!!!!
       SA_WEB_LOGIN_SETTINGS_ROUTEONLOGIN: "/"
       SA_WEB_GATEWAY_ENABLED: 'true'
       SA_WEB_GATEWAY_TARGETS: 'http://nginx'

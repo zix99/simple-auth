@@ -10,7 +10,7 @@ There are primarily two ways to enable https (TLS) on *simple-auth*: Certificate
 
 ### Enabling
 
-::: tip
+::: tip Prerequisites
 *simple-auth* needs to be exposed to the public internet, and have a domain, in order to obtain a certificate from Let's Encrypt
 :::
 
@@ -45,7 +45,7 @@ web:
 
 ### Getting SSL Certificate
 
-The following command will create a **self-signed** certificate you can use for *simple-auth*.  This certificate **will not be recognized as valid by the browser** unless you create and install your own certificate authority.
+The following command will create a **self-signed** certificate you can use for *simple-auth*.  This certificate **will not be recognized as valid by the browser** unless you create and install your own certificate authority.  Alternatively, you may obtain a valid certificate from a certificate authority.
 
 ```bash
 openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365

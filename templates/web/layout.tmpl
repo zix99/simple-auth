@@ -15,10 +15,8 @@
         <section class="hero">
             <div class="hero-body">
                 <div class="container">
-                    <a href="/">
-                        <h1 class="title is-1">{{ .company }}</h1>
-                        {{if .tagline}}<h2 class="subtitle">{{ .tagline }}</h2>{{end}}
-                    </a>
+                    <h1 class="title is-1"><a href="/">{{ .company }}</a></h1>
+                    {{if .tagline}}<h2 class="subtitle">{{ .tagline }}</h2>{{end}}
                 </div>
             </div>
         </section>

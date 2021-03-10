@@ -7,12 +7,12 @@
 to provide **simple login and user-management to a small or medium site**.  It doesn't try to replace global authentication providers
 or enterprise user management (kerberos, active directory, etc...)
 
-<a href="https://github.com/zix99/rare/releases" target="_blank"><img src="https://img.shields.io/github/v/release/zix99/simple-auth" alt="GitHub release (latest by date)"></a>
-<a href="https://github.com/zix99/rare/releases" target="_blank"><img src="https://img.shields.io/github/downloads/zix99/simple-auth/total" alt="GitHub all releases"></a>
+<a href="https://github.com/zix99/simple-auth/releases" target="_blank"><img src="https://img.shields.io/github/v/release/zix99/simple-auth" alt="GitHub release (latest by date)"></a>
+<a href="https://github.com/zix99/simple-auth/releases" target="_blank"><img src="https://img.shields.io/github/downloads/zix99/simple-auth/total" alt="GitHub all releases"></a>
 <a href="https://hub.docker.com/r/zix99/simple-auth" target="_blank"><img src="https://img.shields.io/docker/pulls/zix99/simple-auth" alt="Docker Pulls"></a>
 <a href="https://hub.docker.com/r/zix99/simple-auth" target="_blank"><img src="https://img.shields.io/docker/image-size/zix99/simple-auth/latest" alt="Docker Image Size (latest)"></a>
-<a href="https://github.com/zix99/rare/releases" target="_blank"><img src="" alt=""></a>
-<a href="https://github.com/zix99/rare/releases" target="_blank"><img src="" alt=""></a>
+<a href="https://github.com/zix99/simple-auth/releases" target="_blank"><img src="" alt=""></a>
+<a href="https://github.com/zix99/simple-auth/releases" target="_blank"><img src="" alt=""></a>
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/zix99/simple-auth)
 ![Coverage](./coverage.svg)
 

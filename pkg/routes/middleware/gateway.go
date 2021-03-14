@@ -80,6 +80,11 @@ func AuthenticationGateway(gateway *config.ConfigLoginGateway, cookieConfig *con
 				subject = claims.Subject
 			}
 
+			// Safety check
+			if subject == "" {
+				return c.HTML(http.StatusInternalServerError, "Undefined subject")
+			}
+
 			// Special logout path
 			if gateway.LogoutPath != "" && req.URL.Path == gateway.LogoutPath {
 				auth.ClearSession(c, cookieConfig)

@@ -7,11 +7,7 @@ import "strings"
 type OAuthScope []string
 
 func NewOAuthScope(s string) OAuthScope {
-	ret := strings.Split(strings.ToLower(s), " ")
-	if ret[0] == "" {
-		return ret[0:0]
-	}
-	return ret
+	return strings.Fields(strings.ToLower(s))
 }
 
 func (s OAuthScope) String() string {

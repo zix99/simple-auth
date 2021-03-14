@@ -68,7 +68,7 @@ func (env *SimpleAuthController) routeSimpleAuthenticate(c echo.Context) error {
 		if authHeader == "" {
 			return common.HttpBadRequest(c, errors.New("authorization header required"))
 		}
-		authParts := strings.Split(authHeader, " ")
+		authParts := strings.Fields(authHeader)
 		if len(authParts) != 2 || authParts[0] != "Bearer" {
 			return common.HttpBadRequest(c, errors.New("expected 'Bearer' on authHeader"))
 		}

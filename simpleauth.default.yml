@@ -52,6 +52,7 @@ web:
     # to pass to, I recommend looking at nginx and the vouch endpoint
     gateway:
         enabled: false
+        basicauth: false       # If true, will allow basic auth for local auth to pass-through the gateway
         logoutpath: "/logout"  # Special path that will act as "logout" (clear session).  Shouldn't conflict with any downstream URLs
         targets: []            # One or more downstream servers that SA will proxy to
         host: null             # Override the host header

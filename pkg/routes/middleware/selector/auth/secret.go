@@ -24,7 +24,7 @@ func checkSecret(secret string, c echo.Context) error {
 		return errors.New("missing authorization header")
 	}
 
-	parts := strings.Split(authHeader, " ")
+	parts := strings.Fields(authHeader)
 	if len(parts) != 2 {
 		return errors.New("missing authorization header qualifier")
 	}

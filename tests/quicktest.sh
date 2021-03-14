@@ -1,9 +1,11 @@
 #!/bin/bash
 set +e
 
-# This is a wrapper that builds-and-bounces simpel-auth with a mock DB
+# This is a wrapper that builds-and-bounces simple-auth with a mock DB
 # In order to run integration tests against.  Alternatively you
 # can run it manually with the npm script
+
+cd $(dirname "$0")/..
 
 SATEST_HOST=${SATEST_HOST:-localhost:9002}
 export SATEST_HOST

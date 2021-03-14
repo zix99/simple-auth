@@ -29,6 +29,10 @@ Outputs the email body to the log. Useful mostly for debugging.
 
 ### SMTP
 
+::: warning IMPORTANT
+In order for the URLs in the email to function correctly, you must specify a correct `web.baseurl`.  For example, `SA_WEB_BASEURL=http://example.com`
+:::
+
 Sends email via SMTP server.
 
 ```yaml

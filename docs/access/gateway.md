@@ -26,6 +26,7 @@ B -- Proxies --> C[Backend]
 web:
   gateway:
     enabled: true
+    basicauth: false       # If true, will allow basic auth for local auth to pass-through the gateway
     logoutpath: "/logout"  # Special path that will act as "logout" (clear session).  Shouldn't conflict with any downstream URLs
     targets:               # One or more downstream servers that SA will proxy to
       - example.com
@@ -75,3 +76,20 @@ web:
       "/old": "/new"
       "/api/*": "/$1"
 ```
+
+## Basic Auth
+
+Basic auth is available so that making API calls or requests via non-browser on the gateway is possible.  It is disabled by default, but can be enabled by setting `web.gateway.basicauth` to `true`.
+
+::: warning TOTP/2FA
+If the account has TOTP enabled, basic-auth via gateway will not be supported.
+:::
+
+This allows you to make the following request to the downstream service with credentials:
+
+```bash
+curl http://apiuser:apipass@example.com
+```
+
+The normal headers will be passed to the downstream service **except** the `Authorization` header will be removed from the request.
+

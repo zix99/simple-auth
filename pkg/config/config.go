@@ -92,6 +92,7 @@ type (
 
 	ConfigLoginGateway struct {
 		Enabled    bool
+		BasicAuth  bool
 		Targets    []string
 		Host       string
 		LogoutPath string

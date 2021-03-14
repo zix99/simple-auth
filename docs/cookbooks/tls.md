@@ -45,11 +45,16 @@ web:
 
 ### Getting SSL Certificate
 
-The following command will create a **self-signed** certificate you can use for *simple-auth*.  This certificate **will not be recognized as valid by the browser** unless you create and install your own certificate authority.  Alternatively, you may obtain a valid certificate from a certificate authority.
+The best way to obtain a certificate it is to receive it from a valid Certificate Authority.  This may be from an internal enterprise network administrator, or through a publicly available authority.
+
+::: details Creating Your Own Self-Signed Certificate
+
+The following command will create a **self-signed** certificate you can use for *simple-auth*.  This certificate **will not be recognized as valid by the browser** unless you create and install your own certificate authority. That said, it can be useful for internal testing.
 
 ```bash
 openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
 ```
+:::
 
 ### Config
 
@@ -57,7 +62,7 @@ openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 36
 web:
     tls:
         enabled: true
-        certfile: null   # Certificate file, if enabled (and not auto)
-        keyfile: null    # Key file, if enabled (and not auto)
-        auto: false      # Need to disable Let's Encrypt
+        certfile: /path/to/cert.pem  # Certificate file, if enabled (and not auto)
+        keyfile: /path/to/key.pem    # Key file, if enabled (and not auto)
+        auto: false                  # Need to disable Let's Encrypt
 ```

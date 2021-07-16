@@ -24,7 +24,7 @@ steps:
   - name: Node Audit
     image: node:12-slim
     commands:
-      - npm audit --audit-level=moderate
+      - npm audit --audit-level=moderate --production
     depends_on:
       - Node Install
 

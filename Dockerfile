@@ -8,7 +8,7 @@ COPY vue vue
 RUN npm run build
 
 # Build go app
-FROM golang:1.15-alpine AS gobuild
+FROM golang:1.15-alpine3.13 AS gobuild
 
 RUN apk add build-base
 WORKDIR /opt/simple-auth

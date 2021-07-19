@@ -10,7 +10,7 @@ Simple-auth is a lightweight, whitelabeled, authentication solution targeting sm
 It allows users to sign-up with a UI, offering various providers.  Then, via various authenticators, allows
 3rd party appliances to authenticate with it.
 
-[Read the Documentation](https://simple-auth.surge.sh)
+[Read the Documentation](https://simple-auth.zdyn.net)
 
 View examples in /docs/examples
 
@@ -18,7 +18,7 @@ View examples in /docs/examples
 
 # Running Simple Auth
 
-[Read Quickstart](https://simple-auth.surge.sh/quickstart.html)
+[Read Quickstart](https://simple-auth.zdyn.net/quickstart.html)
 
 # Development
 

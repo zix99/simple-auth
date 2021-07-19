@@ -40,7 +40,7 @@ func simpleAuthServer(config *config.Config) error {
 	if config.Help {
 		fmt.Println()
 		fmt.Println("Help:")
-		fmt.Println("http://simple-auth.surge.sh/")
+		fmt.Println("http://simple-auth.zdyn.net/")
 		fmt.Printf("Version: %s:%s\n", version, buildSha)
 		return nil
 	}

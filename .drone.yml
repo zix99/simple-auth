@@ -268,14 +268,12 @@ steps:
     commands:
       - cd docs && npm run test
   - name: Deploy
-    image: node:12-slim
-    environment:
-      SURGE_LOGIN:
-        from_secret: surge_login
-      SURGE_TOKEN:
-        from_secret: surge_token
-    commands:
-      - cd docs && npm run deploy
+    image: registry.d.lan/netlifydeploy
+    settings:
+      deploy_dir: docs/.vuepress/dist/
+      site_id: 6e2626c3-3e6d-4701-b27d-71f4f74f7411
+      netlify_token:
+        from_secret: netlify_token
 
 volumes:
   - name: npm-cache

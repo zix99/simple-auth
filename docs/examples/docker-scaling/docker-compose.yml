@@ -1,0 +1,43 @@
+version: '3.3'
+services:
+    # Traefik listening on port 88 (in case 80 conflicts with something...)
+  traefik:
+    image: traefik:v2.3
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:88"
+    ports:
+      - "88:88"
+      - "8090:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  simpleauth:
+    image: zix99/simple-auth:latest
+    environment:
+      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: a-unqiue-signing-key # REPLACE THIS WITH SOMETHING UNIQUE!!!!
+      SA_DB_DRIVER: postgres
+      SA_DB_URL: "host=db user=postgres dbname=postgres password=test sslmode=disable"
+    depends_on:
+      - db
+    #region replicas
+    deploy:
+      replicas: 4
+    #endregion replicas
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.simpleauth.rule=Host(`auth.${DOMAIN}`)" # Fill in with your own domain
+      - "traefik.http.routers.simpleauth.entrypoints=web"
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_PASSWORD: test
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}

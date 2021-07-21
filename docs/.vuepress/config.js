@@ -74,6 +74,7 @@ module.exports = {
           '/cookbooks/gateway',
           '/cookbooks/nginx-auth-request',
           '/cookbooks/traefik',
+          '/cookbooks/scaling',
           '/cookbooks/decodejwt',
           '/cookbooks/signingkey-pair',
           '/cookbooks/login-redirect',

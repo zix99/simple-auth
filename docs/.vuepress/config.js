@@ -8,7 +8,7 @@ module.exports = {
   description: "Simple White-Labeled Authentication Provider",
   head: [
     ['link', { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
-    ['script', { src: 'https://stats.zdyn.net/umami.js', 'data-website-api': 'ec52632a-21d3-400c-ad85-cab25b75dcf8', async: true, defer: true }],
+    ['script', { src: 'https://stats.zdyn.net/umami.js', 'data-website-id': 'ec52632a-21d3-400c-ad85-cab25b75dcf8', async: true, defer: true }],
   ],
   themeConfig: {
     repo,

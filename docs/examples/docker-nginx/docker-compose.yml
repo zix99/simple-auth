@@ -14,6 +14,7 @@ services:
       SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: a-unqiue-signing-key
       SA_VERBOSE: 'true'
       SA_WEB_LOGIN_SETTINGS_ROUTEONLOGIN: "/"
+      SA_AUTHENTICATORS_VOUCH_ENABLED: 'true'
       # SA_WEB_LOGIN_SETTINGS_CREATEACCOUNTENABLED: 'false'
     volumes:
       - sadb:/var/lib/simple-auth

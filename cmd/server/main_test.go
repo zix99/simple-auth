@@ -1,3 +1,4 @@
+//go:build testmain
 // +build testmain
 
 package main
@@ -8,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/sirupsen/logrus"
+	_ "honnef.co/go/tools/staticcheck"
 )
 
 func TestMain(t *testing.T) {

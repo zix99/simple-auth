@@ -17,7 +17,16 @@ func NewRequestLoggerMiddleware() echo.MiddlewareFunc {
 			err := next(c)
 
 			resp := c.Response()
-			logger.Infof("%s %s %s %d %d", c.RealIP(), req.Method, req.RequestURI, resp.Status, resp.Size)
+
+			respStatus := resp.Status
+			respSize := resp.Size
+
+			if httpErr, ok := err.(*echo.HTTPError); ok {
+				respStatus = httpErr.Code
+				respSize = int64(len(httpErr.Error()))
+			}
+
+			logger.Infof("%s %s %s %d %d", c.RealIP(), req.Method, req.RequestURI, respStatus, respSize)
 			return err
 		}
 	}

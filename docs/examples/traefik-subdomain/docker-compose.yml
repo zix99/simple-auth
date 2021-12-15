@@ -17,7 +17,7 @@ services:
 
   # Simpleauth
   simpleauth:
-    build: zix99/simple-auth:latest
+    image: zix99/simple-auth:latest
     environment:
       SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: a-unqiue-signing-key # CHANGE ME!!
       SA_VERBOSE: 'true'

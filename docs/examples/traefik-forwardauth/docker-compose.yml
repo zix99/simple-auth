@@ -1,0 +1,56 @@
+version: '3.3'
+services:
+
+  # Traefik listening on port 88 (in case 80 conflicts with something...)
+  traefik:
+    image: traefik:v2.3
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:88"
+    ports:
+      - "88:88"
+      - "8090:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  # Simpleauth
+  simpleauth:
+    image: zix99/simple-auth:latest
+    environment:
+      SA_WEB_LOGIN_COOKIE_JWT_SIGNINGKEY: a-unqiue-signing-key # CHANGE ME!!
+      SA_VERBOSE: 'true'
+      SA_WEB_LOGIN_SETTINGS_ROUTEONLOGIN: "http://${DOMAIN}:88"
+      # Allow login to send user back to any subdomain
+      SA_WEB_LOGIN_SETTINGS_ALLOWEDCONTINUEURLS: 'https?://.*${DOMAIN}(:\d+)?/.*'
+      SA_WEB_LOGIN_COOKIE_DOMAIN: ${DOMAIN} # IMPORTANT: Higher-level domain
+      SA_WEB_BASEURL: http://auth.${DOMAIN}:88
+      SA_AUTHENTICATORS_VOUCH_ENABLED: 'true'
+      # The vouch endpoint will put the user's UUID on this header to be forwarded
+      SA_AUTHENTICATORS_VOUCH_USERHEADER: 'X-User-Id'
+    volumes:
+      - sadb:/var/lib/simple-auth
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.simpleauth.rule=Host(`auth.${DOMAIN}`)" # Fill in with your own domain
+      - "traefik.http.routers.simpleauth.entrypoints=web"
+      # Set up middleware, needs to be the internal URL of the service so that the continue URL is created correctly
+      # Will be used by other services
+      - "traefik.http.middlewares.simple-auth.forwardauth.address=http://simpleauth/api/v1/auth/vouch?forward=1"
+      - "traefik.http.middlewares.simple-auth.forwardauth.authResponseHeaders=X-User-Id" # Forward this header to the end service
+  
+  # testapp is a small nodejs app that will verify your token and only let you in if you have a valid token
+  testapp:
+    image: nginx:latest
+    labels:
+      - "traefik.enable=true"
+      # App settings
+      - "traefik.http.routers.testapp.rule=Host(`${DOMAIN}`)" # Fill in with your own domain
+      - "traefik.http.routers.testapp.entrypoints=web"
+      # Attach to the simple-auth middleware defined in simple-auth
+      - "traefik.http.routers.testapp.middlewares=simple-auth"
+    
+
+volumes:
+  sadb: {}

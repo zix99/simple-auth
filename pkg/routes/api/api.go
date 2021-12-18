@@ -107,7 +107,7 @@ func MountAPI(e *echo.Group, config *config.Config, db db.SADB) {
 			}
 			if config.Authenticators.Vouch.Enabled {
 				route := v1api.Group("/auth/vouch")
-				authAPI.NewVouchAuthController(db, &config.Authenticators.Vouch, &config.Web.Login.Cookie).Mount(route)
+				authAPI.NewVouchAuthController(db, &config.Authenticators.Vouch, &config.Web.Login.Cookie, config.Web.GetBaseURL()).Mount(route)
 			}
 			{
 				v1api.GET("/auth/oauth2/client/:client_id", oAuthController.RouteClientInfo)

@@ -1,5 +1,5 @@
 const repo = 'zix99/simple-auth';
-const docsUrl = "https://simple-auth.surge.sh";
+const docsUrl = "https://simple-auth.zdyn.net";
 const repoUrl = `https://github.com/${repo}`;
 const fileUrl = `${repoUrl}/tree/master`
 

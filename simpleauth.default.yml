@@ -110,6 +110,7 @@ authenticators:
         sharedsecret: null
     vouch: # An endpoint intended to use for nginx auth_request
         enabled: false
+        userheader: ""    # If non-empty, will set the user's ID in the header with the given name
     oauth2:
         webgrant: true # Whether to allow web-grant (UI) or not
         settings:

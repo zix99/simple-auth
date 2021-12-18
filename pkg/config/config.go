@@ -26,7 +26,8 @@ type (
 	}
 
 	ConfigVouchAuthenticator struct {
-		Enabled bool
+		Enabled    bool
+		UserHeader string // If non-empty, will respond with the user's ID in a header
 	}
 
 	// ConfigOAuth2Client contains specific client settings

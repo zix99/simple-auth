@@ -21,6 +21,7 @@ authenticators:
     sharedsecret: your-super-secret-token
   vouch:
     enabled: true
+    userheader: 'X-User-Id'
   oauth2:
     settings:
       allowcredentials: true

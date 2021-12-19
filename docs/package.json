@@ -11,7 +11,7 @@
     "clean": "rm -rf .vuepress/dist",
     "test": "start-server-and-test test:serve http://localhost:8081 test:badlinks",
     "test:serve": "http-server -p 8081 .vuepress/dist/",
-    "test:badlinks": "blc --exclude /api -r http://localhost:8081"
+    "test:badlinks": "blc --exclude https://support.google.com --exclude /api -r http://localhost:8081"
   },
   "author": "",
   "license": "ISC",

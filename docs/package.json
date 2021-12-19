@@ -7,11 +7,11 @@
     "dev": "vuepress dev ./",
     "build": "npm run build:vuepress && npm run build:spectacle",
     "build:vuepress": "vuepress build ./",
-    "build:spectacle": "spectacle -t .vuepress/dist/api ../pkg/swagdocs/swagger.json",
+    "build:spectacle": "spectacle -t .vuepress/dist/apidocs ../pkg/swagdocs/swagger.json",
     "clean": "rm -rf .vuepress/dist",
     "test": "start-server-and-test test:serve http://localhost:8081 test:badlinks",
     "test:serve": "http-server -p 8081 .vuepress/dist/",
-    "test:badlinks": "blc --exclude https://support.google.com --exclude /api -r http://localhost:8081"
+    "test:badlinks": "blc --exclude https://support.google.com --exclude /apidocs -r http://localhost:8081"
   },
   "author": "",
   "license": "ISC",

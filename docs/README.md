@@ -34,7 +34,7 @@ Looking to get started? See [Quickstart](quickstart)
 - Optional [welcome email and email-verification](/email.md)
 - Forgot/lost password
 - Login/access-attempt auditing
-- <a :href="`${$themeConfig.docsUrl}/api`">REST API</a> to all underlying functionality
+- <a :href="`${$themeConfig.docsUrl}/apidocs`">REST API</a> to all underlying functionality
 - Mobile friendly
 - White-label deployment using [customizations](/customization.md)
 

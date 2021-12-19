@@ -37,4 +37,4 @@ Here's an example of getting details of a user's account via `/api/v1/account` e
 
 ## Full API Docs
 
-You can read more about the exposed API calls in the <a :href="`${$themeConfig.docsUrl}/api`">API Documentation</a>
+You can read more about the exposed API calls in the <a :href="`${$themeConfig.docsUrl}/apidocs`">API Documentation</a>

@@ -21,7 +21,7 @@ module.exports = {
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Quickstart', link: '/quickstart' },
-      { text: 'API Docs', link: `${docsUrl}/api` },
+      { text: 'API Docs', link: `${docsUrl}/apidocs` },
     ],
     sidebar: [
       {
@@ -87,7 +87,7 @@ module.exports = {
         title: 'REST API',
         path: '/api',
         children: [
-          { title: 'API Docs', path: `${docsUrl}/api`},
+          { title: 'API Docs', path: `${docsUrl}/apidocs`},
         ],
       },
     ]

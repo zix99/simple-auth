@@ -50,7 +50,7 @@ func (env *Environment) RouteSessionLogin(c echo.Context) error {
 
 	authLocal, err := env.localLoginService.WithContext(c).AssertLogin(req.Username, req.Password, req.Totp)
 	if err != nil {
-		logger.Infof("Login for user '%s' rejected: %v", req.Username, err)
+		logger.Infof("Login for user '%s' from IP '%s' rejected: %v", req.Username, c.RealIP(), err)
 		loginCounter.Inc(false)
 		return common.HttpError(c, http.StatusUnauthorized, err)
 	}
